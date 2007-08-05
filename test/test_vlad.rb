@@ -2,10 +2,10 @@ require 'test/unit'
 require 'vlad'
 
 class Vlad
-  attr_accessor :commands
+  attr_accessor :commands, :action
   def system(command)
     @commands << command
-    true
+    self.action ? self.action.call : true
   end
 end
 
