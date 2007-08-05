@@ -32,7 +32,17 @@ class TestVlad < Test::Unit::TestCase
 
   def test_role
     @vlad.role :app, "foo.example.com"
-    expected = {"foo.example.com" => []}
+    expected = {"foo.example.com" => {}}
+    assert_equal expected, @vlad.roles[:app]
+  end
+
+  def test_role_multiple
+    @vlad.role :app, "foo.example.com"
+    @vlad.role :app, "yarr.example.com", :no_release => true
+    expected = {
+      "foo.example.com" => {},
+      "yarr.example.com" => {:no_release => true}
+    }
     assert_equal expected, @vlad.roles[:app]
   end
 end
