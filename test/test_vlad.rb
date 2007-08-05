@@ -26,7 +26,9 @@ class TestVlad < Test::Unit::TestCase
     assert_equal "2", @vlad.foo
   end
 
-  def test_set_with_immediate_value
+  def test_set_with_nil
+    @vlad.set(:foo, nil)
+    assert_equal nil, @vlad.foo
   end
 end
 
