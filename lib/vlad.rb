@@ -22,7 +22,9 @@ class Vlad
 
   def method_missing name, *other
     if @env.has_key? name and other.empty? then
-      @env[name]
+      v = @env[name]
+      v = @env[name] = v.call if Proc === v
+      v
     else
       super
     end

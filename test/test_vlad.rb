@@ -1,7 +1,7 @@
 require 'test/unit'
 require 'vlad'
 
-class TestVladSet < Test::Unit::TestCase
+class TestVlad < Test::Unit::TestCase
   def setup
     @vlad = Vlad.instance
   end
@@ -13,15 +13,16 @@ class TestVladSet < Test::Unit::TestCase
 
   def test_set_with_block
     x = 1
-    @vlad.set(:foo) { x += 2 } 
+    @vlad.set(:foo) { x += 2 }
+
     assert_equal 3, @vlad.foo
     assert_equal 3, @vlad.foo
-  end 
-  
+  end
+
   def test_set_with_dynamic_string
-  end 
+  end
 
   def test_set_with_immediate_value
-  end 
+  end
 end
 
