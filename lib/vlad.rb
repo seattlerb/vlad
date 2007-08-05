@@ -40,6 +40,17 @@ class Vlad
     @roles[role_name][host] = args
   end
 
+  def host host_name, *args
+    roles = args.select {|e| Symbol === e}
+    roles.each do |role_name|
+      if Hash === args.last
+        role role_name, host_name, args.last
+      else
+        role role_name, host_name
+      end
+    end
+  end
+
   def set name, val = nil, &b
     @env[name] = val || b
   end
