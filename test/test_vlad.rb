@@ -1,10 +1,20 @@
 require 'test/unit'
 require 'vlad'
 
+class Vlad
+  attr_accessor :commands, :responses
+  def `(command)
+    @commands << command
+    @responses.shift
+  end
+end
+
 class TestVlad < Test::Unit::TestCase
   def setup
     @vlad = Vlad.instance
     @vlad.reset
+    @vlad.commands = []
+    @vlad.responses = []
   end
 
   def test_set
@@ -75,6 +85,17 @@ class TestVlad < Test::Unit::TestCase
     assert_equal expected, @vlad.roles[:db]
     assert_not_equal(@vlad.roles[:db]["foo.example.com"].object_id,
                      @vlad.roles[:app]["foo.example.com"].object_id)
+  end
+
+  def test_run
+    @vlad.host "foo.example.com", :app
+    @vlad.responses << "foo"
+    assert_equal "foo", @vlad.run("ls")
+  end
+
+  def test_run_with_no_hosts
+    e = assert_raise(Vlad::ConfigurationError) { @vlad.run "ls" }
+    assert_equal "No target hosts specified", e.message
   end
 end
 
