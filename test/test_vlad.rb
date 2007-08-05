@@ -14,6 +14,7 @@ class TestVlad < Test::Unit::TestCase
 
   def test_set_lazy_block_evaluation
     @vlad.set(:foo) { fail "lose" }
+    assert_raise(RuntimeError) { @vlad.foo }
   end
 
   def test_set_with_block
