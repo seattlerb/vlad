@@ -53,6 +53,8 @@ class Vlad
   end
 
   def set name, val = nil, &b
+    raise ArgumentError, "cannot set reserved name: '#{name}'" if self.respond_to?(name)
+    raise ArgumentError, "cannot provide both a value and a block" if b and val
     @env[name] = val || b
   end
 

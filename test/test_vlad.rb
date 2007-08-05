@@ -40,9 +40,21 @@ class TestVlad < Test::Unit::TestCase
     assert_equal 3, @vlad.foo
   end
 
+  def test_set_with_block_and_value
+    e = assert_raise(ArgumentError) do
+      @vlad.set(:foo, 5) { 6 }
+    end
+    assert_equal "cannot provide both a value and a block", e.message
+  end
+
   def test_set_with_nil
     @vlad.set(:foo, nil)
     assert_equal nil, @vlad.foo
+  end
+
+  def test_set_with_reserved_name
+    e = assert_raise(ArgumentError) { @vlad.set(:all_hosts, []) }
+    assert_equal "cannot set reserved name: 'all_hosts'", e.message
   end
 
   def test_role
