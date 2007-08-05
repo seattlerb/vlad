@@ -7,6 +7,7 @@ class Vlad
   include Singleton
 
   attr_reader :roles
+  attr_accessor :target_hosts
 
   def initialize
     self.reset
@@ -70,11 +71,15 @@ class Vlad
 
   def run command
     raise Vlad::ConfigurationError, "No target hosts specified" if @roles.empty?
-    @roles.each do |_, hosts|
-      hosts.each do |host, _|
+    @roles.keys.each do |role| 
+      hosts_for_role(role).each do |host|
         system "ssh #{host} #{command}"
       end
     end
+  end
+
+  def hosts_for_role(role)
+    @roles[role].keys
   end
 end
 
