@@ -5,6 +5,8 @@ class Vlad
 
   include Singleton
 
+  attr_reader :roles
+
   def initialize
     self.reset
 
@@ -34,8 +36,8 @@ class Vlad
     instance_eval File.read("config/deploy.rb") if test ?f, 'config/deploy.rb'
   end
 
-  def role name, host, args = nil
-    @roles[name] = [host, args]
+  def role role_name, host, args = {}
+    @roles[role_name][host] = args
   end
 
   def set name, val = nil, &b
@@ -53,7 +55,7 @@ class Vlad
   end
 
   def reset
-    @roles = {}
+    @roles = Hash.new { |h,k| h[k] = {} }
     @env = {}
   end
 end
