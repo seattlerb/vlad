@@ -49,11 +49,28 @@ class TestVlad < Test::Unit::TestCase
   def test_role_multiple_roles
     @vlad.role :app, "foo.example.com", :primary => true
     @vlad.role :db, "yarr.example.com", :no_release => true
-
     expected_db = { "yarr.example.com" => {:no_release => true} }
     assert_equal expected_db, @vlad.roles[:db]
     expected_app = { "foo.example.com" => {:primary => true} }
     assert_equal expected_app, @vlad.roles[:app]
+  end
+
+  def test_host
+    @vlad.host "foo.example.com", :app, :db
+    expected = {"foo.example.com" => {}}
+    assert_equal expected, @vlad.roles[:app]
+    assert_equal expected, @vlad.roles[:db]
+  end
+
+  def test_host_multiple_hosts
+    @vlad.host "foo.example.com", :app, :db
+    @vlad.host "yarr.example.com", :app, :db, :no_release => true
+    expected = {
+      "foo.example.com" => {},
+      "yarr.example.com" => {:no_release => true}
+    }
+    assert_equal expected, @vlad.roles[:app]
+    assert_equal expected, @vlad.roles[:db]
   end
 end
 
