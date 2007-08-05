@@ -65,12 +65,16 @@ class TestVlad < Test::Unit::TestCase
   def test_host_multiple_hosts
     @vlad.host "foo.example.com", :app, :db
     @vlad.host "yarr.example.com", :app, :db, :no_release => true
+
     expected = {
       "foo.example.com" => {},
       "yarr.example.com" => {:no_release => true}
     }
+
     assert_equal expected, @vlad.roles[:app]
     assert_equal expected, @vlad.roles[:db]
+    assert_not_equal(@vlad.roles[:db]["foo.example.com"].object_id,
+                     @vlad.roles[:app]["foo.example.com"].object_id)
   end
 end
 

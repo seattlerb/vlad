@@ -44,7 +44,7 @@ class Vlad
     opts = Hash === roles.last ? roles.pop : {}
 
     roles.each do |role_name|
-      role role_name, host_name, opts
+      role role_name, host_name, opts.dup
     end
   end
 
@@ -66,4 +66,11 @@ class Vlad
     @roles = Hash.new { |h,k| h[k] = {} }
     @env = {}
   end
+end
+
+require 'rubygems'
+require 'rake'
+
+task :debug_vlad do
+  y Vlad.instance
 end
