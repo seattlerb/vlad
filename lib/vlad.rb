@@ -40,14 +40,11 @@ class Vlad
     @roles[role_name][host] = args
   end
 
-  def host host_name, *args
-    roles = args.select {|e| Symbol === e}
+  def host host_name, *roles
+    opts = Hash === roles.last ? roles.pop : {}
+
     roles.each do |role_name|
-      if Hash === args.last
-        role role_name, host_name, args.last
-      else
-        role role_name, host_name
-      end
+      role role_name, host_name, opts
     end
   end
 
