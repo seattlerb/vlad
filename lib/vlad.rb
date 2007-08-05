@@ -2,6 +2,7 @@ require 'singleton'
 
 class Vlad
   VERSION = '1.0.0'
+  class ConfigurationError < RuntimeError; end
 
   include Singleton
 
@@ -65,6 +66,15 @@ class Vlad
   def reset
     @roles = Hash.new { |h,k| h[k] = {} }
     @env = {}
+  end
+
+  def run command
+    raise Vlad::ConfigurationError, "No target hosts specified" if @roles.empty?
+    @roles.each do |_, hosts|
+      hosts.each do |host, _|
+        system "ssh #{host} #{command}"
+      end
+    end
   end
 end
 
