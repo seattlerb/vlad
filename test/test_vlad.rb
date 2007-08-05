@@ -29,5 +29,11 @@ class TestVlad < Test::Unit::TestCase
     @vlad.set(:foo, nil)
     assert_equal nil, @vlad.foo
   end
+
+  def test_role
+    @vlad.role :app, "foo.example.com"
+    expected = {"foo.example.com" => []}
+    assert_equal expected, @vlad.roles[:app]
+  end
 end
 
