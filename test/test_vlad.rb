@@ -2,10 +2,10 @@ require 'test/unit'
 require 'vlad'
 
 class Vlad
-  attr_accessor :commands, :responses
-  def `(command)
+  attr_accessor :commands
+  def system(command)
     @commands << command
-    @responses.shift
+    true
   end
 end
 
@@ -14,7 +14,6 @@ class TestVlad < Test::Unit::TestCase
     @vlad = Vlad.instance
     @vlad.reset
     @vlad.commands = []
-    @vlad.responses = []
   end
 
   def test_set
@@ -88,14 +87,26 @@ class TestVlad < Test::Unit::TestCase
   end
 
   def test_run
-    @vlad.host "foo.example.com", :app
-    @vlad.responses << "foo"
-    assert_equal "foo", @vlad.run("ls")
+    @vlad.host "app.example.com", :app
+    @vlad.run("ls")
+    assert_equal ["ssh app.example.com ls"], @vlad.commands
   end
 
   def test_run_with_no_hosts
     e = assert_raise(Vlad::ConfigurationError) { @vlad.run "ls" }
     assert_equal "No target hosts specified", e.message
+  end
+
+  def test_run_with_two_hosts
+    @vlad.host "app.example.com", :app
+    @vlad.host "db.example.com", :db
+    @vlad.run("ls")
+
+    commands = @vlad.commands
+
+    assert commands.include?("ssh app.example.com ls")
+    assert commands.include?("ssh db.example.com ls")
+    assert_equal 2, commands.size
   end
 end
 
