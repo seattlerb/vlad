@@ -6,18 +6,18 @@ class Vlad
   include Singleton
 
   def initialize
-    @env = {}
     @roles = {}
+    @env = {}
 
-    instance_eval File.read("config/deploy.rb")
-  end
-
-  def set name, val = nil, &b
-    @env[name] = val || b
+    instance_eval File.read("config/deploy.rb") if test ?f, 'config/deploy.rb'
   end
 
   def role name, host, args = nil
     @roles[name] = [host, args]
+  end
+
+  def set name, val = nil, &b
+    @env[name] = val || b
   end
 
   def method_missing name, *other
