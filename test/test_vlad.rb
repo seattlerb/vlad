@@ -5,7 +5,7 @@ class Vlad
   attr_accessor :commands, :action
   def system(command)
     @commands << command
-    self.action ? self.action.call : true
+    self.action ? self.action[command] : true
   end
 end
 
@@ -14,6 +14,7 @@ class TestVlad < Test::Unit::TestCase
     @vlad = Vlad.instance
     @vlad.reset
     @vlad.commands = []
+    @vlad.action = nil
   end
 
   def test_all_hosts
@@ -98,6 +99,14 @@ class TestVlad < Test::Unit::TestCase
     assert_equal ["ssh app.example.com ls"], @vlad.commands
   end
 
+  def test_run_failing_command
+    util_set_hosts
+    @vlad.target_hosts = %[app.example.com]
+    @vlad.action = lambda { false }
+    assert_raise(Vlad::CommandFailedError) { @vlad.run("ls") }
+    assert_equal 1, @vlad.commands.size
+  end
+
   def test_run_with_no_hosts
     util_set_hosts
     e = assert_raise(Vlad::ConfigurationError) { @vlad.run "ls" }
@@ -116,9 +125,9 @@ class TestVlad < Test::Unit::TestCase
 
     commands = @vlad.commands
 
-    assert commands.include?("ssh app.example.com ls")
-    assert commands.include?("ssh db.example.com ls")
-    assert_equal 2, commands.size
+    assert_equal 2, commands.size, 'not enough commands'
+    assert commands.include?("ssh app.example.com ls"), 'app'
+    assert commands.include?("ssh db.example.com ls"), 'db'
   end
 
   def test_hosts_for_role

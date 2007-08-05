@@ -2,7 +2,9 @@ require 'singleton'
 
 class Vlad
   VERSION = '1.0.0'
-  class ConfigurationError < RuntimeError; end
+  class Error < RuntimeError; end
+  class ConfigurationError < Error; end
+  class CommandFailedError < Error; end
 
   include Singleton
 
@@ -74,7 +76,9 @@ class Vlad
     raise Vlad::ConfigurationError, "No roles have been defined" if @roles.empty?
     raise Vlad::ConfigurationError, "No target hosts specified" unless @target_hosts
     @target_hosts.each do |host|
-      system "ssh #{host} #{command}"
+      cmd = "ssh #{host} #{command}"
+      retval = system cmd
+      raise CommandFailedError, "execution failed: #{cmd}" unless retval
     end
   end
 
