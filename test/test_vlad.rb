@@ -12,6 +12,10 @@ class TestVlad < Test::Unit::TestCase
     assert_equal 5, @vlad.foo
   end
 
+  def test_set_lazy_block_evaluation
+    @vlad.set(:foo) { fail "lose" }
+  end
+
   def test_set_with_block
     x = 1
     @vlad.set(:foo) { x += 2 }
