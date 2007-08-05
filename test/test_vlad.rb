@@ -16,6 +16,11 @@ class TestVlad < Test::Unit::TestCase
     @vlad.commands = []
   end
 
+  def test_all_hosts
+    util_set_hosts
+    assert_equal %w[app.example.com db.example.com], @vlad.all_hosts
+  end
+
   def test_set
     @vlad.set :foo, 5
     assert_equal 5, @vlad.foo
@@ -87,19 +92,26 @@ class TestVlad < Test::Unit::TestCase
   end
 
   def test_run
-    @vlad.host "app.example.com", :app
+    util_set_hosts
+    @vlad.target_hosts = @vlad.hosts_for_role(:app)
     @vlad.run("ls")
     assert_equal ["ssh app.example.com ls"], @vlad.commands
   end
 
   def test_run_with_no_hosts
+    util_set_hosts
     e = assert_raise(Vlad::ConfigurationError) { @vlad.run "ls" }
     assert_equal "No target hosts specified", e.message
   end
 
+  def test_run_with_no_roles
+    e = assert_raise(Vlad::ConfigurationError) { @vlad.run "ls" }
+    assert_equal "No roles have been defined", e.message
+  end
+
   def test_run_with_two_hosts
-    @vlad.host "app.example.com", :app
-    @vlad.host "db.example.com", :db
+    util_set_hosts
+    @vlad.target_hosts = @vlad.all_hosts
     @vlad.run("ls")
 
     commands = @vlad.commands
@@ -107,6 +119,23 @@ class TestVlad < Test::Unit::TestCase
     assert commands.include?("ssh app.example.com ls")
     assert commands.include?("ssh db.example.com ls")
     assert_equal 2, commands.size
+  end
+
+  def test_hosts_for_role
+    util_set_hosts
+    assert_equal ["app.example.com"], @vlad.hosts_for_role(:app)
+  end
+
+  def test_target_hosts
+    util_set_hosts
+    assert_equal nil, @vlad.target_hosts
+    @vlad.target_hosts = ["app.example.com"]
+    assert_equal ["app.example.com"], @vlad.target_hosts
+  end
+
+  def util_set_hosts
+    @vlad.host "app.example.com", :app
+    @vlad.host "db.example.com", :db
   end
 end
 

@@ -66,20 +66,26 @@ class Vlad
 
   def reset
     @roles = Hash.new { |h,k| h[k] = {} }
+    @target_hosts = nil
     @env = {}
   end
 
   def run command
-    raise Vlad::ConfigurationError, "No target hosts specified" if @roles.empty?
-    @roles.keys.each do |role| 
-      hosts_for_role(role).each do |host|
-        system "ssh #{host} #{command}"
-      end
+    raise Vlad::ConfigurationError, "No roles have been defined" if @roles.empty?
+    raise Vlad::ConfigurationError, "No target hosts specified" unless @target_hosts
+    @target_hosts.each do |host|
+      system "ssh #{host} #{command}"
     end
   end
 
   def hosts_for_role(role)
     @roles[role].keys
+  end
+  
+  def all_hosts
+    @roles.keys.map do |role| 
+      hosts_for_role(role)
+    end.flatten.uniq.sort
   end
 end
 
