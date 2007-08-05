@@ -20,6 +20,10 @@ class TestVlad < Test::Unit::TestCase
   end
 
   def test_set_with_dynamic_string
+    x = 1
+    @vlad.set(:foo, "#{x += 1}")
+    assert_equal "2", @vlad.foo
+    assert_equal "2", @vlad.foo
   end
 
   def test_set_with_immediate_value
