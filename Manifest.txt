@@ -1,0 +1,7 @@
+History.txt
+Manifest.txt
+README.txt
+Rakefile
+bin/vlad
+lib/vlad.rb
+test/test_vlad.rb
