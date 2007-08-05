@@ -4,6 +4,7 @@ require 'vlad'
 class TestVlad < Test::Unit::TestCase
   def setup
     @vlad = Vlad.instance
+    @vlad.reset
   end
 
   def test_set

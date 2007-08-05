@@ -6,8 +6,7 @@ class Vlad
   include Singleton
 
   def initialize
-    @roles = {}
-    @env = {}
+    self.reset
 
     instance_eval File.read("config/deploy.rb") if test ?f, 'config/deploy.rb'
   end
@@ -28,5 +27,10 @@ class Vlad
     else
       super
     end
+  end
+
+  def reset
+    @roles = {}
+    @env = {}
   end
 end
