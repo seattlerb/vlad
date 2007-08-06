@@ -1,4 +1,5 @@
 require 'singleton'
+require 'vlad_tasks'
 
 class Vlad
   VERSION = '1.0.0'
@@ -77,6 +78,7 @@ class Vlad
   def run command
     raise Vlad::ConfigurationError, "No roles have been defined" if @roles.empty?
     raise Vlad::ConfigurationError, "No target hosts specified" unless @target_hosts
+
     @target_hosts.each do |host|
       cmd = "ssh #{host} #{command}"
       retval = system cmd
@@ -87,17 +89,10 @@ class Vlad
   def hosts_for_role(role)
     @roles[role].keys.sort
   end
-  
+
   def all_hosts
-    @roles.keys.map do |role| 
+    @roles.keys.map do |role|
       hosts_for_role(role)
     end.flatten.uniq.sort
   end
-end
-
-require 'rubygems'
-require 'rake'
-
-task :debug_vlad do
-  y Vlad.instance
 end
