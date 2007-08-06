@@ -1,5 +1,4 @@
-require 'rubygems'
-require 'rake'
+require 'vlad'
 
 task :debug_vlad do
   y Vlad.instance

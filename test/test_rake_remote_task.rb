@@ -2,6 +2,33 @@ require 'test/vlad_test_case'
 require 'vlad'
 
 class TestRakeRemoteTask < VladTestCase
+  def test_enhance
+    util_set_hosts
+    body = Proc.new { 5 }
+    task = @vlad.remote_task(:some_task => :foo, &body)
+    action = Rake::RemoteTask::Action.new(task, body)
+    assert_equal [action], task.remote_actions
+    assert_equal task, action.task
+    assert_equal ["foo"], task.prerequisites
+  end
+
+  def test_enhance_with_no_task_body
+    util_set_hosts
+    util_setup_task
+    assert_equal [], @task.remote_actions
+    assert_equal [], @task.prerequisites
+  end
+
+  def test_execute
+    util_set_hosts
+    set :some_variable, 1
+    x = 5
+    task = @vlad.remote_task(:some_task) { x += some_variable }
+    task.execute
+    assert_equal 1, task.some_variable
+    assert_equal 7, x
+  end
+
   def test_run
     util_set_hosts
     util_setup_task

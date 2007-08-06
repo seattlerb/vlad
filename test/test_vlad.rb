@@ -129,18 +129,19 @@ class TestVlad < VladTestCase
   end
 
   def test_remote_task_self
-    @vlad.instance_eval "host 'www.example.com', :role => 'app'"
-    @vlad.instance_eval "remote_task(:self_task) do $self_task_result = self end"
+    @vlad.host 'www.example.com', :app
+    @vlad.remote_task(:self_task) do $self_task_result = self end
 
     task = Rake::Task['self_task']
     task.execute
-    assert_equal task, $self_task_result
+    assert_equal task.class, $self_task_result.class
+    assert_equal task.name, $self_task_result.name
   end
 
   def test_remote_task_body_set
     @vlad.set(:some_variable, 5)
-    @vlad.instance_eval "host 'www.example.com', :role => 'app'"
-    @vlad.instance_eval "remote_task(:some_task) do $some_task_result = some_variable end"
+    @vlad.host 'www.example.com', :app
+    @vlad.remote_task(:some_task) do $some_task_result = some_variable end
 
     Rake::Task['some_task'].execute
     assert_equal @vlad.fetch(:some_variable), $some_task_result

@@ -1,5 +1,8 @@
+require 'rubygems'
+require 'rake'
 require 'singleton'
 require 'vlad_tasks'
+require 'lib/rake_remote_task'
 
 def remote_task name, options = {}, &b
   Vlad.instance.remote_task name, options, &b
@@ -15,46 +18,6 @@ end
 
 def host host_name, *roles
   Vlad.instance.host host_name, *roles
-end
-
-class Rake::RemoteTask < Rake::Task
-  attr_accessor :options, :target_hosts
-
-  def initialize(task_name, app)
-    super
-    @remote_actions = []
-  end
-
-  alias_method :original_enhance, :enhance
-  def enhance(deps=nil, &block)
-    original_enhance(deps)
-    @remote_actions << block if block_given?
-    self
-  end
-
-  # -- HERE BE DRAGONS --
-  # We are defining singleton methods on the task AS it executes
-  # for each 'set' variable. We do this because we need to be support
-  # 'application' and similar Rake-reserved names inside remote tasks.
-  # This relies on the current (rake 0.7.3) calling conventions.
-  # If this breaks blame Jim Weirich and/or society.
-  def execute
-    super
-    Vlad.instance.env.keys.each do |name|
-      self.instance_eval "def #{name}; Vlad.instance.fetch('#{name}'); end"
-    end
-    @remote_actions.each { |act| self.instance_eval(&act) }
-  end
-
-  def run command
-    raise Vlad::ConfigurationError, "No roles have been defined" if Vlad.instance.roles.empty?
-
-    @target_hosts.each do |host|
-      cmd = "ssh #{host} #{command}"
-      retval = system cmd
-      raise Vlad::CommandFailedError, "execution failed: #{cmd}" unless retval
-    end
-  end
 end
 
 class Vlad
