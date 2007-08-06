@@ -1,6 +1,10 @@
 require 'singleton'
 require 'vlad_tasks'
 
+class Rake::Task
+  attr_accessor :options
+end
+
 class Vlad
   VERSION = '1.0.0'
   class Error < RuntimeError; end
@@ -16,10 +20,6 @@ class Vlad
     @roles.keys.map do |role|
       hosts_for_role(role)
     end.flatten.uniq.sort
-  end
-
-  def desc description
-    @last_description = description
   end
 
   def fetch(name, default = nil)
@@ -64,7 +64,6 @@ class Vlad
     @target_hosts = nil
     @env = {}
     @tasks = {}
-    @last_description = nil
     set(:application)       { abort "Please specify the name of the application" }
     set(:repository)        { abort "Please specify the repository type" }
   end
@@ -91,8 +90,8 @@ class Vlad
   end
 
   def task name, options = {}, &b
-    val = {:task => b, :options => options, :description => @last_description}
-    @last_description = nil
-    @tasks[name.to_s] = val
+    t = Rake::Task.define_task(name, &b)
+    t.options = options
+    t
   end
 end
