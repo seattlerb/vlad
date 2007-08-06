@@ -97,14 +97,9 @@ class Vlad
     end.flatten.uniq.sort
   end
 
-  def self.load path_or_string
-    src = if File.exist? path_or_string then
-            File.read(path_or_string)
-          else
-            path_or_string
-          end
-
-    self.instance.instance_eval src
+  def self.load path
+    Vlad.instance
+    Kernel.load path
   end
 
   def initialize
