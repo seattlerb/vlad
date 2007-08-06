@@ -99,6 +99,16 @@ class TestVlad < VladTestCase
     assert_equal 3, @vlad.test
   end
 
+  def test_set_with_reference
+    @vlad.instance_eval do
+      set(:var_one) { var_two }
+      set(:var_two) { var_three }
+      set(:var_three) { 5 }
+    end
+
+    assert_equal 5, @vlad.var_one
+  end
+
   def test_set_with_block_and_value
     e = assert_raise(ArgumentError) do
       @vlad.set(:test, 5) { 6 }

@@ -1,6 +1,7 @@
 require 'rubygems'
 require 'rake'
 require 'singleton'
+require 'thread'
 require 'vlad_tasks'
 require 'lib/rake_remote_task'
 
@@ -35,12 +36,14 @@ class Vlad
     hosts_for(@roles.keys)
   end
 
-  def fetch(name, default = nil)
+  def fetch(name)
     name = name.to_s if Symbol === name
     if @env.has_key? name then
-      v = @env[name]
-      v = @env[name] = v.call if Proc === v
-      v
+      protect_env(name) do
+        v = @env[name]
+        v = @env[name] = v.call if Proc === v
+        v
+      end
     else
       raise Vlad::FetchError
     end
@@ -77,10 +80,17 @@ class Vlad
     end
   end
 
+  def protect_env(name)
+    @env_locks[name.to_s].synchronize do
+      yield
+    end
+  end
+
   def reset
     @roles = Hash.new { |h,k| h[k] = {} }
     @env = {}
     @tasks = {}
+    @env_locks = Hash.new { |h,k| h[k] = Mutex.new }
     set(:application)       { raise Vlad::ConfigurationError, "Please specify the name of the application" }
     set(:repository)        { raise Vlad::ConfigurationError, "Please specify the repository type" }
   end
@@ -92,7 +102,9 @@ class Vlad
   def set name, val = nil, &b
     raise ArgumentError, "cannot set reserved name: '#{name}'" if self.respond_to?(name)
     raise ArgumentError, "cannot provide both a value and a block" if b and val
-    @env[name.to_s] = val || b
+    protect_env(name.to_s) do
+      @env[name.to_s] = val || b
+    end
   end
 
   def remote_task name, options = {}, &b
