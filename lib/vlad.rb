@@ -4,6 +4,22 @@ require 'vlad_tasks'
 class Rake::RemoteTask < Rake::Task
   attr_accessor :options, :target_hosts
 
+  def initialize(task_name, app)
+    super
+    @remote_actions = []
+  end
+
+  def enhance(deps=nil, &block)
+    super(deps) # don't pass up block
+    @remote_actions << block if block_given?
+    self
+  end
+
+  def execute
+    super
+    @remote_actions.each { |act| self.instance_eval(&act) }
+  end
+
   def run command
     raise Vlad::ConfigurationError, "No roles have been defined" if Vlad.instance.roles.empty?
 
@@ -20,6 +36,7 @@ class Vlad
   class Error < RuntimeError; end
   class ConfigurationError < Error; end
   class CommandFailedError < Error; end
+  class FetchError < Error; end
 
   include Singleton
 
@@ -38,7 +55,7 @@ class Vlad
       v = @env[name] = v.call if Proc === v
       v
     else
-      raise Vlad::ConfigurationError
+      raise Vlad::FetchError
     end
   end
 
@@ -63,7 +80,7 @@ class Vlad
   def method_missing name, *args
     begin
       fetch(name)
-    rescue Vlad::ConfigurationError
+    rescue Vlad::FetchError
       super
     end
   end
@@ -72,8 +89,8 @@ class Vlad
     @roles = Hash.new { |h,k| h[k] = {} }
     @env = {}
     @tasks = {}
-    set(:application)       { abort "Please specify the name of the application" }
-    set(:repository)        { abort "Please specify the repository type" }
+    set(:application)       { raise Vlad::ConfigurationError, "Please specify the name of the application" }
+    set(:repository)        { raise Vlad::ConfigurationError, "Please specify the repository type" }
   end
 
   def role role_name, host, args = {}

@@ -36,8 +36,8 @@ class TestVlad < VladTestCase
   end
 
   def test_initialize
-    assert_raise(SystemExit) { @vlad.application }
-    assert_raise(SystemExit) { @vlad.repository }
+    assert_raise(Vlad::ConfigurationError) { @vlad.application }
+    assert_raise(Vlad::ConfigurationError) { @vlad.repository }
   end
 
   def test_role
