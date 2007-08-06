@@ -17,49 +17,42 @@ class TestVlad < Test::Unit::TestCase
     @vlad.action = nil
   end
 
-  def test_initialize
-    assert_raise(SystemExit) { @vlad.application }
-    assert_raise(SystemExit) { @vlad.repository }
-  end
-
   def test_all_hosts
     util_set_hosts
     assert_equal %w[app.example.com db.example.com], @vlad.all_hosts
   end
 
-  def test_set
-    @vlad.set :test, 5
-    assert_equal 5, @vlad.test
+  def test_host
+    @vlad.host "test.example.com", :app, :db
+    expected = {"test.example.com" => {}}
+    assert_equal expected, @vlad.roles[:app]
+    assert_equal expected, @vlad.roles[:db]
   end
 
-  def test_set_lazy_block_evaluation
-    @vlad.set(:test) { fail "lose" }
-    assert_raise(RuntimeError) { @vlad.test }
+  def test_host_multiple_hosts
+    @vlad.host "test.example.com", :app, :db
+    @vlad.host "yarr.example.com", :app, :db, :no_release => true
+
+    expected = {
+      "test.example.com" => {},
+      "yarr.example.com" => {:no_release => true}
+    }
+
+    assert_equal expected, @vlad.roles[:app]
+    assert_equal expected, @vlad.roles[:db]
+    assert_not_equal(@vlad.roles[:db]["test.example.com"].object_id,
+                     @vlad.roles[:app]["test.example.com"].object_id)
   end
 
-  def test_set_with_block
-    x = 1
-    @vlad.set(:test) { x += 2 }
-
-    assert_equal 3, @vlad.test
-    assert_equal 3, @vlad.test
+  def test_hosts_for_role
+    util_set_hosts
+    @vlad.host "app2.example.com", :app
+    assert_equal %w[app.example.com app2.example.com], @vlad.hosts_for_role(:app)
   end
 
-  def test_set_with_block_and_value
-    e = assert_raise(ArgumentError) do
-      @vlad.set(:test, 5) { 6 }
-    end
-    assert_equal "cannot provide both a value and a block", e.message
-  end
-
-  def test_set_with_nil
-    @vlad.set(:test, nil)
-    assert_equal nil, @vlad.test
-  end
-
-  def test_set_with_reserved_name
-    e = assert_raise(ArgumentError) { @vlad.set(:all_hosts, []) }
-    assert_equal "cannot set reserved name: 'all_hosts'", e.message
+  def test_initialize
+    assert_raise(SystemExit) { @vlad.application }
+    assert_raise(SystemExit) { @vlad.repository }
   end
 
   def test_role
@@ -85,28 +78,6 @@ class TestVlad < Test::Unit::TestCase
     assert_equal expected_db, @vlad.roles[:db]
     expected_app = { "test.example.com" => {:primary => true} }
     assert_equal expected_app, @vlad.roles[:app]
-  end
-
-  def test_host
-    @vlad.host "test.example.com", :app, :db
-    expected = {"test.example.com" => {}}
-    assert_equal expected, @vlad.roles[:app]
-    assert_equal expected, @vlad.roles[:db]
-  end
-
-  def test_host_multiple_hosts
-    @vlad.host "test.example.com", :app, :db
-    @vlad.host "yarr.example.com", :app, :db, :no_release => true
-
-    expected = {
-      "test.example.com" => {},
-      "yarr.example.com" => {:no_release => true}
-    }
-
-    assert_equal expected, @vlad.roles[:app]
-    assert_equal expected, @vlad.roles[:db]
-    assert_not_equal(@vlad.roles[:db]["test.example.com"].object_id,
-                     @vlad.roles[:app]["test.example.com"].object_id)
   end
 
   def test_run
@@ -147,10 +118,39 @@ class TestVlad < Test::Unit::TestCase
     assert commands.include?("ssh db.example.com ls"), 'db'
   end
 
-  def test_hosts_for_role
-    util_set_hosts
-    @vlad.host "app2.example.com", :app
-    assert_equal %w[app.example.com app2.example.com], @vlad.hosts_for_role(:app)
+  def test_set
+    @vlad.set :test, 5
+    assert_equal 5, @vlad.test
+  end
+
+  def test_set_lazy_block_evaluation
+    @vlad.set(:test) { fail "lose" }
+    assert_raise(RuntimeError) { @vlad.test }
+  end
+
+  def test_set_with_block
+    x = 1
+    @vlad.set(:test) { x += 2 }
+
+    assert_equal 3, @vlad.test
+    assert_equal 3, @vlad.test
+  end
+
+  def test_set_with_block_and_value
+    e = assert_raise(ArgumentError) do
+      @vlad.set(:test, 5) { 6 }
+    end
+    assert_equal "cannot provide both a value and a block", e.message
+  end
+
+  def test_set_with_nil
+    @vlad.set(:test, nil)
+    assert_equal nil, @vlad.test
+  end
+
+  def test_set_with_reserved_name
+    e = assert_raise(ArgumentError) { @vlad.set(:all_hosts, []) }
+    assert_equal "cannot set reserved name: 'all_hosts'", e.message
   end
 
   def test_target_hosts
