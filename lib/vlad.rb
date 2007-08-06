@@ -96,10 +96,18 @@ class Vlad
     @roles[role].keys.sort
   end
 
+  def self.load path_or_string
+    src = if File.exist? path_or_string then
+            File.read(path_or_string)
+          else
+            path_or_string
+          end
+
+    self.instance.instance_eval src
+  end
+
   def initialize
     self.reset
-
-    instance_eval File.read("config/deploy.rb") if test ?f, 'config/deploy.rb'
   end
 
   def method_missing name, *args
