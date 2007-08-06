@@ -69,9 +69,7 @@ class Vlad
   attr_reader :roles, :tasks, :env
 
   def all_hosts
-    @roles.keys.map do |role|
-      hosts_for_role(role)
-    end.flatten.uniq.sort
+    hosts_for(@roles.keys)
   end
 
   def fetch(name, default = nil)
@@ -93,8 +91,8 @@ class Vlad
     end
   end
 
-  def hosts_for_role(role)
-    Array(role).map do |r|
+  def hosts_for(*roles)
+    roles.flatten.map do |r|
       @roles[r].keys
     end.flatten.uniq.sort
   end
@@ -143,7 +141,7 @@ class Vlad
     roles = options[:roles]
     t = Rake::RemoteTask.define_task(name, &b)
     t.options = options
-    t.target_hosts = roles ? hosts_for_role(roles) : all_hosts
+    t.target_hosts = roles ? hosts_for(*roles) : all_hosts
     t
   end
 end

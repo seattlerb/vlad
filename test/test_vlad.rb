@@ -29,16 +29,20 @@ class TestVlad < VladTestCase
                      @vlad.roles[:app]["test.example.com"].object_id)
   end
 
-  def test_hosts_for_role
+  def test_hosts_for_one_role
     util_set_hosts
     @vlad.host "app2.example.com", :app
-    assert_equal %w[app.example.com app2.example.com], @vlad.hosts_for_role(:app)
+    assert_equal %w[app.example.com app2.example.com], @vlad.hosts_for(:app)
   end
 
-  def test_hosts_for_role_multiple
+  def test_hosts_for_multiple_roles
     util_set_hosts
-    @vlad.host "app2.example.com", :app
-    assert_equal %w[app.example.com app2.example.com db.example.com], @vlad.hosts_for_role([:app, :db])
+    assert_equal %w[app.example.com db.example.com], @vlad.hosts_for(:app, :db)
+  end
+
+  def test_hosts_for_array_of_roles
+    util_set_hosts
+    assert_equal %w[app.example.com db.example.com], @vlad.hosts_for([:app, :db])
   end
 
   def test_initialize
