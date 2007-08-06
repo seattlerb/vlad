@@ -144,7 +144,8 @@ class TestVlad < Test::Unit::TestCase
 
   def test_hosts_for_role
     util_set_hosts
-    assert_equal ["app.example.com"], @vlad.hosts_for_role(:app)
+    @vlad.host "app2.example.com", :app
+    assert_equal %w[app.example.com app2.example.com], @vlad.hosts_for_role(:app)
   end
 
   def test_target_hosts

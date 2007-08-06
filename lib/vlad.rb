@@ -85,7 +85,7 @@ class Vlad
   end
 
   def hosts_for_role(role)
-    @roles[role].keys
+    @roles[role].keys.sort
   end
   
   def all_hosts
