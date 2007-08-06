@@ -18,13 +18,14 @@ class TestRakeRemoteTask < VladTestCase
     util_set_hosts
     util_setup_task
     @task.action = lambda { false }
+
     assert_raise(Vlad::CommandFailedError) { @task.run("ls") }
     assert_equal 1, @task.commands.size
   end
 
   def test_run_with_no_hosts
     @vlad.host "app.example.com", :app
-    @task = @vlad.task :test_task, :roles => :db
+    util_setup_task(:roles => :db) 
     @task.commands = []
     @task.action = nil
 
@@ -38,8 +39,16 @@ class TestRakeRemoteTask < VladTestCase
     assert_equal "No roles have been defined", e.message
   end
 
-  def util_setup_task
-    @task = @vlad.task :test_task
+  def test_run_with_roles
+    util_set_hosts
+    util_setup_task(:roles => :db) 
+
+    @task.run "ls"
+    assert_equal ["ssh db.example.com ls"], @task.commands
+  end
+
+  def util_setup_task(options = {})
+    @task = @vlad.task :test_task, options
     @task.commands = []
     @task.action = nil
     @task
