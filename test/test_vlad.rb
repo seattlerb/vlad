@@ -17,6 +17,11 @@ class TestVlad < Test::Unit::TestCase
     @vlad.action = nil
   end
 
+  def test_initialize
+    assert_raise(SystemExit) { @vlad.application }
+    assert_raise(SystemExit) { @vlad.repository }
+  end
+
   def test_all_hosts
     util_set_hosts
     assert_equal %w[app.example.com db.example.com], @vlad.all_hosts
