@@ -114,11 +114,20 @@ class TestVlad < VladTestCase
 
   def test_task_self
     @vlad.instance_eval "host 'www.example.com', :role => 'app'"
-    @vlad.instance_eval "task :ls do $ls_self = self end"
+    @vlad.instance_eval "task(:self_task) do $self_task_result = self end"
 
-    Rake::Task['ls'].execute
+    task = Rake::Task['self_task']
+    task.execute
+    assert_equal task, $self_task_result
+  end
 
-    assert_not_equal @vlad, $ls_self
+  def test_task_body_set
+    @vlad.set(:some_variable, 5)
+    @vlad.instance_eval "host 'www.example.com', :role => 'app'"
+    @vlad.instance_eval "task(:some_task) do $some_task_result = some_variable end"
+
+    Rake::Task['some_task'].execute
+    assert_equal @vlad.some_variable, $some_task_result
   end
 
   def test_task_with_options
