@@ -9,8 +9,9 @@ class Rake::RemoteTask < Rake::Task
     @remote_actions = []
   end
 
+  alias_method :original_enhance, :enhance
   def enhance(deps=nil, &block)
-    super(deps) # don't pass up block
+    original_enhance(deps)
     @remote_actions << block if block_given?
     self
   end
