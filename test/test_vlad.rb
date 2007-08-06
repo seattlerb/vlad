@@ -35,6 +35,12 @@ class TestVlad < VladTestCase
     assert_equal %w[app.example.com app2.example.com], @vlad.hosts_for_role(:app)
   end
 
+  def test_hosts_for_role_multiple
+    util_set_hosts
+    @vlad.host "app2.example.com", :app
+    assert_equal %w[app.example.com app2.example.com db.example.com], @vlad.hosts_for_role([:app, :db])
+  end
+
   def test_initialize
     assert_raise(Vlad::ConfigurationError) { @vlad.application }
     assert_raise(Vlad::ConfigurationError) { @vlad.repository }

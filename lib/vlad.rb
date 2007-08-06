@@ -94,7 +94,9 @@ class Vlad
   end
 
   def hosts_for_role(role)
-    @roles[role].keys.sort
+    Array(role).map do |r|
+      @roles[r].keys
+    end.flatten.uniq.sort
   end
 
   def self.load path_or_string
