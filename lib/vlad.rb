@@ -9,13 +9,17 @@ class Vlad
 
   include Singleton
 
-  attr_reader :roles
+  attr_reader :roles, :tasks
   attr_accessor :target_hosts
 
   def all_hosts
     @roles.keys.map do |role|
       hosts_for_role(role)
     end.flatten.uniq.sort
+  end
+
+  def desc description
+    @last_description = description
   end
 
   def fetch(name, default = nil)
@@ -59,6 +63,8 @@ class Vlad
     @roles = Hash.new { |h,k| h[k] = {} }
     @target_hosts = nil
     @env = {}
+    @tasks = {}
+    @last_description = nil
     set(:application)       { abort "Please specify the name of the application" }
     set(:repository)        { abort "Please specify the repository type" }
   end
@@ -82,5 +88,11 @@ class Vlad
     raise ArgumentError, "cannot set reserved name: '#{name}'" if self.respond_to?(name)
     raise ArgumentError, "cannot provide both a value and a block" if b and val
     @env[name.to_s] = val || b
+  end
+
+  def task name, options = {}, &b
+    val = {:task => b, :options => options, :description => @last_description}
+    @last_description = nil
+    @tasks[name.to_s] = val
   end
 end

@@ -22,6 +22,21 @@ class TestVlad < Test::Unit::TestCase
     assert_equal %w[app.example.com db.example.com], @vlad.all_hosts
   end
 
+  def test_desc
+    @vlad.desc "a description"
+    @vlad.task :some_task do
+      1
+    end
+    assert_equal "a description", @vlad.tasks["some_task"][:description]
+  end
+
+  def test_desc_once
+    @vlad.desc "a description"
+    @vlad.task :first_task
+    @vlad.task :second_task
+    assert_equal nil, @vlad.tasks["second_task"][:description]
+  end
+
   def test_host
     @vlad.host "test.example.com", :app, :db
     expected = {"test.example.com" => {}}
@@ -158,6 +173,20 @@ class TestVlad < Test::Unit::TestCase
     assert_equal nil, @vlad.target_hosts
     @vlad.target_hosts = ["app.example.com"]
     assert_equal ["app.example.com"], @vlad.target_hosts
+  end
+
+  def test_task
+    @vlad.task :test_task do
+      fail "should not run"
+    end
+    assert_equal 1, @vlad.tasks.size
+  end
+
+  def test_task_with_options
+    @vlad.task :test_task, :roles => [:app, :db] do
+      fail "should not run"
+    end
+    assert_equal({:roles => [:app, :db]}, @vlad.tasks["test_task"][:options])
   end
 
   def util_set_hosts
