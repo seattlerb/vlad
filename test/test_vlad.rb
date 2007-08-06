@@ -112,6 +112,15 @@ class TestVlad < VladTestCase
     assert_equal %w[app.example.com db.example.com], t.target_hosts
   end
 
+  def test_task_self
+    @vlad.instance_eval "host 'www.example.com', :role => 'app'"
+    @vlad.instance_eval "task :ls do $ls_self = self end"
+
+    Rake::Task['ls'].execute
+
+    assert_not_equal @vlad, $ls_self
+  end
+
   def test_task_with_options
     t = @vlad.task :test_task, :roles => [:app, :db] do
       fail "should not run"
