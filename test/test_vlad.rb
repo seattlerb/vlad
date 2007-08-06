@@ -1,24 +1,7 @@
-require 'test/unit'
+require 'test/vlad_test_case'
 require 'vlad'
 
-class Vlad
-  attr_accessor :commands, :action
-  def system(command)
-    @commands << command
-    self.action ? self.action[command] : true
-  end
-end
-
-class TestVlad < Test::Unit::TestCase
-  def setup
-    @vlad = Vlad.instance
-    @vlad.reset
-    @vlad.commands = []
-    @vlad.action = nil
-    Rake.application.clear
-    @task_count = Rake.application.tasks.size
-  end
-
+class TestVlad < VladTestCase
   def test_all_hosts
     util_set_hosts
     assert_equal %w[app.example.com db.example.com], @vlad.all_hosts
@@ -82,44 +65,6 @@ class TestVlad < Test::Unit::TestCase
     assert_equal expected_app, @vlad.roles[:app]
   end
 
-  def test_run
-    util_set_hosts
-    @vlad.target_hosts = @vlad.hosts_for_role(:app)
-    @vlad.run("ls")
-    assert_equal ["ssh app.example.com ls"], @vlad.commands
-  end
-
-  def test_run_failing_command
-    util_set_hosts
-    @vlad.target_hosts = %[app.example.com]
-    @vlad.action = lambda { false }
-    assert_raise(Vlad::CommandFailedError) { @vlad.run("ls") }
-    assert_equal 1, @vlad.commands.size
-  end
-
-  def test_run_with_no_hosts
-    util_set_hosts
-    e = assert_raise(Vlad::ConfigurationError) { @vlad.run "ls" }
-    assert_equal "No target hosts specified", e.message
-  end
-
-  def test_run_with_no_roles
-    e = assert_raise(Vlad::ConfigurationError) { @vlad.run "ls" }
-    assert_equal "No roles have been defined", e.message
-  end
-
-  def test_run_with_two_hosts
-    util_set_hosts
-    @vlad.target_hosts = @vlad.all_hosts
-    @vlad.run("ls")
-
-    commands = @vlad.commands
-
-    assert_equal 2, commands.size, 'not enough commands'
-    assert commands.include?("ssh app.example.com ls"), 'app'
-    assert commands.include?("ssh db.example.com ls"), 'db'
-  end
-
   def test_set
     @vlad.set :test, 5
     assert_equal 5, @vlad.test
@@ -155,31 +100,24 @@ class TestVlad < Test::Unit::TestCase
     assert_equal "cannot set reserved name: 'all_hosts'", e.message
   end
 
-  def test_target_hosts
-    util_set_hosts
-    assert_equal nil, @vlad.target_hosts
-    @vlad.target_hosts = ["app.example.com"]
-    assert_equal ["app.example.com"], @vlad.target_hosts
+  def test_task
+    t = @vlad.task(:test_task) { 5 }
+    assert_equal @task_count + 1, Rake.application.tasks.size
+    assert_equal Hash.new, t.options
   end
 
-  def test_task
-    @vlad.task :test_task do
-      fail "should not run"
-    end
-    assert_equal @task_count + 1, Rake.application.tasks.size
-    assert_equal Hash.new, Rake::Task["test_task"].options
+  def test_task_all_hosts_by_default
+    util_set_hosts
+    t = @vlad.task(:test_task) { 5 }
+    assert_equal %w[app.example.com db.example.com], t.target_hosts
   end
 
   def test_task_with_options
-    @vlad.task :test_task, :roles => [:app, :db] do
+    t = @vlad.task :test_task, :roles => [:app, :db] do
       fail "should not run"
     end
-    assert_equal({:roles => [:app, :db]}, Rake::Task['test_task'].options)
+    assert_equal({:roles => [:app, :db]}, t.options)
   end
 
-  def util_set_hosts
-    @vlad.host "app.example.com", :app
-    @vlad.host "db.example.com", :db
-  end
 end
 

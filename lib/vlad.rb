@@ -2,7 +2,17 @@ require 'singleton'
 require 'vlad_tasks'
 
 class Rake::RemoteTask < Rake::Task
-  attr_accessor :options
+  attr_accessor :options, :target_hosts
+
+  def run command
+    raise Vlad::ConfigurationError, "No roles have been defined" if Vlad.instance.roles.empty?
+
+    @target_hosts.each do |host|
+      cmd = "ssh #{host} #{command}"
+      retval = system cmd
+      raise Vlad::CommandFailedError, "execution failed: #{cmd}" unless retval
+    end
+  end
 end
 
 class Vlad
@@ -14,7 +24,6 @@ class Vlad
   include Singleton
 
   attr_reader :roles, :tasks
-  attr_accessor :target_hosts
 
   def all_hosts
     @roles.keys.map do |role|
@@ -61,7 +70,6 @@ class Vlad
 
   def reset
     @roles = Hash.new { |h,k| h[k] = {} }
-    @target_hosts = nil
     @env = {}
     @tasks = {}
     set(:application)       { abort "Please specify the name of the application" }
@@ -72,17 +80,6 @@ class Vlad
     @roles[role_name][host] = args
   end
 
-  def run command
-    raise Vlad::ConfigurationError, "No roles have been defined" if @roles.empty?
-    raise Vlad::ConfigurationError, "No target hosts specified" unless @target_hosts
-
-    @target_hosts.each do |host|
-      cmd = "ssh #{host} #{command}"
-      retval = system cmd
-      raise CommandFailedError, "execution failed: #{cmd}" unless retval
-    end
-  end
-
   def set name, val = nil, &b
     raise ArgumentError, "cannot set reserved name: '#{name}'" if self.respond_to?(name)
     raise ArgumentError, "cannot provide both a value and a block" if b and val
@@ -90,8 +87,10 @@ class Vlad
   end
 
   def task name, options = {}, &b
+    roles = options[:roles]
     t = Rake::RemoteTask.define_task(name, &b)
     t.options = options
+    t.target_hosts = roles ? hosts_for_role(roles) : all_hosts
     t
   end
 end
