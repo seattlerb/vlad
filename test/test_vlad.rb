@@ -167,6 +167,7 @@ class TestVlad < Test::Unit::TestCase
       fail "should not run"
     end
     assert_equal @task_count + 1, Rake.application.tasks.size
+    assert_equal Hash.new, Rake::Task["test_task"].options
   end
 
   def test_task_with_options

@@ -1,7 +1,7 @@
 require 'singleton'
 require 'vlad_tasks'
 
-class Rake::Task
+class Rake::RemoteTask < Rake::Task
   attr_accessor :options
 end
 
@@ -90,7 +90,7 @@ class Vlad
   end
 
   def task name, options = {}, &b
-    t = Rake::Task.define_task(name, &b)
+    t = Rake::RemoteTask.define_task(name, &b)
     t.options = options
     t
   end
