@@ -133,10 +133,10 @@ class Vlad
   end
 
   def remote_task name, options = {}, &b
-    roles = options[:roles]
     t = Rake::RemoteTask.define_task(name, &b)
     t.options = options
-    t.target_hosts = roles ? hosts_for(*roles) : all_hosts
+    roles = options[:roles]
+    t.target_hosts = roles ? hosts_for(roles) : all_hosts
     t
   end
 end
