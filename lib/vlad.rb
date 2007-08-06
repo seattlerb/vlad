@@ -36,14 +36,22 @@ class Vlad
     @env[name.to_s] = val || b
   end
 
-  def method_missing name, *other
+  def method_missing name, *args
+    begin
+      fetch(name)
+    rescue Vlad::ConfigurationError
+      super
+    end
+  end
+
+  def fetch(name, default = nil)
     name = name.to_s if Symbol === name
-    if @env.has_key? name and other.empty? then
+    if @env.has_key? name then
       v = @env[name]
       v = @env[name] = v.call if Proc === v
       v
     else
-      super
+      raise Vlad::ConfigurationError
     end
   end
 
