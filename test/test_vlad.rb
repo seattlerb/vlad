@@ -29,6 +29,11 @@ class TestVlad < VladTestCase
                      @vlad.roles[:app]["test.example.com"].object_id)
   end
 
+  def test_hosts_for_array_of_roles
+    util_set_hosts
+    assert_equal %w[app.example.com db.example.com], @vlad.hosts_for([:app, :db])
+  end
+
   def test_hosts_for_one_role
     util_set_hosts
     @vlad.host "app2.example.com", :app
@@ -40,9 +45,10 @@ class TestVlad < VladTestCase
     assert_equal %w[app.example.com db.example.com], @vlad.hosts_for(:app, :db)
   end
 
-  def test_hosts_for_array_of_roles
+  def test_hosts_for_unique
     util_set_hosts
-    assert_equal %w[app.example.com db.example.com], @vlad.hosts_for([:app, :db])
+    @vlad.host "app.example.com", :web
+    assert_equal %w[app.example.com db.example.com], @vlad.hosts_for(:app, :db, :web)
   end
 
   def test_initialize
