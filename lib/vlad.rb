@@ -32,17 +32,18 @@ class Rake::RemoteTask < Rake::Task
     self
   end
 
+  # -- HERE BE DRAGONS --
+  # We are defining singleton methods on the task AS it executes
+  # for each 'set' variable. We do this because we need to be support
+  # 'application' and similar Rake-reserved names inside remote tasks.
+  # This relies on the current (rake 0.7.3) calling conventions.
+  # If this breaks blame Jim Weirich and/or society.
   def execute
     super
-    @remote_actions.each { |act| self.instance_eval(&act) }
-  end
-
-  def method_missing name, *args
-    begin
-      Vlad.instance.fetch(name)
-    rescue Vlad::FetchError
-      super
+    Vlad.instance.env.keys.each do |name|
+      self.instance_eval "def #{name}; Vlad.instance.fetch('#{name}'); end"
     end
+    @remote_actions.each { |act| self.instance_eval(&act) }
   end
 
   def run command
@@ -65,7 +66,7 @@ class Vlad
 
   include Singleton
 
-  attr_reader :roles, :tasks
+  attr_reader :roles, :tasks, :env
 
   def all_hosts
     @roles.keys.map do |role|
