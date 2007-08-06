@@ -1,6 +1,22 @@
 require 'singleton'
 require 'vlad_tasks'
 
+def remote_task name, options = {}, &b
+  Vlad.instance.remote_task name, options, &b
+end
+
+def set name, val = nil, &b
+  Vlad.instance.set name, val, &b
+end
+
+def role role_name, host, args = {}
+  Vlad.instance.role role_name, host, args
+end
+
+def host host_name, *roles
+  Vlad.instance.host host_name, *roles
+end
+
 class Rake::RemoteTask < Rake::Task
   attr_accessor :options, :target_hosts
 
@@ -19,6 +35,14 @@ class Rake::RemoteTask < Rake::Task
   def execute
     super
     @remote_actions.each { |act| self.instance_eval(&act) }
+  end
+
+  def method_missing name, *args
+    begin
+      Vlad.instance.fetch(name)
+    rescue Vlad::FetchError
+      super
+    end
   end
 
   def run command
@@ -104,7 +128,7 @@ class Vlad
     @env[name.to_s] = val || b
   end
 
-  def task name, options = {}, &b
+  def remote_task name, options = {}, &b
     roles = options[:roles]
     t = Rake::RemoteTask.define_task(name, &b)
     t.options = options

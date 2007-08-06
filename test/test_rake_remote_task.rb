@@ -34,7 +34,7 @@ class TestRakeRemoteTask < VladTestCase
   end
 
   def test_run_with_no_roles
-    @task = @vlad.task :test_task
+    @task = @vlad.remote_task :test_task
     e = assert_raise(Vlad::ConfigurationError) { @task.run "ls" }
     assert_equal "No roles have been defined", e.message
   end
@@ -48,7 +48,7 @@ class TestRakeRemoteTask < VladTestCase
   end
 
   def util_setup_task(options = {})
-    @task = @vlad.task :test_task, options
+    @task = @vlad.remote_task :test_task, options
     @task.commands = []
     @task.action = nil
     @task

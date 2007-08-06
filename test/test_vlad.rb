@@ -100,38 +100,38 @@ class TestVlad < VladTestCase
     assert_equal "cannot set reserved name: 'all_hosts'", e.message
   end
 
-  def test_task
-    t = @vlad.task(:test_task) { 5 }
+  def test_remote_task
+    t = @vlad.remote_task(:test_task) { 5 }
     assert_equal @task_count + 1, Rake.application.tasks.size
     assert_equal Hash.new, t.options
   end
 
-  def test_task_all_hosts_by_default
+  def test_remote_task_all_hosts_by_default
     util_set_hosts
-    t = @vlad.task(:test_task) { 5 }
+    t = @vlad.remote_task(:test_task) { 5 }
     assert_equal %w[app.example.com db.example.com], t.target_hosts
   end
 
-  def test_task_self
+  def test_remote_task_self
     @vlad.instance_eval "host 'www.example.com', :role => 'app'"
-    @vlad.instance_eval "task(:self_task) do $self_task_result = self end"
+    @vlad.instance_eval "remote_task(:self_task) do $self_task_result = self end"
 
     task = Rake::Task['self_task']
     task.execute
     assert_equal task, $self_task_result
   end
 
-  def test_task_body_set
+  def test_remote_task_body_set
     @vlad.set(:some_variable, 5)
     @vlad.instance_eval "host 'www.example.com', :role => 'app'"
-    @vlad.instance_eval "task(:some_task) do $some_task_result = some_variable end"
+    @vlad.instance_eval "remote_task(:some_task) do $some_task_result = some_variable end"
 
     Rake::Task['some_task'].execute
-    assert_equal @vlad.some_variable, $some_task_result
+    assert_equal @vlad.fetch(:some_variable), $some_task_result
   end
 
-  def test_task_with_options
-    t = @vlad.task :test_task, :roles => [:app, :db] do
+  def test_remote_task_with_options
+    t = @vlad.remote_task :test_task, :roles => [:app, :db] do
       fail "should not run"
     end
     assert_equal({:roles => [:app, :db]}, t.options)
