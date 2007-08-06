@@ -96,6 +96,7 @@ class Vlad
   end
 
   def role role_name, host, args = {}
+    raise ArgumentError, "invalid host" if host.nil? or host.empty?
     @roles[role_name][host] = args
   end
 

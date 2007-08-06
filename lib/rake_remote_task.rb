@@ -24,6 +24,7 @@ class Rake::RemoteTask < Rake::Task
   # This relies on the current (rake 0.7.3) calling conventions.
   # If this breaks blame Jim Weirich and/or society.
   def execute
+    raise Vlad::ConfigurationError, "No target hosts specified for task: #{self.name}" if @target_hosts.empty?
     super
     Vlad.instance.env.keys.each do |name|
       self.instance_eval "def #{name}; Vlad.instance.fetch('#{name}'); end"
@@ -32,13 +33,9 @@ class Rake::RemoteTask < Rake::Task
   end
 
   def run command
-    raise Vlad::ConfigurationError, "No roles have been defined" if Vlad.instance.roles.empty?
-
-    @target_hosts.each do |host|
-      cmd = "ssh #{host} #{command}"
-      retval = system cmd
-      raise Vlad::CommandFailedError, "execution failed: #{cmd}" unless retval
-    end
+    cmd = "ssh #{target_host} #{command}"
+    retval = system cmd
+    raise Vlad::CommandFailedError, "execution failed: #{cmd}" unless retval
   end
 
   class Action

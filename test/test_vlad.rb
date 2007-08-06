@@ -14,6 +14,11 @@ class TestVlad < VladTestCase
     assert_equal expected, @vlad.roles[:db]
   end
 
+  def test_host_invalid
+    assert_raise(ArgumentError) { @vlad.host "", :app, :db }
+    assert_raise(ArgumentError) { @vlad.host nil, :web }
+  end
+
   def test_host_multiple_hosts
     @vlad.host "test.example.com", :app, :db
     @vlad.host "yarr.example.com", :app, :db, :no_release => true
