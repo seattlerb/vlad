@@ -56,13 +56,14 @@ class TestRakeRemoteTask < VladTestCase
   def test_run
     util_setup_task
     @task.target_host = "app.example.com"
-    @task.run("ls")
+    result = @task.run("ls")
 
     commands = @task.commands
 
     assert_equal 1, commands.size, 'not enough commands'
     assert_equal ["ssh", "app.example.com", "sh -c \"ls\" 2>&1"],
                  commands.first, 'app'
+    assert_equal :fu, result
   end
 
   def test_run_failing_command

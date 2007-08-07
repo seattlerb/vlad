@@ -43,15 +43,17 @@ class Rake::RemoteTask < Rake::Task
     status = popen4(*cmd) do |pid, inn, out, err|
       inn.sync = true
 
+      result = []
       until out.eof? and err.eof? do
         reads, = select [out, err], nil, nil, 0.1
 
         reads.each do |readable|
           data = readable.readpartial(1024)
-
+          result << data
           inn.puts sudo_password if data =~ /^Password:/
         end
       end
+      return result.join
     end
 
     unless status.success? then
