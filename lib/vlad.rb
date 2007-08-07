@@ -3,7 +3,7 @@ require 'rake'
 require 'singleton'
 require 'thread'
 require 'vlad_tasks'
-require 'lib/rake_remote_task'
+require 'rake_remote_task'
 
 def remote_task name, options = {}, &b
   Vlad.instance.remote_task name, options, &b
@@ -64,8 +64,7 @@ class Vlad
   end
 
   def self.load path
-    Vlad.instance
-    Kernel.load path
+    self.instance.instance_eval File.read(path)
   end
 
   def initialize
