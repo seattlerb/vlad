@@ -92,8 +92,21 @@ class Vlad
     @env_locks = Hash.new { |h,k| h[k] = Mutex.new }
     set(:application)   { raise Vlad::ConfigurationError, "Please specify the name of the application" }
     set(:repository)    { raise Vlad::ConfigurationError, "Please specify the repository type" }
-    # HACK make this worke sudo really does
-    set(:sudo_password) { raise Vlad::ConfigurationError, "Please specify the sudo password" }
+    set(:sudo_password) do
+      state = `stty -g`
+
+      raise Vlad::Error, "stty(1) not found" unless $?.success?
+
+      begin
+        system "stty -echo"
+        print "sudo password: "
+        sudo_password = gets
+        puts
+      ensure
+        system "stty #{state}"
+      end
+      sudo_password
+    end
   end
 
   def role role_name, host, args = {}
