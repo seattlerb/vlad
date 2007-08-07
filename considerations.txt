@@ -1,0 +1,31 @@
+* Setting up additional boxes after the initial deployment
+  given: host "app1.example.com", :app
+  User adds: host "app2.example.com", :app
+  User wants to deploy nginx and mongrel to the new server without flattening app1
+  
+  rake vlad:setup HOSTS='app2.example.com'
+  should override the normal 'target_hosts' process and manually set the list
+
+* :except => {:no_release => true}
+  It is common to configure tasks to 'announce' deployments in IRC, Campfire, etc.
+  If you have 6 app servers, you don't want to see 6 announcements.
+  In Capistrano, this is handled via the :no_release => true flag.
+  Various tasks only execute on the 'release' servers.
+  An easier way to meet this would be to introduce a :release role in the default setup
+  role :release, "app1.example.com"
+  remote_task :announce_in_irc, :roles => :release ...
+
+  Drawback: Yet another thing to change when you migrate a project from cap to vlad
+
+* :primary => true
+  role :db, "db1.example.com", :primary => true
+  role :db, "db2.example.com"
+  rake vlad:migrate needs to run the Rails database migrations on only one box
+  to avoid melting the world.
+
+  This is a huge pile of crap to support this simple use case, so let's just do:
+  role :master_db, "db1.example.com"
+  remote_task :migrate, :roles => :master_db
+
+  The 'host' method we have added makes this even easier:
+  host "only-one-db.example.com", :db, :master_db
