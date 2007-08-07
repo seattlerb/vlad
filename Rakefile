@@ -3,7 +3,7 @@
 require 'rubygems'
 require 'hoe'
 $: << 'lib'
-require './lib/vlad.rb'
+require 'vlad'
 
 Hoe.new('vlad', Vlad::VERSION) do |p|
   p.rubyforge_name = 'vlad'
