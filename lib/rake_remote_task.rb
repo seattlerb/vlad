@@ -47,7 +47,6 @@ class Rake::RemoteTask < Rake::Task
   end
 
   def run command
-    command = "sh -c \"#{command}\" 2>&1"
     cmd = ["ssh", target_host, command]
     result = []
 
@@ -55,13 +54,17 @@ class Rake::RemoteTask < Rake::Task
       inn.sync = true
 
       until out.eof? and err.eof? do
-        reads, = select [out, err], nil, nil, 0.1
+        reads, _, errs = select [out], nil, [err], 0.1
 
-        reads.each do |readable|
-          data = readable.readpartial(1024)
-          result << data
-          inn.puts sudo_password if data =~ /^Password:/
+        data = errs.first.readpartial(1024)
+        result << data
+
+        if data =~ /^Password:/ then
+          inn.puts sudo_password
+          result << "\n"
         end
+
+        result << reads.first.readpartial(1024)
       end
     end
 

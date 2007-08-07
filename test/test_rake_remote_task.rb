@@ -77,14 +77,14 @@ class TestRakeRemoteTask < VladTestCase
 
   def test_run
     util_setup_task
-    @task.outputs << "file1\nfile2\n"
+    @task.output << "file1\nfile2\n"
     @task.target_host = "app.example.com"
     result = @task.run("ls")
 
     commands = @task.commands
 
     assert_equal 1, commands.size, 'not enough commands'
-    assert_equal ["ssh", "app.example.com", "sh -c \"ls\" 2>&1"],
+    assert_equal ["ssh", "app.example.com", "ls"],
                  commands.first, 'app'
     assert_equal "file1\nfile2\n", result
   end
@@ -97,26 +97,28 @@ class TestRakeRemoteTask < VladTestCase
     @task.action = lambda { 1 }
 
     e = assert_raise(Vlad::CommandFailedError) { @task.run("ls") }
-    assert_equal "execution failed with status 1: ssh app.example.com sh -c \"ls\" 2>&1", e.message
+    assert_equal "execution failed with status 1: ssh app.example.com ls", e.message
 
     assert_equal 1, @task.commands.size
   end
 
   def test_run_sudo
     util_setup_task
-    @task.outputs << 'Password:'
+    @task.output << "file1\nfile2\n"
+    @task.error << 'Password:'
     @task.target_host = "app.example.com"
     def @task.sudo_password() "my password" end # gets defined by set
 
-    @task.run("sudo ls")
+    result = @task.run("sudo ls")
 
     commands = @task.commands
 
     assert_equal 1, commands.size, 'not enough commands'
-    assert_equal ['ssh', 'app.example.com', 'sh -c "sudo ls" 2>&1'],
+    assert_equal ['ssh', 'app.example.com', 'sudo ls'],
                  commands.first
 
     assert_equal "my password\n", @task.input.string
+    assert_equal "Password:\nfile1\nfile2\n", result
   end
 
   def test_sudo
@@ -127,14 +129,15 @@ class TestRakeRemoteTask < VladTestCase
     commands = @task.commands
 
     assert_equal 1, commands.size, 'wrong number of commands'
-    assert_equal ["ssh", "app.example.com", "sh -c \"sudo ls\" 2>&1"],
+    assert_equal ["ssh", "app.example.com", "sudo ls"],
                  commands.first, 'app'
   end
 
   def util_setup_task(options = {})
     @task = @vlad.remote_task :test_task, options
     @task.commands = []
-    @task.outputs = []
+    @task.output = []
+    @task.error = []
     @task.action = nil
     @task
   end

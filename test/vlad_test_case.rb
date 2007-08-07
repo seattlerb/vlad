@@ -7,7 +7,7 @@ class StringIO
 end
 
 class Rake::RemoteTask
-  attr_accessor :commands, :action, :outputs, :input
+  attr_accessor :commands, :action, :input, :output, :error
 
   Status = Struct.new :exitstatus
 
@@ -24,8 +24,8 @@ class Rake::RemoteTask
     @commands << command
 
     @input = StringIO.new
-    out = @outputs.empty? ? StringIO.new : StringIO.new(@outputs.shift)
-    err = StringIO.new
+    out = StringIO.new @output.shift.to_s
+    err = StringIO.new @error.shift.to_s
 
     yield 42, @input, out, err
 
