@@ -1,13 +1,12 @@
 require 'vlad'
 
 class Rake::RemoteTask < Rake::Task
-  attr_accessor :options, :target_hosts, :target_host
+  attr_accessor :options, :target_host
   attr_reader :remote_actions
 
   def initialize(task_name, app)
     super
     @remote_actions = []
-    @target_hosts   = []
   end
 
   alias_method :original_enhance, :enhance
@@ -24,18 +23,23 @@ class Rake::RemoteTask < Rake::Task
   # This relies on the current (rake 0.7.3) calling conventions.
   # If this breaks blame Jim Weirich and/or society.
   def execute
-    raise Vlad::ConfigurationError, "No target hosts specified for task: #{self.name}" if @target_hosts.empty?
+    raise Vlad::ConfigurationError, "No target hosts specified for task: #{self.name}" if target_hosts.empty?
     super
     Vlad.instance.env.keys.each do |name|
       self.instance_eval "def #{name}; Vlad.instance.fetch('#{name}'); end"
     end
-    @remote_actions.each { |act| act.execute(@target_hosts) }
+    @remote_actions.each { |act| act.execute(target_hosts) }
   end
 
   def run command
     cmd = "ssh #{target_host} #{command}"
     retval = system cmd
     raise Vlad::CommandFailedError, "execution failed: #{cmd}" unless retval
+  end
+
+  def target_hosts
+    roles = options[:roles]
+    roles ? Vlad.instance.hosts_for(roles) : Vlad.instance.all_hosts
   end
 
   class Action

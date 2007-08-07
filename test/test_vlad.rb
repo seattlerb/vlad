@@ -169,5 +169,10 @@ class TestVlad < VladTestCase
     assert_equal({:roles => [:app, :db]}, t.options)
   end
 
+  def test_remote_task_before_host_declaration
+    t = @vlad.remote_task :test_task, :roles => :web do 5 end
+    @vlad.host 'www.example.com', :web
+    assert_equal %w[www.example.com], t.target_hosts
+  end
 end
 
