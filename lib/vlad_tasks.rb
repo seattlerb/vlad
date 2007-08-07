@@ -74,6 +74,12 @@ namespace :vlad do
         "|| #{current_path}/script/process/reaper -a kill")
   end
 
+  desc "Update the revisions.log file. Intended to be called after each deployment"
+  remote_task :update_revisions_log, :roles => :app do
+      run "(test -e #{deploy_to}/revisions.log || (touch #{deploy_to}/revisions.log && chmod 666 #{deploy_to}/revisions.log)) && " +
+      "echo `date +\"%Y-%m-%d %H:%M:%S\"` $USER #{real_revision} #{File.basename(release_path)} >> #{deploy_to}/revisions.log;"
+  end
+
 end # namespace vlad
 
   # set :scm, :subversion
