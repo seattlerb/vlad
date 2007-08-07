@@ -2,7 +2,6 @@ require 'rubygems'
 require 'rake'
 require 'singleton'
 require 'thread'
-require 'vlad_tasks'
 require 'rake_remote_task'
 
 def remote_task name, options = {}, &b
@@ -23,6 +22,7 @@ end
 
 class Vlad
   VERSION = '1.0.0'
+
   class Error < RuntimeError; end
   class ConfigurationError < Error; end
   class CommandFailedError < Error; end
@@ -67,6 +67,7 @@ class Vlad
 
   def self.load path
     self.instance.instance_eval File.read(path)
+    require 'vlad_tasks'
   end
 
   def initialize
@@ -94,6 +95,10 @@ class Vlad
     @env_locks = Hash.new { |h,k| h[k] = Mutex.new }
     set(:application)   { raise Vlad::ConfigurationError, "Please specify the name of the application" }
     set(:repository)    { raise Vlad::ConfigurationError, "Please specify the repository type" }
+    set(:releases_path)     { File.join(deploy_to, "releases") }
+    set(:shared_path)       { File.join(deploy_to, "shared") }
+    set(:current_path)      { File.join(deploy_to, "current") }
+
     set(:sudo_password) do
       state = `stty -g`
 
