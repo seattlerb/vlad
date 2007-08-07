@@ -1,13 +1,37 @@
 require 'test/unit'
+require 'stringio'
 require 'vlad'
 
-class Rake::RemoteTask
-  attr_accessor :commands, :action
+class StringIO
+  def readpartial(size) read end # suck!
+end
 
-  def system(command)
-    @commands << command
-    self.action ? self.action[command] : true
+class Rake::RemoteTask
+  attr_accessor :commands, :action, :outputs, :input
+
+  Status = Struct.new :exitstatus
+
+  class Status
+    def success?() exitstatus == 0 end
   end
+
+  def popen4 *command
+    @commands << command
+
+    @input = StringIO.new
+    out = @outputs.empty? ? StringIO.new : StringIO.new(@outputs.shift)
+    err = StringIO.new
+
+    yield 42, @input, out, err
+
+    status = self.action ? self.action[command.join(' ')] : 0
+    Status.new status
+  end
+
+  def select reads, writes, errs, timeout
+    [reads, writes, errs]
+  end
+
 end
 
 class VladTestCase < Test::Unit::TestCase

@@ -1,6 +1,11 @@
+require 'rubygems'
+require 'open4'
+
 require 'vlad'
 
 class Rake::RemoteTask < Rake::Task
+  include Open4
+
   attr_accessor :options, :target_host
   attr_reader :remote_actions
 
@@ -32,9 +37,26 @@ class Rake::RemoteTask < Rake::Task
   end
 
   def run command
-    cmd = "ssh #{target_host} #{command}"
-    retval = system cmd
-    raise Vlad::CommandFailedError, "execution failed: #{cmd}" unless retval
+    command = "sh -c \"#{command}\" 2>&1"
+    cmd = ["ssh", target_host, command]
+
+    status = popen4(*cmd) do |pid, inn, out, err|
+      inn.sync = true
+
+      until out.eof? and err.eof? do
+        reads, = select [out, err], nil, nil, 0.1
+
+        reads.each do |readable|
+          data = readable.readpartial(1024)
+
+          inn.puts sudo_password if data =~ /^Password:/
+        end
+      end
+    end
+
+    unless status.success? then
+      raise Vlad::CommandFailedError, "execution failed with status #{status.exitstatus}: #{cmd.join ' '}"
+    end
   end
 
   def target_hosts
@@ -45,7 +67,7 @@ class Rake::RemoteTask < Rake::Task
   class Action
     attr_reader :task, :block, :workers
 
-    def initialize task, block 
+    def initialize task, block
       @task  = task
       @block = block
       @workers = []

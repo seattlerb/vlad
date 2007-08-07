@@ -61,21 +61,43 @@ class TestRakeRemoteTask < VladTestCase
     commands = @task.commands
 
     assert_equal 1, commands.size, 'not enough commands'
-    assert_equal ["ssh app.example.com ls"], commands, 'app'
+    assert_equal ["ssh", "app.example.com", "sh -c \"ls\" 2>&1"],
+                 commands.first, 'app'
   end
 
   def test_run_failing_command
     util_set_hosts
     util_setup_task
-    @task.action = lambda { false }
+    @task.target_host =  'app.example.com'
+    @task.action = lambda { 1 }
 
-    assert_raise(Vlad::CommandFailedError) { @task.run("ls") }
+    e = assert_raise(Vlad::CommandFailedError) { @task.run("ls") }
+    assert_equal "execution failed with status 1: ssh app.example.com sh -c \"ls\" 2>&1", e.message
+
     assert_equal 1, @task.commands.size
+  end
+
+  def test_run_sudo
+    util_setup_task
+    @task.outputs << 'Password:'
+    @task.target_host = "app.example.com"
+    def @task.sudo_password() "my password" end # gets defined by set
+
+    @task.run("sudo ls")
+
+    commands = @task.commands
+
+    assert_equal 1, commands.size, 'not enough commands'
+    assert_equal ['ssh', 'app.example.com', 'sh -c "sudo ls" 2>&1'],
+                 commands.first
+
+    assert_equal "my password\n", @task.input.string
   end
 
   def util_setup_task(options = {})
     @task = @vlad.remote_task :test_task, options
     @task.commands = []
+    @task.outputs = []
     @task.action = nil
     @task
   end

@@ -90,8 +90,10 @@ class Vlad
     @env = {}
     @tasks = {}
     @env_locks = Hash.new { |h,k| h[k] = Mutex.new }
-    set(:application)       { raise Vlad::ConfigurationError, "Please specify the name of the application" }
-    set(:repository)        { raise Vlad::ConfigurationError, "Please specify the repository type" }
+    set(:application)   { raise Vlad::ConfigurationError, "Please specify the name of the application" }
+    set(:repository)    { raise Vlad::ConfigurationError, "Please specify the repository type" }
+    # HACK make this worke sudo really does
+    set(:sudo_password) { raise Vlad::ConfigurationError, "Please specify the sudo password" }
   end
 
   def role role_name, host, args = {}
