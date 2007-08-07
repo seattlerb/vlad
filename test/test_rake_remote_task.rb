@@ -26,6 +26,7 @@ class TestRakeRemoteTask < VladTestCase
     task = @vlad.remote_task(:some_task) { x += some_variable }
     task.execute
     assert_equal 1, task.some_variable
+    assert_equal 2, task.remote_actions.first.workers.size
     assert_equal 7, x
   end
 

@@ -39,11 +39,12 @@ class Rake::RemoteTask < Rake::Task
   end
 
   class Action
-    attr_reader :task, :block
+    attr_reader :task, :block, :workers
 
     def initialize task, block 
       @task  = task
       @block = block
+      @workers = []
     end
 
     def == other
@@ -55,8 +56,12 @@ class Rake::RemoteTask < Rake::Task
       hosts.each do |host|
         t = task.clone
         t.target_host = host
-        t.instance_eval(&block)
+        thread = Thread.new(t) do |task|
+          task.instance_eval(&block)
+        end
+        @workers << thread
       end
+      @workers.each { |w| w.join }
     end
   end
 end
