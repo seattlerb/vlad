@@ -17,6 +17,14 @@ Hoe.new('vlad', Vlad::VERSION) do |p|
   p.extra_deps << 'open4'
 end
 
+task :flog do
+  sh 'find lib -name \*.rb | grep -v vlad_tasks | xargs flog | head -1'
+end
+
+task :flog_full do
+  sh 'find lib -name \*.rb | xargs flog | head -1'
+end
+
 task :sort do
   begin
     sh 'for f in lib/*.rb; do echo $f; grep "^ *def " $f | grep -v sort=skip > x; sort x > y; echo $f; echo; diff x y; done'
