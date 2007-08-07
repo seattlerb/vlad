@@ -77,8 +77,12 @@ class Rake::RemoteTask < Rake::Task
   end
 
   def target_hosts
-    roles = options[:roles]
-    roles ? Vlad.instance.hosts_for(roles) : Vlad.instance.all_hosts
+    if hosts = ENV["HOSTS"]
+      hosts.strip.gsub(/\s+/,'').split(",")
+    else
+      roles = options[:roles]
+      roles ? Vlad.instance.hosts_for(roles) : Vlad.instance.all_hosts
+    end
   end
 
   class Action

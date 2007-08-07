@@ -152,6 +152,16 @@ class TestVlad < VladTestCase
     assert_equal %w[app.example.com db.example.com], t.target_hosts
   end
 
+  def test_remote_task_environment_override
+    old_env_hosts = ENV["HOSTS"]
+    ENV["HOSTS"] = 'other1.example.com,   other2.example.com'
+    util_set_hosts
+    t = @vlad.remote_task(:test_task) { 5 }
+    assert_equal %w[other1.example.com other2.example.com], t.target_hosts
+  ensure 
+    ENV["HOSTS"] = old_env_hosts
+  end
+
   def test_remote_task_self
     @vlad.host 'www.example.com', :app
     @vlad.remote_task(:self_task) do $self_task_result = self end
