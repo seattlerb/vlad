@@ -94,6 +94,18 @@ class TestRakeRemoteTask < VladTestCase
     assert_equal "my password\n", @task.input.string
   end
 
+  def test_sudo
+    util_setup_task
+    @task.target_host = "app.example.com"
+    @task.sudo "ls" 
+
+    commands = @task.commands
+
+    assert_equal 1, commands.size, 'wrong number of commands'
+    assert_equal ["ssh", "app.example.com", "sh -c \"sudo ls\" 2>&1"],
+                 commands.first, 'app'
+  end
+
   def util_setup_task(options = {})
     @task = @vlad.remote_task :test_task, options
     @task.commands = []

@@ -59,6 +59,10 @@ class Rake::RemoteTask < Rake::Task
     end
   end
 
+  def sudo command
+    run "sudo #{command}"
+  end
+
   def target_hosts
     roles = options[:roles]
     roles ? Vlad.instance.hosts_for(roles) : Vlad.instance.all_hosts
