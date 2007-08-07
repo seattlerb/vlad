@@ -7,6 +7,15 @@ class TestVlad < VladTestCase
     assert_equal %w[app.example.com db.example.com], @vlad.all_hosts
   end
 
+  def test_fetch
+    @vlad.set :foo, 5
+    assert_equal 5, @vlad.fetch(:foo)
+  end
+
+  def test_fetch_with_default
+    assert_equal 5, @vlad.fetch(:not_here, 5)
+  end
+
   def test_host
     @vlad.host "test.example.com", :app, :db
     expected = {"test.example.com" => {}}

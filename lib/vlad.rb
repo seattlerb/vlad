@@ -36,7 +36,7 @@ class Vlad
     hosts_for(@roles.keys)
   end
 
-  def fetch(name)
+  def fetch(name, default = nil)
     name = name.to_s if Symbol === name
     if @env.has_key? name then
       protect_env(name) do
@@ -44,6 +44,8 @@ class Vlad
         v = @env[name] = v.call if Proc === v
         v
       end
+    elsif default
+      v = @env[name] = default
     else
       raise Vlad::FetchError
     end
