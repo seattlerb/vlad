@@ -4,7 +4,6 @@ require 'rubygems'
 require 'hoe'
 $: << 'lib'
 require 'vlad'
-Vlad.load('config/deploy.rb')
 
 Hoe.new('vlad', Vlad::VERSION) do |p|
   p.rubyforge_name = 'vlad'
@@ -15,7 +14,6 @@ Hoe.new('vlad', Vlad::VERSION) do |p|
   # p.url = p.paragraphs_of('README.txt', 0).first.split(/\n/)[1..-1]
   p.changes = p.paragraphs_of('History.txt', 0..1).join("\n\n")
   p.extra_deps << 'open4'
-  p.extra_deps << 'rake'
 end
 
 task :sort do
