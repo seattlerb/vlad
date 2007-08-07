@@ -36,14 +36,24 @@ class Rake::RemoteTask < Rake::Task
     @remote_actions.each { |act| act.execute(target_hosts) }
   end
 
+  def rsync local, remote
+    cmd = ['rsync', '-aqz', '--delete', local, "#{@target_host}:#{remote}"]
+
+    success = system(*cmd)
+
+    unless success then
+      raise Vlad::CommandFailedError, "execution failed: #{cmd.join ' '}"
+    end
+  end
+
   def run command
     command = "sh -c \"#{command}\" 2>&1"
     cmd = ["ssh", target_host, command]
+    result = []
 
     status = popen4(*cmd) do |pid, inn, out, err|
       inn.sync = true
 
-      result = []
       until out.eof? and err.eof? do
         reads, = select [out, err], nil, nil, 0.1
 
@@ -53,12 +63,13 @@ class Rake::RemoteTask < Rake::Task
           inn.puts sudo_password if data =~ /^Password:/
         end
       end
-      return result.join
     end
 
     unless status.success? then
       raise Vlad::CommandFailedError, "execution failed with status #{status.exitstatus}: #{cmd.join ' '}"
     end
+
+    result.join
   end
 
   def sudo command

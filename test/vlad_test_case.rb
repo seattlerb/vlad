@@ -15,6 +15,11 @@ class Rake::RemoteTask
     def success?() exitstatus == 0 end
   end
 
+  def system *command
+    @commands << command
+    self.action ? self.action[command.join(' ')] : true
+  end
+
   def popen4 *command
     @commands << command
 

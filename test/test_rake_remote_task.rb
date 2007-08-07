@@ -53,8 +53,31 @@ class TestRakeRemoteTask < VladTestCase
     assert_equal 6, x
   end
 
+  def test_rsync
+    util_setup_task
+    @task.target_host = "app.example.com"
+
+    @task.rsync 'localfile', 'remotefile'
+
+    commands = @task.commands
+
+    assert_equal 1, commands.size, 'not enough commands'
+    assert_equal %w[rsync -aqz --delete localfile app.example.com:remotefile],
+                 commands.first, 'rsync'
+  end
+
+  def test_rsync_fail
+    util_setup_task
+    @task.target_host = "app.example.com"
+    @task.action = lambda { false }
+
+    e = assert_raise(Vlad::CommandFailedError) { @task.rsync 'local', 'remote' }
+    assert_equal "execution failed: rsync -aqz --delete local app.example.com:remote", e.message
+  end
+
   def test_run
     util_setup_task
+    @task.outputs << "file1\nfile2\n"
     @task.target_host = "app.example.com"
     result = @task.run("ls")
 
@@ -63,12 +86,13 @@ class TestRakeRemoteTask < VladTestCase
     assert_equal 1, commands.size, 'not enough commands'
     assert_equal ["ssh", "app.example.com", "sh -c \"ls\" 2>&1"],
                  commands.first, 'app'
-    assert_equal :fu, result
+    assert_equal "file1\nfile2\n", result
   end
 
   def test_run_failing_command
     util_set_hosts
     util_setup_task
+    @task.input = StringIO.new "file1\nfile2\n"
     @task.target_host =  'app.example.com'
     @task.action = lambda { 1 }
 
