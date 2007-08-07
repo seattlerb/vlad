@@ -99,9 +99,10 @@ class Vlad
 
       begin
         system "stty -echo"
-        print "sudo password: "
-        sudo_password = gets
-        puts
+        $stdout.print "sudo password: "
+        $stdout.flush
+        sudo_password = $stdin.gets
+        $stdout.puts
       ensure
         system "stty #{state}"
       end
