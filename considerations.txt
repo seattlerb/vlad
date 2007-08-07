@@ -29,3 +29,15 @@
 
   The 'host' method we have added makes this even easier:
   host "only-one-db.example.com", :db, :master_db
+
+* 'dynamic deployments'
+  role :app, "app1.example.com"
+  role :app, "app2.example.com"
+  Let's say that app1 and app2 need slightly different monit configurations.
+
+  In Capistrano, you might approach this by making two additional roles, and 
+  splitting your 'push a monit config' task into two. This sucks.
+  Vlad makes the 'execution context' of a task available. In Vlad, you would:
+  remote_task :update_monit, :roles => :app
+    rsync "templates/#{target_host}.monitrc", "/etc/monitrc"
+  end
