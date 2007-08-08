@@ -38,7 +38,7 @@ class Vlad::SCM
   end
 
   def fetch(var)
-    Vlad.instance.fetch(var)
+    Rake::RemoteTask.fetch(var)
   end
 end
 

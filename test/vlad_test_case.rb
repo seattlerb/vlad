@@ -43,7 +43,7 @@ class VladTestCase < Test::Unit::TestCase
   undef_method :default_test
 
   def setup
-    @vlad = Vlad.instance
+    @vlad = Rake::RemoteTask
     Rake.application.clear
     @task_count = Rake.application.tasks.size
   end

@@ -1,10 +1,14 @@
 require 'rubygems'
 require 'open4'
-
 require 'vlad'
 
 class Rake::RemoteTask < Rake::Task
   include Open4
+
+  class Error < RuntimeError; end
+  class ConfigurationError < Error; end
+  class CommandFailedError < Error; end
+  class FetchError < Error; end
 
   attr_accessor :options, :target_host
   attr_reader :remote_actions
@@ -28,7 +32,7 @@ class Rake::RemoteTask < Rake::Task
   # This relies on the current (rake 0.7.3) calling conventions.
   # If this breaks blame Jim Weirich and/or society.
   def execute
-    raise Vlad::ConfigurationError, "No target hosts specified for task: #{self.name}" if target_hosts.empty?
+    raise Rake::RemoteTask::ConfigurationError, "No target hosts specified for task: #{self.name}" if target_hosts.empty?
     super
     @remote_actions.each { |act| act.execute(target_hosts) }
   end
@@ -39,7 +43,7 @@ class Rake::RemoteTask < Rake::Task
     success = system(*cmd)
 
     unless success then
-      raise Vlad::CommandFailedError, "execution failed: #{cmd.join ' '}"
+      raise Rake::RemoteTask::CommandFailedError, "execution failed: #{cmd.join ' '}"
     end
   end
 
@@ -74,7 +78,7 @@ class Rake::RemoteTask < Rake::Task
     end
 
     unless status.success? then
-      raise Vlad::CommandFailedError, "execution failed with status #{status.exitstatus}: #{cmd.join ' '}"
+      raise Rake::RemoteTask::CommandFailedError, "execution failed with status #{status.exitstatus}: #{cmd.join ' '}"
     end
 
     result.join
@@ -89,8 +93,125 @@ class Rake::RemoteTask < Rake::Task
       hosts.strip.gsub(/\s+/,'').split(",")
     else
       roles = options[:roles]
-      roles ? Vlad.instance.hosts_for(roles) : Vlad.instance.all_hosts
+      roles ? Rake::RemoteTask.hosts_for(roles) : Rake::RemoteTask.all_hosts
     end
+  end
+
+  def self.all_hosts
+    hosts_for(@@roles.keys)
+  end
+
+  def self.fetch name, default = nil
+    name = name.to_s if Symbol === name
+    if @@env.has_key? name then
+      protect_env(name) do
+        v = @@env[name]
+        v = @@env[name] = v.call if Proc === v
+        v
+      end
+    elsif default
+      v = @@env[name] = default
+    else
+      raise Rake::RemoteTask::FetchError
+    end
+  end
+
+  def self.host host_name, *roles
+    opts = Hash === roles.last ? roles.pop : {}
+
+    roles.each do |role_name|
+      role role_name, host_name, opts.dup
+    end
+  end
+
+  def self.hosts_for *roles
+    roles.flatten.map do |r|
+      @@roles[r].keys
+    end.flatten.uniq.sort
+  end
+
+  def self.load path
+    Kernel.load path
+    require 'vlad_tasks'
+  end
+
+  def self.protect_env name
+    @@env_locks[name.to_s].synchronize do
+      yield
+    end
+  end
+
+  def self.reserved_name? name
+    !@@env.has_key?(name.to_s) && self.respond_to?(name)
+  end
+
+  def self.task
+    Thread.current[:task]
+  end
+
+  def self.roles; @@roles; end
+  def self.tasks; @@tasks; end
+  def self.env  ; @@env  ; end
+
+  def self.reset
+    @@roles = Hash.new { |h,k| h[k] = {} }
+    @@env = {}
+    @@tasks = {}
+    @@env_locks = Hash.new { |h,k| h[k] = Mutex.new }
+
+    set(:application) { raise Rake::RemoteTask::ConfigurationError, "Please specify the name of the application" }
+    set(:repository)  { raise Rake::RemoteTask::ConfigurationError, "Please specify the repository path" }
+    set(:deploy_to)   { raise Rake::RemoteTask::ConfigurationError, "Please specify the deploy path" }
+
+    set(:deploy_timestamped, true)
+    set(:current_path)    { File.join(deploy_to, "current") }
+    set(:current_release) { File.join(releases_path, releases.last) }
+    set(:deploy_via, :export)
+    set(:latest_release)  { deploy_timestamped ? release_path : current_release }
+    set(:migrate_env, "")
+    set(:migrate_target, :latest)
+    set(:rails_env, "production")
+    set(:rake, "rake")
+    set(:release_name)    { Time.now.utc.strftime("%Y%m%d%H%M%S") }
+    set(:release_path)    { File.join(releases_path, release_name) }
+    set(:releases)        { task.run("ls -x #{releases_path}").split.sort }
+    set(:releases_path)   { File.join(deploy_to, "releases") }
+    set(:shared_path)     { File.join(deploy_to, "shared") }
+
+    set(:sudo_password) do
+      state = `stty -g`
+
+      raise Rake::RemoteTask::Error, "stty(1) not found" unless $?.success?
+
+      begin
+        system "stty -echo"
+        $stdout.print "sudo password: "
+        $stdout.flush
+        sudo_password = $stdin.gets
+        $stdout.puts
+      ensure
+        system "stty #{state}"
+      end
+      sudo_password
+    end
+
+    set(:source) do
+      scm = fetch(:scm, :subversion)
+      require "vlad/#{scm}"
+      Vlad.const_get(scm.to_s.capitalize).new
+    end
+  end
+
+  def self.role role_name, host, args = {}
+    raise ArgumentError, "invalid host" if host.nil? or host.empty?
+    @@roles[role_name][host] = args
+  end
+
+  def self.remote_task name, options = {}, &b
+    t = Rake::RemoteTask.define_task(name, &b)
+    t.options = options
+    roles = options[:roles]
+    t
   end
 
   class Action
@@ -121,3 +242,4 @@ class Rake::RemoteTask < Rake::Task
     end
   end
 end
+
