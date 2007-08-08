@@ -30,7 +30,7 @@ set :deploy_to, "#\{remote_home}/seattlerb.org"
 set :use_sudo, false
 set :domain, "localhost"
 
-set :scm, 'svn'
+set :scm_type, 'svn'
 set :repository, 'svn://rubyforge.org/var/svn/seattlerb'
 
 host domain, :app, :web, :db
