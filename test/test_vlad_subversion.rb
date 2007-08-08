@@ -23,8 +23,8 @@ class TestVladSubversion < Test::Unit::TestCase
     assert_equal 'svn export -r HEAD svn+ssh://repo/myproject /the/place', cmd
   end
   
-  def test_real_revision
-    cmd = @scm.real_revision('HEAD')
+  def test_revision
+    cmd = @scm.revision('HEAD')
     expected = "svn info svn+ssh://repo/myproject | grep 'Revision:' | cut -f2 -d\\ "
     assert_equal expected, cmd
   end

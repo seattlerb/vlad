@@ -28,8 +28,8 @@ class TestVladPerforce < Test::Unit::TestCase
     assert_equal 'cd /repo/myproject && p4 sync ...#head && cp -rp . /the/place', cmd
   end
   
-  def test_real_revision
-    cmd = @scm.real_revision('head')
+  def test_revision
+    cmd = @scm.revision('head')
     assert_equal 'p4 changes -s submitted -m 1 ...#head | cut -f 2 -d\ ', cmd
   end
 

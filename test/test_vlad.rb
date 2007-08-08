@@ -149,18 +149,18 @@ class TestVlad < VladTestCase
     assert_equal %w[www.example.com], t.target_hosts
   end
 
-  def test_scm
-    set :scm_type, :perforce
-    assert_equal "Vlad::Perforce", @vlad.scm.class.name
+  def test_source
+    set :scm, :perforce
+    assert_equal "Vlad::Perforce", @vlad.source.class.name
   end
 
-  def test_scm_default
-    assert_equal "Vlad::Subversion", @vlad.scm.class.name
+  def test_source_default
+    assert_equal "Vlad::Subversion", @vlad.source.class.name
   end
 
-  def test_scm_singleton
-    s1 = @vlad.scm
-    s2 = @vlad.scm
+  def test_source_singleton
+    s1 = @vlad.source
+    s2 = @vlad.source
     assert_equal s1.object_id, s2.object_id
   end
 
