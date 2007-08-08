@@ -23,7 +23,8 @@ class Vlad::Perforce < Vlad::SCM
   alias :export :checkout
 
   def revision(revision)
-    command :changes, "-s submitted -m 1 ...#{rev_no(revision)} | cut -f 2 -d\\ "
+    cmd = command :changes, "-s submitted -m 1 ...#{rev_no(revision)} | cut -f 2 -d\\ "
+    "`#{cmd}`"
   end
 
   def rev_no(revision)

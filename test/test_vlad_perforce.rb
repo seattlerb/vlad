@@ -30,7 +30,7 @@ class TestVladPerforce < Test::Unit::TestCase
   
   def test_revision
     cmd = @scm.revision('head')
-    assert_equal 'p4 changes -s submitted -m 1 ...#head | cut -f 2 -d\ ', cmd
+    assert_equal '`p4 changes -s submitted -m 1 ...#head | cut -f 2 -d\ `', cmd
   end
 
   def test_rev_no
