@@ -93,7 +93,6 @@ class Vlad
     @env = {}
     @tasks = {}
     @env_locks = Hash.new { |h,k| h[k] = Mutex.new }
-    @scm = nil
     set(:application) { raise Vlad::ConfigurationError, "Please specify the name of the application" }
     set(:repository)  { raise Vlad::ConfigurationError, "Please specify the repository path" }
     set(:deploy_to)   { raise Vlad::ConfigurationError, "Please specify the deploy path" }
