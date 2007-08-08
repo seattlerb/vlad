@@ -122,17 +122,17 @@ class Vlad
       end
       sudo_password
     end
+
+    set(:scm) do
+      scm_type = fetch(:scm_type, :subversion)
+      require "vlad/#{scm_type}"
+      scm ||= Vlad.const_get(scm_type.to_s.capitalize).new
+    end
   end
 
   def role role_name, host, args = {}
     raise ArgumentError, "invalid host" if host.nil? or host.empty?
     @roles[role_name][host] = args
-  end
-
-  def scm
-    scm_type = fetch(:scm_type, :subversion)
-    require "vlad/#{scm_type}"
-    @scm ||= Vlad.const_get(scm_type.to_s.capitalize).new
   end
 
   def set name, val = nil, &b
