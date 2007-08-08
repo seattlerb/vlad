@@ -50,14 +50,14 @@ class Rake::RemoteTask < Rake::Task
     cmd = ["ssh", target_host, command]
     result = []
 
+    puts cmd.join(' ') if Rake.application.options.trace
+
     status = popen4(*cmd) do |pid, inn, out, err|
       inn.sync = true
 
       until out.eof? and err.eof? do
-        reads, _, errs = select [out], nil, [err], 0.1
-
-        unless errs.empty? or errs.first.eof? then
-          data = errs.first.readpartial(1024)
+        unless err.eof? then
+          data = err.readpartial(1024)
           result << data
 
           if data =~ /^Password:/ then
@@ -66,9 +66,7 @@ class Rake::RemoteTask < Rake::Task
           end
         end
 
-        unless reads.empty? or reads.first.eof? then
-          result << reads.first.readpartial(1024) 
-        end
+        result << out.readpartial(1024) unless out.eof?
       end
     end
 
