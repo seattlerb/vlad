@@ -1,4 +1,4 @@
-require 'scm'
+require 'vlad/scm'
 
 # Implements the Capistrano SCM interface for the Subversion revision
 # control system (http://subversion.tigris.org).

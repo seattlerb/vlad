@@ -131,7 +131,7 @@ class Vlad
 
   def scm
     scm_type = fetch(:scm_type, :subversion)
-    require "scm/#{scm_type}"
+    require "vlad/#{scm_type}"
     @scm ||= Vlad.const_get(scm_type.to_s.capitalize).new
   end
 

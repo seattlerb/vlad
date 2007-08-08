@@ -1,4 +1,4 @@
-require 'scm'
+require 'vlad/scm'
 
 # Implements the Capistrano SCM interface for the Perforce revision
 # control system (http://www.perforce.com).
