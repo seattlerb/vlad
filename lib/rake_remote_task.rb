@@ -56,7 +56,7 @@ class Rake::RemoteTask < Rake::Task
       until out.eof? and err.eof? do
         reads, _, errs = select [out], nil, [err], 0.1
 
-        unless errs.empty? then
+        unless errs.empty? or errs.first.eof? then
           data = errs.first.readpartial(1024)
           result << data
 
@@ -66,7 +66,9 @@ class Rake::RemoteTask < Rake::Task
           end
         end
 
-        result << reads.first.readpartial(1024) unless reads.empty?
+        unless reads.empty? or reads.first.eof? then
+          result << reads.first.readpartial(1024) 
+        end
       end
     end
 

@@ -93,8 +93,9 @@ class Vlad
     @env = {}
     @tasks = {}
     @env_locks = Hash.new { |h,k| h[k] = Mutex.new }
+    @scm = nil
     set(:application) { raise Vlad::ConfigurationError, "Please specify the name of the application" }
-    set(:repository)  { raise Vlad::ConfigurationError, "Please specify the repository type" }
+    set(:repository)  { raise Vlad::ConfigurationError, "Please specify the repository path" }
     set(:deploy_to)   { raise Vlad::ConfigurationError, "Please specify the deploy path" }
     set(:releases_path) { File.join(deploy_to, "releases") }
     set(:shared_path)   { File.join(deploy_to, "shared") }
@@ -128,6 +129,12 @@ class Vlad
     @roles[role_name][host] = args
   end
 
+  def scm
+    scm_type = fetch(:scm_type, :subversion)
+    require "scm/#{scm_type}"
+    @scm ||= Vlad.const_get(scm_type.to_s.capitalize).new
+  end
+
   def set name, val = nil, &b
     raise ArgumentError, "cannot set reserved name: '#{name}'" if self.respond_to?(name)
     raise ArgumentError, "cannot provide both a value and a block" if b and val
@@ -143,3 +150,4 @@ class Vlad
     t
   end
 end
+

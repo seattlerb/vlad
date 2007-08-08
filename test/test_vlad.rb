@@ -95,51 +95,6 @@ class TestVlad < VladTestCase
     assert_equal expected_app, @vlad.roles[:app]
   end
 
-  def test_set
-    @vlad.set :test, 5
-    assert_equal 5, @vlad.test
-  end
-
-  def test_set_lazy_block_evaluation
-    @vlad.set(:test) { fail "lose" }
-    assert_raise(RuntimeError) { @vlad.test }
-  end
-
-  def test_set_with_block
-    x = 1
-    @vlad.set(:test) { x += 2 }
-
-    assert_equal 3, @vlad.test
-    assert_equal 3, @vlad.test
-  end
-
-  def test_set_with_reference
-    @vlad.instance_eval do
-      set(:var_one) { var_two }
-      set(:var_two) { var_three }
-      set(:var_three) { 5 }
-    end
-
-    assert_equal 5, @vlad.var_one
-  end
-
-  def test_set_with_block_and_value
-    e = assert_raise(ArgumentError) do
-      @vlad.set(:test, 5) { 6 }
-    end
-    assert_equal "cannot provide both a value and a block", e.message
-  end
-
-  def test_set_with_nil
-    @vlad.set(:test, nil)
-    assert_equal nil, @vlad.test
-  end
-
-  def test_set_with_reserved_name
-    e = assert_raise(ArgumentError) { @vlad.set(:all_hosts, []) }
-    assert_equal "cannot set reserved name: 'all_hosts'", e.message
-  end
-
   def test_remote_task
     t = @vlad.remote_task(:test_task) { 5 }
     assert_equal @task_count + 1, Rake.application.tasks.size
@@ -192,6 +147,66 @@ class TestVlad < VladTestCase
     t = @vlad.remote_task :test_task, :roles => :web do 5 end
     @vlad.host 'www.example.com', :web
     assert_equal %w[www.example.com], t.target_hosts
+  end
+
+  def test_scm
+    set :scm_type, :perforce
+    assert_equal "Vlad::Perforce", @vlad.scm.class.name
+  end
+
+  def test_scm_default
+    assert_equal "Vlad::Subversion", @vlad.scm.class.name
+  end
+
+  def test_scm_singleton
+    s1 = @vlad.scm
+    s2 = @vlad.scm
+    assert_equal s1.object_id, s2.object_id
+  end
+
+  def test_set
+    @vlad.set :test, 5
+    assert_equal 5, @vlad.test
+  end
+
+  def test_set_lazy_block_evaluation
+    @vlad.set(:test) { fail "lose" }
+    assert_raise(RuntimeError) { @vlad.test }
+  end
+
+  def test_set_with_block
+    x = 1
+    @vlad.set(:test) { x += 2 }
+
+    assert_equal 3, @vlad.test
+    assert_equal 3, @vlad.test
+  end
+
+  def test_set_with_reference
+    @vlad.instance_eval do
+      set(:var_one) { var_two }
+      set(:var_two) { var_three }
+      set(:var_three) { 5 }
+    end
+
+    assert_equal 5, @vlad.var_one
+  end
+
+  def test_set_with_block_and_value
+    e = assert_raise(ArgumentError) do
+      @vlad.set(:test, 5) { 6 }
+    end
+    assert_equal "cannot provide both a value and a block", e.message
+  end
+
+  def test_set_with_nil
+    @vlad.set(:test, nil)
+    assert_equal nil, @vlad.test
+  end
+
+  def test_set_with_reserved_name
+    e = assert_raise(ArgumentError) { @vlad.set(:all_hosts, []) }
+    assert_equal "cannot set reserved name: 'all_hosts'", e.message
   end
 end
 
