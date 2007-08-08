@@ -6,6 +6,8 @@
   rake vlad:setup HOSTS='app2.example.com'
   should override the normal 'target_hosts' process and manually set the list
 
+* sudo / via how? and if we call it via I will stab ppl. "user" is sufficient.
+
 * :except => {:no_release => true}
   It is common to configure tasks to 'announce' deployments in IRC, Campfire, etc.
   If you have 6 app servers, you don't want to see 6 announcements.

@@ -93,16 +93,17 @@ class Vlad
     @env = {}
     @tasks = {}
     @env_locks = Hash.new { |h,k| h[k] = Mutex.new }
-    set(:application)   { raise Vlad::ConfigurationError, "Please specify the name of the application" }
-    set(:repository)    { raise Vlad::ConfigurationError, "Please specify the repository type" }
-    set(:releases_path)     { File.join(deploy_to, "releases") }
-    set(:shared_path)       { File.join(deploy_to, "shared") }
-    set(:current_path)      { File.join(deploy_to, "current") }
-    set(:release_name)      { # TODO: clean up
+    set(:application) { raise Vlad::ConfigurationError, "Please specify the name of the application" }
+    set(:repository)  { raise Vlad::ConfigurationError, "Please specify the repository type" }
+    set(:deploy_to)   { raise Vlad::ConfigurationError, "Please specify the deploy path" }
+    set(:releases_path) { File.join(deploy_to, "releases") }
+    set(:shared_path)   { File.join(deploy_to, "shared") }
+    set(:current_path)  { File.join(deploy_to, "current") }
+    set(:release_path)  { File.join(releases_path, release_name) }
+    set(:release_name)  { # TODO: clean up
       set :deploy_timestamped, true
       Time.now.utc.strftime("%Y%m%d%H%M%S")
     }
-    set(:release_path)      { File.join(releases_path, release_name) }
 
     set(:sudo_password) do
       state = `stty -g`

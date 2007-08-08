@@ -102,7 +102,7 @@ namespace :vlad do
   remote_task :update do
     set :migrate_target, :latest
     begin
-      strategy.deploy!
+      strategery.deploy!
       # finalize_update
       run "chmod -R g+w #{latest_release}" if fetch(:group_writable, true)
 
@@ -269,7 +269,7 @@ end # namespace vlad
   # set(:source)            { Capistrano::Deploy::SCM.new(scm, self) }
   # set(:real_revision)     { source.local.query_revision(revision) { |cmd| with_env("LC_ALL", "C") { '#{cmd}' } } }
 
-  # set(:strategy)          { Capistrano::Deploy::Strategy.new(deploy_via, self) }
+  # set(:strategery)          { Capistrano::Deploy::Strategery.new(deploy_via, self) }
 
   # set(:releases)          { capture("ls -x #{releases_path}").split.sort }
   # set(:current_release)   { File.join(releases_path, releases.last) }
