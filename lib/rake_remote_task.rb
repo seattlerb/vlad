@@ -115,6 +115,7 @@ class Rake::RemoteTask < Rake::Task
         t = task.clone
         t.target_host = host
         thread = Thread.new(t) do |task|
+          Thread.current[:task] = task
           task.instance_eval(&block)
         end
         @workers << thread

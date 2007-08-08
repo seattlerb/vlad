@@ -31,7 +31,7 @@ set :use_sudo, false
 set :domain, "localhost"
 
 set :scm_type, 'svn'
-set :repository, 'svn://rubyforge.org/var/svn/seattlerb'
+set :repository, 'http://svn.supremetyrant.com/paste/'
 
 host domain, :app, :web, :db
 

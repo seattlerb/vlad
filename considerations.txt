@@ -6,6 +6,12 @@
   rake vlad:setup HOSTS='app2.example.com'
   should override the normal 'target_hosts' process and manually set the list
 
+* by merging Vlad and RemoteTask we avoid a lot of crap wrt
+  instance_eval and variable lookups etc. Consider it. At one point,
+  this wasn't possible but I was too tired to make note of why.
+
+* might we want per connection values?
+
 * sudo / via how? and if we call it via I will stab ppl. "user" is sufficient.
 
 * :except => {:no_release => true}

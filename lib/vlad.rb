@@ -88,6 +88,10 @@ class Vlad
     end
   end
 
+  def task
+    Thread.current[:task]
+  end
+
   def reset
     @roles = Hash.new { |h,k| h[k] = {} }
     @env = {}
@@ -108,7 +112,7 @@ class Vlad
     set(:rake, "rake")
     set(:release_name)    { Time.now.utc.strftime("%Y%m%d%H%M%S") }
     set(:release_path)    { File.join(releases_path, release_name) }
-    set(:releases)        { run("ls -x #{releases_path}").split.sort }
+    set(:releases)        { task.run("ls -x #{releases_path}").split.sort }
     set(:releases_path)   { File.join(deploy_to, "releases") }
     set(:shared_path)     { File.join(deploy_to, "shared") }
 
