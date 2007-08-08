@@ -263,13 +263,12 @@ end # namespace vlad
   # set :scm, :subversion
   # set :deploy_via, :checkout
 
-  # set(:deploy_to) { "/u/apps/#{application}" }
   # set(:revision)  { source.head }
 
   # set(:source)            { Capistrano::Deploy::SCM.new(scm, self) }
-  # set(:real_revision)     { source.local.query_revision(revision) { |cmd| with_env("LC_ALL", "C") { '#{cmd}' } } }
+  # set(:real_revision) { source.local.query_revision(revision) { |cmd| with_env("LC_ALL", "C") { '#{cmd}' } } }
 
-  # set(:strategery)          { Capistrano::Deploy::Strategery.new(deploy_via, self) }
+  # set(:strategery) { Capistrano::Deploy::Strategery.new(deploy_via, self) }
 
   # set(:releases)          { capture("ls -x #{releases_path}").split.sort }
   # set(:current_release)   { File.join(releases_path, releases.last) }
