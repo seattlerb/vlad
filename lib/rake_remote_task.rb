@@ -30,9 +30,6 @@ class Rake::RemoteTask < Rake::Task
   def execute
     raise Vlad::ConfigurationError, "No target hosts specified for task: #{self.name}" if target_hosts.empty?
     super
-    Vlad.instance.env.keys.each do |name|
-      self.instance_eval "def #{name}; Vlad.instance.fetch('#{name}'); end"
-    end
     @remote_actions.each { |act| act.execute(target_hosts) }
   end
 
@@ -116,7 +113,7 @@ class Rake::RemoteTask < Rake::Task
         t.target_host = host
         thread = Thread.new(t) do |task|
           Thread.current[:task] = task
-          task.instance_eval(&block)
+          block.call
         end
         @workers << thread
       end

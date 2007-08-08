@@ -9,7 +9,11 @@ def remote_task name, options = {}, &b
 end
 
 def set name, val = nil, &b
-  Vlad.instance.set name, val, &b
+  Vlad.instance.env[name.to_s] = val || b
+
+  Object.send :define_method, name do
+    Vlad.instance.fetch name
+  end
 end
 
 def role role_name, host, args = {}
@@ -18,6 +22,10 @@ end
 
 def host host_name, *roles
   Vlad.instance.host host_name, *roles
+end
+
+def run(*args, &b)
+  Thread.current[:task].run(*args, &b)
 end
 
 class Vlad
@@ -66,12 +74,11 @@ class Vlad
   end
 
   def self.load path
-    self.instance.instance_eval File.read(path)
+    Kernel::load path
     require 'vlad_tasks'
   end
 
   def initialize
-    self.reset
   end
 
   def method_missing name, *args
@@ -97,6 +104,7 @@ class Vlad
     @env = {}
     @tasks = {}
     @env_locks = Hash.new { |h,k| h[k] = Mutex.new }
+
     set(:application) { raise Vlad::ConfigurationError, "Please specify the name of the application" }
     set(:repository)  { raise Vlad::ConfigurationError, "Please specify the repository path" }
     set(:deploy_to)   { raise Vlad::ConfigurationError, "Please specify the deploy path" }
@@ -145,14 +153,6 @@ class Vlad
     @roles[role_name][host] = args
   end
 
-  def set name, val = nil, &b
-    raise ArgumentError, "cannot set reserved name: '#{name}'" if self.respond_to?(name)
-    raise ArgumentError, "cannot provide both a value and a block" if b and val
-    protect_env(name.to_s) do
-      @env[name.to_s] = val || b
-    end
-  end
-
   def remote_task name, options = {}, &b
     t = Rake::RemoteTask.define_task(name, &b)
     t.options = options
@@ -161,3 +161,4 @@ class Vlad
   end
 end
 
+Vlad.instance.reset
