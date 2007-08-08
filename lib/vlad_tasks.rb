@@ -104,7 +104,7 @@ namespace :vlad do
     begin
       run source.send(deploy_via, source.revision("head"), release_path)
       # finalize_update
-      run "chmod -R g+w #{latest_release}" if fetch(:group_writable, true)
+      run "chmod -R g+w #{latest_release}"
 
       # mkdir -p is making sure that the directories are there for some
       # SCM's that don't save empty folders
@@ -112,10 +112,10 @@ namespace :vlad do
 
       stamp = Time.now.utc.strftime("%Y%m%d%H%M.%S")
       asset_paths = %w(images stylesheets javascripts).map { |p| "#{latest_release}/public/#{p}" }.join(" ")
-      run "find #{asset_paths} -exec touch -t #{stamp} {} ';'; true", :env => { "TZ" => "UTC" }
+      run "find #{asset_paths} -exec touch -t #{stamp} {} ';'; true" # HACK :env => { "TZ" => "UTC" }
 
-      migrate
-      symlink
+      Rake::Task["vlad:migrate"].invoke
+      Rake::Task["vlad:symlink"].invoke
 
       run "echo `date +\"%Y-%m-%d %H:%M:%S\"` $USER #{real_revision} #{File.basename release_path} >> #{deploy_to}/revisions.log"
     rescue => e
@@ -214,11 +214,6 @@ namespace :vlad do
       set :migrate_target, :latest".cleanup
 
   remote_task :migrate, :roles => :db do # HACK :only => { :primary => true }
-    rake = fetch(:rake, "rake")
-    rails_env = fetch(:rails_env, "production")
-    migrate_env = fetch(:migrate_env, "")
-    migrate_target = fetch(:migrate_target, :latest)
-
     directory = case migrate_target.to_sym
                 when :current then current_path
                 when :latest  then current_release
@@ -263,8 +258,6 @@ end # namespace vlad
 
   # set(:strategery) { Capistrano::Deploy::Strategery.new(deploy_via, self) }
 
-  # set(:releases)          { capture("ls -x #{releases_path}").split.sort }
-  # set(:current_release)   { File.join(releases_path, releases.last) }
   # set(:previous_release)  { File.join(releases_path, releases[-2]) }
 
   # set(:current_revision)  { capture("cat #{current_path}/REVISION").chomp }
@@ -272,8 +265,6 @@ end # namespace vlad
   # set(:previous_revision) { capture("cat #{previous_release}/REVISION").chomp }
 
   # set(:run_method)        { fetch(:use_sudo, true) ? :sudo : :run }
-
-  # set(:latest_release) { exists?(:deploy_timestamped) ? release_path : current_release }
 
 ############################################################
 

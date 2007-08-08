@@ -96,15 +96,21 @@ class Vlad
     set(:application) { raise Vlad::ConfigurationError, "Please specify the name of the application" }
     set(:repository)  { raise Vlad::ConfigurationError, "Please specify the repository path" }
     set(:deploy_to)   { raise Vlad::ConfigurationError, "Please specify the deploy path" }
+
+    set(:deploy_timestamped, true)
+    set(:current_path)    { File.join(deploy_to, "current") }
+    set(:current_release) { File.join(releases_path, releases.last) }
     set(:deploy_via, :export)
-    set(:releases_path) { File.join(deploy_to, "releases") }
-    set(:shared_path)   { File.join(deploy_to, "shared") }
-    set(:current_path)  { File.join(deploy_to, "current") }
-    set(:release_path)  { File.join(releases_path, release_name) }
-    set(:release_name)  { # TODO: clean up
-      set :deploy_timestamped, true
-      Time.now.utc.strftime("%Y%m%d%H%M%S")
-    }
+    set(:latest_release)  { deploy_timestamped ? release_path : current_release }
+    set(:migrate_env, "")
+    set(:migrate_target, :latest)
+    set(:rails_env, "production")
+    set(:rake, "rake")
+    set(:release_name)    { Time.now.utc.strftime("%Y%m%d%H%M%S") }
+    set(:release_path)    { File.join(releases_path, release_name) }
+    set(:releases)        { run("ls -x #{releases_path}").split.sort }
+    set(:releases_path)   { File.join(deploy_to, "releases") }
+    set(:shared_path)     { File.join(deploy_to, "shared") }
 
     set(:sudo_password) do
       state = `stty -g`
