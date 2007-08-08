@@ -56,15 +56,17 @@ class Rake::RemoteTask < Rake::Task
       until out.eof? and err.eof? do
         reads, _, errs = select [out], nil, [err], 0.1
 
-        data = errs.first.readpartial(1024)
-        result << data
+        unless errs.empty? then
+          data = errs.first.readpartial(1024)
+          result << data
 
-        if data =~ /^Password:/ then
-          inn.puts sudo_password
-          result << "\n"
+          if data =~ /^Password:/ then
+            inn.puts sudo_password
+            result << "\n"
+          end
         end
 
-        result << reads.first.readpartial(1024)
+        result << reads.first.readpartial(1024) unless reads.empty?
       end
     end
 
