@@ -9,6 +9,8 @@ def remote_task name, options = {}, &b
 end
 
 def set name, val = nil, &b
+  raise ArgumentError, "cannot provide both a value and a block" if val and b
+  raise ArgumentError, "cannot set reserved name: '#{name}'" if Vlad.instance.reserved_name?(name)
   Vlad.instance.env[name.to_s] = val || b
 
   Object.send :define_method, name do
@@ -74,11 +76,8 @@ class Vlad
   end
 
   def self.load path
-    Kernel::load path
+    Kernel.load path
     require 'vlad_tasks'
-  end
-
-  def initialize
   end
 
   def method_missing name, *args
@@ -93,6 +92,10 @@ class Vlad
     @env_locks[name.to_s].synchronize do
       yield
     end
+  end
+
+  def reserved_name?(name)
+    !@env.has_key?(name.to_s) && self.respond_to?(name)
   end
 
   def task

@@ -8,7 +8,7 @@ class TestVlad < VladTestCase
   end
 
   def test_fetch
-    @vlad.set :foo, 5
+    set :foo, 5
     assert_equal 5, @vlad.fetch(:foo)
   end
 
@@ -117,18 +117,8 @@ class TestVlad < VladTestCase
     ENV["HOSTS"] = old_env_hosts
   end
 
-  def test_remote_task_self
-    @vlad.host 'www.example.com', :app
-    @vlad.remote_task(:self_task) do $self_task_result = self end
-
-    task = Rake::Task['self_task']
-    task.execute
-    assert_equal task.class, $self_task_result.class
-    assert_equal task.name, $self_task_result.name
-  end
-
   def test_remote_task_body_set
-    @vlad.set(:some_variable, 5)
+    set(:some_variable, 5)
     @vlad.host 'www.example.com', :app
     @vlad.remote_task(:some_task) do $some_task_result = some_variable end
 
@@ -165,18 +155,18 @@ class TestVlad < VladTestCase
   end
 
   def test_set
-    @vlad.set :test, 5
+    set :test, 5
     assert_equal 5, @vlad.test
   end
 
   def test_set_lazy_block_evaluation
-    @vlad.set(:test) { fail "lose" }
+    set(:test) { fail "lose" }
     assert_raise(RuntimeError) { @vlad.test }
   end
 
   def test_set_with_block
     x = 1
-    @vlad.set(:test) { x += 2 }
+    set(:test) { x += 2 }
 
     assert_equal 3, @vlad.test
     assert_equal 3, @vlad.test
@@ -194,18 +184,18 @@ class TestVlad < VladTestCase
 
   def test_set_with_block_and_value
     e = assert_raise(ArgumentError) do
-      @vlad.set(:test, 5) { 6 }
+      set(:test, 5) { 6 }
     end
     assert_equal "cannot provide both a value and a block", e.message
   end
 
   def test_set_with_nil
-    @vlad.set(:test, nil)
+    set(:test, nil)
     assert_equal nil, @vlad.test
   end
 
   def test_set_with_reserved_name
-    e = assert_raise(ArgumentError) { @vlad.set(:all_hosts, []) }
+    e = assert_raise(ArgumentError) { set(:all_hosts, []) }
     assert_equal "cannot set reserved name: 'all_hosts'", e.message
   end
 end

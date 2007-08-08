@@ -44,9 +44,13 @@ class VladTestCase < Test::Unit::TestCase
 
   def setup
     @vlad = Vlad.instance
-    @vlad.reset
     Rake.application.clear
     @task_count = Rake.application.tasks.size
+  end
+
+  def teardown
+    @vlad.env.keys.each { |k| Object.send(:remove_method, k) if @vlad.respond_to?(k) }
+    @vlad.reset
   end
 
   def util_set_hosts
