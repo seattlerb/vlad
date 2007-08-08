@@ -79,7 +79,11 @@ class TestRakeRemoteTask < VladTestCase
     util_setup_task
     @task.output << "file1\nfile2\n"
     @task.target_host = "app.example.com"
-    result = @task.run("ls")
+    result = nil
+
+    out, err = util_capture do
+      result = @task.run("ls")
+    end
 
     commands = @task.commands
 
@@ -87,6 +91,9 @@ class TestRakeRemoteTask < VladTestCase
     assert_equal ["ssh", "app.example.com", "ls"],
                  commands.first, 'app'
     assert_equal "file1\nfile2\n", result
+
+    assert_equal "file1\nfile2\n", out.read
+    assert_equal '', err.read
   end
 
   def test_run_failing_command
@@ -108,8 +115,11 @@ class TestRakeRemoteTask < VladTestCase
     @task.error << 'Password:'
     @task.target_host = "app.example.com"
     def @task.sudo_password() "my password" end # gets defined by set
+    result = nil
 
-    result = @task.run("sudo ls")
+    out, err = util_capture do
+      result = @task.run("sudo ls")
+    end
 
     commands = @task.commands
 
@@ -119,6 +129,9 @@ class TestRakeRemoteTask < VladTestCase
 
     assert_equal "my password\n", @task.input.string
     assert_equal "Password:\nfile1\nfile2\n", result
+
+    assert_equal "file1\nfile2\n", out.read
+    assert_equal "Password:\n", err.read
   end
 
   def test_sudo
@@ -131,6 +144,23 @@ class TestRakeRemoteTask < VladTestCase
     assert_equal 1, commands.size, 'wrong number of commands'
     assert_equal ["ssh", "app.example.com", "sudo ls"],
                  commands.first, 'app'
+  end
+
+  def util_capture
+    require 'stringio'
+    orig_stdout = $stdout.dup
+    orig_stderr = $stderr.dup
+    captured_stdout = StringIO.new
+    captured_stderr = StringIO.new
+    $stdout = captured_stdout
+    $stderr = captured_stderr
+    yield
+    captured_stdout.rewind
+    captured_stderr.rewind
+    return captured_stdout, captured_stderr
+  ensure
+    $stdout = orig_stdout
+    $stderr = orig_stderr
   end
 
   def util_setup_task(options = {})

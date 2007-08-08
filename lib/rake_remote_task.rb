@@ -59,14 +59,20 @@ class Rake::RemoteTask < Rake::Task
         unless err.eof? then
           data = err.readpartial(1024)
           result << data
+          $stderr.write data
 
           if data =~ /^Password:/ then
             inn.puts sudo_password
             result << "\n"
+            $stderr.write "\n"
           end
         end
 
-        result << out.readpartial(1024) unless out.eof?
+        unless out.eof? then
+          data = out.readpartial(1024)
+          result << data
+          $stdout.write data
+        end
       end
     end
 
