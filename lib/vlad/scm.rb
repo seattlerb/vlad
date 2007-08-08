@@ -6,6 +6,10 @@
 # themselves. In this way, the deployment method may execute the commands
 # either locally or remotely, as necessary.
 class Vlad::SCM
+  def initialize
+    @command = nil
+  end
+
   # Checkout a copy of the repository, at the given +revision+, to the
   # given +destination+. The checkout is suitable for doing development
   # work in, e.g. allowing subsequent commits and updates.
