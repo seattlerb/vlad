@@ -98,6 +98,11 @@ class Vlad
     set(:releases_path)     { File.join(deploy_to, "releases") }
     set(:shared_path)       { File.join(deploy_to, "shared") }
     set(:current_path)      { File.join(deploy_to, "current") }
+    set(:release_name)      { # TODO: clean up
+      set :deploy_timestamped, true
+      Time.now.utc.strftime("%Y%m%d%H%M%S")
+    }
+    set(:release_path)      { File.join(releases_path, release_name) }
 
     set(:sudo_password) do
       state = `stty -g`
