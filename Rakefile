@@ -62,7 +62,7 @@ task :flog do
 end
 
 task :flog_full do
-  sh 'find lib -name \*.rb | xargs flog | head -1'
+  sh 'find lib -name \*.rb | xargs flog'
 end
 
 task :sort do

@@ -102,20 +102,13 @@ namespace :vlad do
   remote_task :update do
     set :migrate_target, :latest
     begin
-      strategery.deploy!
+      run source.send(deploy_via, source.revision("head"), release_path)
       # finalize_update
       run "chmod -R g+w #{latest_release}" if fetch(:group_writable, true)
 
       # mkdir -p is making sure that the directories are there for some
       # SCM's that don't save empty folders
-      run <<-CMD
-      rm -rf #{latest_release}/log #{latest_release}/public/system #{latest_release}/tmp/pids &&
-      mkdir -p #{latest_release}/public &&
-      mkdir -p #{latest_release}/tmp &&
-      ln -s #{shared_path}/log #{latest_release}/log &&
-      ln -s #{shared_path}/system #{latest_release}/public/system &&
-      ln -s #{shared_path}/pids #{latest_release}/tmp/pids
-    CMD
+      run "rm -rf #{latest_release}/log #{latest_release}/public/system #{latest_release}/tmp/pids && mkdir -p #{latest_release}/public && mkdir -p #{latest_release}/tmp && ln -s #{shared_path}/log #{latest_release}/log && ln -s #{shared_path}/system #{latest_release}/public/system && ln -s #{shared_path}/pids #{latest_release}/tmp/pids"
 
       stamp = Time.now.utc.strftime("%Y%m%d%H%M.%S")
       asset_paths = %w(images stylesheets javascripts).map { |p| "#{latest_release}/public/#{p}" }.join(" ")

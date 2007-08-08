@@ -22,8 +22,8 @@ class Vlad::SCM
   # (like Subversions "HEAD" identifier), it should yield a string
   # containing the commands that, when executed will return a string
   # that this method can then extract the real revision from.
-  def real_revision(revision)
-    raise NotImplementedError, "`real_revision' is not implemented by #{self.class.name}"
+  def revision(revision)
+    raise NotImplementedError, "'revision' is not implemented by #{self.class.name}"
   end
 
   # A helper method that can be used to define SCM commands naturally.

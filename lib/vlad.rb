@@ -96,6 +96,7 @@ class Vlad
     set(:application) { raise Vlad::ConfigurationError, "Please specify the name of the application" }
     set(:repository)  { raise Vlad::ConfigurationError, "Please specify the repository path" }
     set(:deploy_to)   { raise Vlad::ConfigurationError, "Please specify the deploy path" }
+    set(:deploy_via, :export)
     set(:releases_path) { File.join(deploy_to, "releases") }
     set(:shared_path)   { File.join(deploy_to, "shared") }
     set(:current_path)  { File.join(deploy_to, "current") }
@@ -122,10 +123,10 @@ class Vlad
       sudo_password
     end
 
-    set(:scm) do
-      scm_type = fetch(:scm_type, :subversion)
-      require "vlad/#{scm_type}"
-      scm ||= Vlad.const_get(scm_type.to_s.capitalize).new
+    set(:source) do
+      scm = fetch(:scm, :subversion)
+      require "vlad/#{scm}"
+      Vlad.const_get(scm.to_s.capitalize).new
     end
   end
 

@@ -12,39 +12,29 @@ class Vlad::Perforce < Vlad::SCM
   # destination directory. The perforce client has a fixed destination so
   # the files must be copied from there to their intended resting place.
   def checkout(revision, destination)
-    p4_command(revision, destination)
+    cmd = "cd #{fetch(:repository)} && "
+    cmd << command(:sync, "...#{rev_no(revision)}")
+    cmd << " && cp -rp . #{destination}"
   end
 
   # Returns the command that will sync the given revision to the given
   # destination directory. The perforce client has a fixed destination so
   # the files must be copied from there to their intended resting place.
-  def export(revision, destination)
-    p4_command(revision, destination)
+  alias :export :checkout
+
+  def revision(revision)
+    command :changes, "-s submitted -m 1 ...#{rev_no(revision)} | cut -f 2 -d\\ "
   end
 
-  # Returns the command that will sync the given revision to the given
-  # destination directory with specific options. The perforce client has 
-  # a fixed destination so the files must be copied from there to their 
-  # intended resting place.          
-  def p4_command(revision, destination)
-    cmd = "cd #{fetch(:repository)} && " 
-    cmd << command(:sync, "...#{rev_no(revision)}")
-    cmd << " && cp -rp . #{destination}" 
-  end
-
-  def real_revision(revision)
-    command :changes, "-s submitted -m 1 ...#{rev_no(revision)} | cut -f 2 -d\\ " 
-  end
-
-  def rev_no(revision)                     
+  def rev_no(revision)
     case revision.to_s
     when "head"
       "#head"
-    when /^\d+/  
+    when /^\d+/
       "@#{revision}"
     else
       revision
-    end          
+    end
   end
 end
 

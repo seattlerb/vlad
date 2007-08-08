@@ -26,7 +26,7 @@ class Vlad::Subversion < Vlad::SCM
   # revision. If the identifier is an integer, it will simply be returned.
   # Otherwise, this will yield a string of the commands it needs to be
   # executed (svn info), and will extract the revision from the response.
-  def real_revision(revision)
+  def revision(revision)
     command :info, "#{fetch(:repository)} | grep 'Revision:' | cut -f2 -d\\ "
   end
 end
