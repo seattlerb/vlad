@@ -30,6 +30,13 @@ class TestRakeRemoteTask < VladTestCase
     assert_equal 7, x
   end
 
+  def test_execute_exposes_target_host
+    host "app.example.com", :app
+    task = remote_task(:target_task) { set(:test_target_host, target_host) }
+    task.execute
+    assert_equal "app.example.com", Rake::RemoteTask.fetch(:test_target_host)
+  end
+
   def test_execute_with_no_hosts
     @vlad.host "app.example.com", :app
     t = @vlad.remote_task(:flunk, :roles => :db) { flunk "should not have run" }
