@@ -24,11 +24,3 @@ refer to the variable documentation.
 === Launch
 
 * <tt>rake vlad:update vlad:migrate vlad:start</tt>
-
-== Converting from Capistrano
-
-* task becomes remote_task.
-* variables are pretty much the same
-* no +with_command+ / +sudo+ / +via+ wonkiness
-* uses real ssh so env vars and the like are not a problem
-  * no +with_env+ as a result.
