@@ -3,29 +3,30 @@
 
 === Required
 
-+ :application
-+ :repository
-+ :deploy_to
-+ :domain
++ :application     # Name of your application
++ :repository      # Repository path: e.g. http://repo.example.com/svn/app/trunk
++ :deploy_to       # Deploy path on target machines. e.g. /var/www/apps/foo
++ :domain          # Used for the common case of a single target server
 
 === Optional
 
 + :current_path    { File.join(deploy_to, "current") }
 + :current_release { File.join(releases_path, releases.last) }
 + :deploy_timestamped, true
-+ :deploy_via, :export
++ :deploy_via,     :export
 + :latest_release  { deploy_timestamped ? release_path : current_release }
-+ :migrate_env, ""
++ :migrate_env,    ""  # Set this to change RAILS_ENV for rake db:migrate
 + :migrate_target, :latest
-+ :rails_env, "production"
-+ :rake, "rake"
++ :rails_env,      "production"
++ :rake,           "rake"
 + :release_name    { Time.now.utc.strftime("%Y%m%d%H%M%S") }
 + :release_path    { File.join(releases_path, release_name) }
 + :releases        { task.run("ls -x #{releases_path}").split.sort }
 + :releases_path   { File.join(deploy_to, "releases") }
++ :scm             :subversion
 + :scm_path        { File.join(deploy_to, "scm") }
++ :sudo_password   # Defaults to an interactive prompt. Override if needed
++ :source          # Defaults to an instance of Vlad::Subversion
 + :shared_path     { File.join(deploy_to, "shared") }
-+ :user, "nobody"
-+ :sudo_password do
-+ :source 
++ :user,           "nobody"
 
