@@ -1,0 +1,34 @@
+
+== Quick Start for a 1-Server Solution:
+
+=== Setup
+
+* Create a deploy file, usually in "config/deploy.rb":
+
+    set :application, "project"
+    set :domain, "example.com"
+    set :deploy_to, "/path/to/install"
+    set :repository, 'http://svn.example.com/project/branches/stable/'
+    
+This defaults to user "www", svn from +repository+, and a single
+server for +app+, +db+, and +www+. If you need to tweak these things,
+refer to the variable documentation.
+
+* Add the following to your Rakefile:
+
+    require 'vlad'
+    Vlad.load 'config/deploy.rb'
+
+* <tt>rake vlad:setup</tt>
+
+=== Launch
+
+* <tt>rake vlad:update vlad:migrate vlad:start</tt>
+
+== Converting from Capistrano
+
+* task becomes remote_task.
+* variables are pretty much the same
+* no with_command / sudo wonkyness
+* uses real ssh so env vars and the like are not a problem
+  * no with_env as a result.

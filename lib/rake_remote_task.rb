@@ -152,9 +152,9 @@ class Rake::RemoteTask < Rake::Task
     set(:repository)  { raise Vlad::ConfigurationError, "Please specify the repository path" }
     set(:deploy_to)   { raise Vlad::ConfigurationError, "Please specify the deploy path" }
 
-    set(:deploy_timestamped, true)
     set(:current_path)    { File.join(deploy_to, "current") }
     set(:current_release) { File.join(releases_path, releases.last) }
+    set(:deploy_timestamped, true)
     set(:deploy_via, :export)
     set(:latest_release)  { deploy_timestamped ? release_path : current_release }
     set(:migrate_env, "")
@@ -165,8 +165,10 @@ class Rake::RemoteTask < Rake::Task
     set(:release_path)    { File.join(releases_path, release_name) }
     set(:releases)        { task.run("ls -x #{releases_path}").split.sort }
     set(:releases_path)   { File.join(deploy_to, "releases") }
+    set(:scm, :subversion)
     set(:scm_path)        { File.join(deploy_to, "scm") }
     set(:shared_path)     { File.join(deploy_to, "shared") }
+    set(:user, "nobody")
 
     set(:sudo_password) do
       state = `stty -g`
@@ -186,7 +188,7 @@ class Rake::RemoteTask < Rake::Task
     end
 
     set(:source) do
-      scm = fetch(:scm, :subversion)
+      scm = fetch(:scm)
       require "vlad/#{scm}"
       Vlad.const_get(scm.to_s.capitalize).new
     end

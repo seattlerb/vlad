@@ -1,5 +1,0 @@
-+ task becomes remote_task.
-+ variables are pretty much the same
-+ no with_command / sudo wonkyness
-+ uses real ssh so env vars and the like are not a problem
-  + no with_env as a result.

@@ -1,0 +1,31 @@
+
+== Variables
+
+=== Required
+
++ :application
++ :repository
++ :deploy_to
++ :domain
+
+=== Optional
+
++ :current_path    { File.join(deploy_to, "current") }
++ :current_release { File.join(releases_path, releases.last) }
++ :deploy_timestamped, true
++ :deploy_via, :export
++ :latest_release  { deploy_timestamped ? release_path : current_release }
++ :migrate_env, ""
++ :migrate_target, :latest
++ :rails_env, "production"
++ :rake, "rake"
++ :release_name    { Time.now.utc.strftime("%Y%m%d%H%M%S") }
++ :release_path    { File.join(releases_path, release_name) }
++ :releases        { task.run("ls -x #{releases_path}").split.sort }
++ :releases_path   { File.join(deploy_to, "releases") }
++ :scm_path        { File.join(deploy_to, "scm") }
++ :shared_path     { File.join(deploy_to, "shared") }
++ :user, "nobody"
++ :sudo_password do
++ :source 
+
