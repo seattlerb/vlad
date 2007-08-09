@@ -1,33 +1,39 @@
 require 'vlad/scm'
 
-# Implements the Capistrano SCM interface for the Subversion revision
-# control system (http://subversion.tigris.org).
+##
+# Implements Vlad::SCM interface for the Perforce revision control system
+# http://www.perforce.com.
+
 class Vlad::Subversion < Vlad::SCM
-  # Subversion understands 'HEAD' to refer to the latest revision in the
-  # repository.
-  def initialize
+
+  def initialize # :nodoc:
     @command = 'svn'
     @head = 'HEAD'
   end
 
-  # Returns the command that will check out the given revision to the
-  # given destination.
+  ##
+  # Returns the command that will check out +revision+ from the repository
+  # into directory +destination+
+
   def checkout(revision, destination)
     command :co, "-r #{revision}", fetch(:repository), destination
   end
 
-  # Returns the command that will do an "svn export" of the given revision
-  # to the given destination.
+  ##
+  # Returns the command that will export +revision+ from the repository into
+  # the directory +destination+.
+
   def export(revision, destination)
     command :export, "-r #{revision}", fetch(:repository), destination
   end
 
-  # Attempts to translate the given revision identifier to a "real"
-  # revision. If the identifier is an integer, it will simply be returned.
-  # Otherwise, this will yield a string of the commands it needs to be
-  # executed (svn info), and will extract the revision from the response.
+  ##
+  # Returns a command that maps human-friendly revision identifier +revision+
+  # into a subversion revision specification.
+
   def revision(revision)
     cmd = command :info, "#{fetch(:repository)} | grep 'Revision:' | cut -f2 -d\\ "
     "`#{cmd}`"
   end
+
 end

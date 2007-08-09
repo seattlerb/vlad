@@ -1,44 +1,59 @@
-# The ancestor class for all Capistrano SCM implementations. It provides
-# minimal infrastructure for subclasses to build upon and override.
+##
+# Abstract class for defining Vlad SCM plugins.
 #
-# Note that subclasses that implement this abstract class only return
-# the commands that need to be executed--they do not execute the commands
-# themselves. In this way, the deployment method may execute the commands
-# either locally or remotely, as necessary.
+# To define a new SCM plugin you need to set the command type in initiaize and
+# define the appropriate methods.  See Vlad::Subversion or Vlad::Perforce for
+# examples.
+#
+# Significant portions of Vlad::SCM, Vlad::Subversion and Vlad::Perforce were
+# borrowed from Capistrano.
+
 class Vlad::SCM
+
+  ##
+  # Sets the SCM command name.
+
   def initialize
     @command = nil
   end
 
-  # Checkout a copy of the repository, at the given +revision+, to the
-  # given +destination+. The checkout is suitable for doing development
-  # work in, e.g. allowing subsequent commits and updates.
+  ##
+  # Returns the command to checkout +revision+ from the repository into the
+  # directory +destination+.
+
   def checkout(revision, destination)
     raise NotImplementedError, "`checkout' is not implemented by #{self.class.name}"
   end
+
+  ##
+  # Returns the command to export +revision+ from the repository into the
+  # directory +destination+.
 
   def export(revision, destination)
     raise NotImplementedError, "`export' is not implemented by #{self.class.name}"
   end
 
-  # If the given revision represents a "real" revision, this should
-  # simply return the revision value. If it represends a pseudo-revision
-  # (like Subversions "HEAD" identifier), it should yield a string
-  # containing the commands that, when executed will return a string
-  # that this method can then extract the real revision from.
+  ##
+  # Returns a command that maps human-friendly revision identifier +revision+
+  # into a SCM revision specification.
+
   def revision(revision)
     raise NotImplementedError, "'revision' is not implemented by #{self.class.name}"
   end
 
-  # A helper method that can be used to define SCM commands naturally.
-  # It returns a single string with all arguments joined by spaces,
-  # with the scm command prefixed onto it.
+  ##
+  # Builds an SCM command from the defined command name and +args+.
+
   def command(*args)
     [@command, *args].compact.join(" ")
   end
 
+  ##
+  # Retrieves environment variable +var+ from the vlad configuration.
+
   def fetch(var)
     Rake::RemoteTask.fetch(var)
   end
+
 end
 

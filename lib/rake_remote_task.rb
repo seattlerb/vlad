@@ -2,29 +2,66 @@ require 'rubygems'
 require 'open4'
 require 'vlad'
 
+##
+# Rake::RemoteTask is a subclass of Rake::Task that adds remote_actions that
+# execute in parallel on multiple hosts via ssh.
+
 class Rake::RemoteTask < Rake::Task
+
   include Open4
 
-  attr_accessor :options, :target_host
+  ##
+  # Options for execution of this task.
+
+  attr_accessor :options
+
+  ##
+  # The host this task is running on during execution.
+
+  attr_accessor :target_host
+
+  ##
+  # An Array of Actions this host will perform during execution.  Use enhance
+  # to add new actions to a task.
+
   attr_reader :remote_actions
+
+  ##
+  # Create a new task named +task_name+ attached to Rake::Application +app+.
 
   def initialize(task_name, app)
     super
     @remote_actions = []
   end
 
+  ##
+  # Add a local action to this task.  This calls Rake::Task#enhance.
+
   alias_method :original_enhance, :enhance
+
+  ##
+  # Add remote action +block+ to this task with dependencies +deps+.  See
+  # Rake::Task#enhance.
+
   def enhance(deps=nil, &block)
     original_enhance(deps)
     @remote_actions << Action.new(self, block) if block_given?
     self
   end
 
+  ##
+  # Execute this action.  Local actions will be performed first, then remote
+  # actions will be performed in parallel on each host configured for this
+  # RemoteTask.
+
   def execute
     raise Vlad::ConfigurationError, "No target hosts specified for task: #{self.name}" if target_hosts.empty?
     super
     @remote_actions.each { |act| act.execute(target_hosts) }
   end
+
+  ##
+  # Use rsync to send +local+ to +remote+ on target_host.
 
   def rsync local, remote
     cmd = ['rsync', '-aqz', '--delete', local, "#{@target_host}:#{remote}"]
@@ -35,6 +72,10 @@ class Rake::RemoteTask < Rake::Task
       raise Vlad::CommandFailedError, "execution failed: #{cmd.join ' '}"
     end
   end
+
+  ##
+  # Use ssh to execute +command+ on target_host.  If +command+ uses sudo, the
+  # sudo password will be prompted for then saved for subsequent sudo commands.
 
   def run command
     cmd = ["ssh", target_host, command]
@@ -73,22 +114,41 @@ class Rake::RemoteTask < Rake::Task
     result.join
   end
 
+  ##
+  # Execute +command+ under sudo using run.
+
   def sudo command
     run "sudo #{command}"
   end
 
+  ##
+  # The hosts this task will execute on.  The hosts are determined from the
+  # role this task belongs to.
+  #
+  # The target hosts may be overridden by providing a comma-separated list of
+  # commands to the HOSTS environment variable:
+  #
+  #   rake my_task HOSTS=app1.example.com,app2.example.com
+
   def target_hosts
-    if hosts = ENV["HOSTS"]
-      hosts.strip.gsub(/\s+/,'').split(",")
+    if hosts = ENV["HOSTS"] then
+      hosts.strip.gsub(/\s+/, '').split(",")
     else
       roles = options[:roles]
       roles ? Rake::RemoteTask.hosts_for(roles) : Rake::RemoteTask.all_hosts
     end
   end
 
+  ##
+  # Returns an Array with every host configured.
+
   def self.all_hosts
     hosts_for(@@roles.keys)
   end
+
+  ##
+  # Fetches environment variable +name+ from the environment using default
+  # +default+.
 
   def self.fetch name, default = nil
     name = name.to_s if Symbol === name
@@ -105,6 +165,19 @@ class Rake::RemoteTask < Rake::Task
     end
   end
 
+  ##
+  # Add host +host_name+ that belongs to +roles+.  Extra arguments may be
+  # specified for the host as a hash as the last argument.
+  #
+  # host is the inversion of role:
+  #
+  #   host 'db1.example.com', :db, :master_db
+  #
+  # Is equivalent to:
+  #
+  #   role :db, 'db1.example.com'
+  #   role :master_db, 'db1.example.com'
+
   def self.host host_name, *roles
     opts = Hash === roles.last ? roles.pop : {}
 
@@ -113,34 +186,56 @@ class Rake::RemoteTask < Rake::Task
     end
   end
 
+  ##
+  # Returns an Array of all hosts in +roles+.
+
   def self.hosts_for *roles
     roles.flatten.map do |r|
       @@roles[r].keys
     end.flatten.uniq.sort
   end
 
-  def self.load path
-    Kernel.load path
-    require 'vlad_tasks'
-  end
+  ##
+  # Ensures exclusive access to +name+.
 
-  def self.protect_env name
+  def self.protect_env name # :nodoc:
     @@env_locks[name.to_s].synchronize do
       yield
     end
   end
 
-  def self.reserved_name? name
+  ##
+  # Ensures +name+ does not conflict with an existing method.
+
+  def self.reserved_name? name # :nodoc:
     !@@env.has_key?(name.to_s) && self.respond_to?(name)
   end
+
+  ##
+  # The Rake::RemoteTask executing in this Thread.
 
   def self.task
     Thread.current[:task]
   end
 
-  def self.roles; @@roles; end
-  def self.tasks; @@tasks; end
-  def self.env  ; @@env  ; end
+  ##
+  # The configured roles.
+
+  def self.roles() @@roles end
+
+  ##
+  # The configured Rake::RemoteTasks.
+
+  def self.tasks() @@tasks end
+
+  ##
+  # The vlad environment.
+
+  def self.env() @@env end
+
+  ##
+  # Resets vlad, restoring all roles, tasks and environment variables to the
+  # defaults.
 
   def self.reset
     @@roles = Hash.new { |h,k| h[k] = {} }
@@ -194,20 +289,68 @@ class Rake::RemoteTask < Rake::Task
     end
   end
 
+  ##
+  # Adds role +role_name+ with +host+ and +args+ for that host.
+
   def self.role role_name, host, args = {}
     raise ArgumentError, "invalid host" if host.nil? or host.empty?
     @@roles[role_name][host] = args
   end
 
-  def self.remote_task name, options = {}, &b
-    t = Rake::RemoteTask.define_task(name, &b)
+  ##
+  # Adds a remote task named +name+ with options +options+ that will execute
+  # +block+.
+
+  def self.remote_task name, options = {}, &block
+    t = Rake::RemoteTask.define_task(name, &block)
     t.options = options
     roles = options[:roles]
     t
   end
 
+  ##
+  # Set environment variable +name+ to +value+ or +default_block+.
+  #
+  # If +default_block+ is defined, the block will be executed the first time
+  # the variable is fetched, and the value will be used for every subsequent
+  # fetch.
+
+  def self.set name, value = nil, &default_block
+    raise ArgumentError, "cannot provide both a value and a block" if
+      value and default_block
+    raise ArgumentError, "cannot set reserved name: '#{name}'" if
+      Rake::RemoteTask.reserved_name?(name)
+
+    Rake::RemoteTask.env[name.to_s] = value || default_block
+
+    Object.send :define_method, name do
+      Rake::RemoteTask.fetch name
+    end
+  end
+
+  ##
+  # Action is used to run a task's remote_actions in parallel on each of its
+  # hosts.  Actions are created automatically in Rake::RemoteTask#enhance.
+
   class Action
-    attr_reader :task, :block, :workers
+
+    ##
+    # The task this action is attached to.
+
+    attr_reader :task
+
+    ##
+    # The block this action will execute.
+
+    attr_reader :block
+
+    ##
+    # An Array of threads, one for each host this action executes on.
+
+    attr_reader :workers
+
+    ##
+    # Creates a new Action that will run +block+ for +task+.
 
     def initialize task, block
       @task  = task
@@ -215,10 +358,14 @@ class Rake::RemoteTask < Rake::Task
       @workers = []
     end
 
-    def == other
+    def == other # :nodoc:
       return false unless Action === other
       block == other.block && task == other.task
     end
+
+    ##
+    # Execute this action on +hosts+ in parallel.  Returns when block has
+    # completed for each host.
 
     def execute hosts
       hosts.each do |host|

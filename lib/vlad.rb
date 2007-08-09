@@ -20,13 +20,7 @@ def run *args, &b
 end
 
 def set name, val = nil, &b
-  raise ArgumentError, "cannot provide both a value and a block" if val and b
-  raise ArgumentError, "cannot set reserved name: '#{name}'" if Rake::RemoteTask.reserved_name?(name)
-  Rake::RemoteTask.env[name.to_s] = val || b
-
-  Object.send :define_method, name do
-    Rake::RemoteTask.fetch name
-  end
+  Rake::RemoteTask.set name, val, &b
 end
 
 def target_host
@@ -34,12 +28,39 @@ def target_host
 end
 
 module Vlad
+
+  ##
+  # This is the version of Vlad you are running.
+
   VERSION = '1.0.0'
 
+  ##
+  # Base error class for all Vlad errors.
+
   class Error < RuntimeError; end
+
+  ##
+  # Raised when you have incorrectly configured Vlad.
+
   class ConfigurationError < Error; end
+
+  ##
+  # Raised when a remote command fails.
+
   class CommandFailedError < Error; end
+
+  ##
+  # Raised when an environment variable hasn't been set.
+
   class FetchError < Error; end
+
+  ##
+  # Loads tasks file +tasks_file+ and the vlad_tasks file.
+
+  def self.load tasks_file = 'config/deploy.rb'
+    Kernel.load tasks_file
+    require 'vlad_tasks'
+  end
 
 end
 
