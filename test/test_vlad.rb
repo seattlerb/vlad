@@ -139,6 +139,23 @@ class TestVlad < VladTestCase
     assert_equal %w[www.example.com], t.target_hosts
   end
 
+  def test_remote_task_role_override
+    host "db1", :db
+    host "db2", :db
+    host "db3", :db
+    host "master", :master_db
+
+    remote_task(:migrate_the_db, :roles => [:db]) { flunk "bad!" }
+    task = Rake::Task["migrate_the_db"]
+    assert_equal %w[db1 db2 db3], task.target_hosts
+
+    task.options[:roles] = :master_db
+    assert_equal %w[master], task.target_hosts
+
+    task.options[:roles] = [:master_db]
+    assert_equal %w[master], task.target_hosts
+  end
+
   def test_source
     set :scm, :perforce
     assert_equal "Vlad::Perforce", @vlad.source.class.name
