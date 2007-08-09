@@ -12,7 +12,7 @@ class Vlad::Perforce < Vlad::SCM
   # destination directory. The perforce client has a fixed destination so
   # the files must be copied from there to their intended resting place.
   def checkout(revision, destination)
-    cmd = "cd #{fetch(:repository)} && "
+    cmd = "cd #{repository} && "
     cmd << command(:sync, "...#{rev_no(revision)}")
     cmd << " && cp -rp . #{destination}"
   end
@@ -29,9 +29,9 @@ class Vlad::Perforce < Vlad::SCM
 
   def rev_no(revision)
     case revision.to_s
-    when "head"
+    when @head then
       "#head"
-    when /^\d+/
+    when /^\d+/ then
       "@#{revision}"
     else
       revision

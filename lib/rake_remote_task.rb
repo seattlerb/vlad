@@ -165,6 +165,7 @@ class Rake::RemoteTask < Rake::Task
     set(:release_path)    { File.join(releases_path, release_name) }
     set(:releases)        { task.run("ls -x #{releases_path}").split.sort }
     set(:releases_path)   { File.join(deploy_to, "releases") }
+    set(:scm_path)        { File.join(deploy_to, "scm") }
     set(:shared_path)     { File.join(deploy_to, "shared") }
 
     set(:sudo_password) do

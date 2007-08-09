@@ -25,12 +25,13 @@ def host host_name, *roles
   Rake::RemoteTask.host host_name, *roles
 end
 
-def run *args, &b 
+def run *args, &b
   Thread.current[:task].run(*args, &b)
 end
 
 module Vlad
   VERSION = '1.0.0'
+
   class Error < RuntimeError; end
   class ConfigurationError < Error; end
   class CommandFailedError < Error; end
