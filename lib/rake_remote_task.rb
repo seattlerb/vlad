@@ -5,11 +5,6 @@ require 'vlad'
 class Rake::RemoteTask < Rake::Task
   include Open4
 
-  class Error < RuntimeError; end
-  class ConfigurationError < Error; end
-  class CommandFailedError < Error; end
-  class FetchError < Error; end
-
   attr_accessor :options, :target_host
   attr_reader :remote_actions
 
@@ -25,14 +20,8 @@ class Rake::RemoteTask < Rake::Task
     self
   end
 
-  # -- HERE BE DRAGONS --
-  # We are defining singleton methods on the task AS it executes
-  # for each 'set' variable. We do this because we need to be support
-  # 'application' and similar Rake-reserved names inside remote tasks.
-  # This relies on the current (rake 0.7.3) calling conventions.
-  # If this breaks blame Jim Weirich and/or society.
   def execute
-    raise Rake::RemoteTask::ConfigurationError, "No target hosts specified for task: #{self.name}" if target_hosts.empty?
+    raise Vlad::ConfigurationError, "No target hosts specified for task: #{self.name}" if target_hosts.empty?
     super
     @remote_actions.each { |act| act.execute(target_hosts) }
   end
@@ -43,7 +32,7 @@ class Rake::RemoteTask < Rake::Task
     success = system(*cmd)
 
     unless success then
-      raise Rake::RemoteTask::CommandFailedError, "execution failed: #{cmd.join ' '}"
+      raise Vlad::CommandFailedError, "execution failed: #{cmd.join ' '}"
     end
   end
 
@@ -78,7 +67,7 @@ class Rake::RemoteTask < Rake::Task
     end
 
     unless status.success? then
-      raise Rake::RemoteTask::CommandFailedError, "execution failed with status #{status.exitstatus}: #{cmd.join ' '}"
+      raise Vlad::CommandFailedError, "execution failed with status #{status.exitstatus}: #{cmd.join ' '}"
     end
 
     result.join
@@ -112,7 +101,7 @@ class Rake::RemoteTask < Rake::Task
     elsif default
       v = @@env[name] = default
     else
-      raise Rake::RemoteTask::FetchError
+      raise Vlad::FetchError
     end
   end
 
@@ -159,9 +148,9 @@ class Rake::RemoteTask < Rake::Task
     @@tasks = {}
     @@env_locks = Hash.new { |h,k| h[k] = Mutex.new }
 
-    set(:application) { raise Rake::RemoteTask::ConfigurationError, "Please specify the name of the application" }
-    set(:repository)  { raise Rake::RemoteTask::ConfigurationError, "Please specify the repository path" }
-    set(:deploy_to)   { raise Rake::RemoteTask::ConfigurationError, "Please specify the deploy path" }
+    set(:application) { raise Vlad::ConfigurationError, "Please specify the name of the application" }
+    set(:repository)  { raise Vlad::ConfigurationError, "Please specify the repository path" }
+    set(:deploy_to)   { raise Vlad::ConfigurationError, "Please specify the deploy path" }
 
     set(:deploy_timestamped, true)
     set(:current_path)    { File.join(deploy_to, "current") }
@@ -181,7 +170,7 @@ class Rake::RemoteTask < Rake::Task
     set(:sudo_password) do
       state = `stty -g`
 
-      raise Rake::RemoteTask::Error, "stty(1) not found" unless $?.success?
+      raise Vlad::Error, "stty(1) not found" unless $?.success?
 
       begin
         system "stty -echo"

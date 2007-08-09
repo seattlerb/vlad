@@ -31,6 +31,11 @@ end
 
 module Vlad
   VERSION = '1.0.0'
+  class Error < RuntimeError; end
+  class ConfigurationError < Error; end
+  class CommandFailedError < Error; end
+  class FetchError < Error; end
 end
+
 Rake::RemoteTask.reset
 

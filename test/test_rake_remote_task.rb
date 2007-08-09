@@ -33,13 +33,13 @@ class TestRakeRemoteTask < VladTestCase
   def test_execute_with_no_hosts
     @vlad.host "app.example.com", :app
     t = @vlad.remote_task(:flunk, :roles => :db) { flunk "should not have run" }
-    e = assert_raise(Rake::RemoteTask::ConfigurationError) { t.execute }
+    e = assert_raise(Vlad::ConfigurationError) { t.execute }
     assert_equal "No target hosts specified for task: flunk", e.message
   end
 
   def test_execute_with_no_roles
     t = @vlad.remote_task(:flunk, :roles => :db) { flunk "should not have run" }
-    e = assert_raise(Rake::RemoteTask::ConfigurationError) { t.execute }
+    e = assert_raise(Vlad::ConfigurationError) { t.execute }
     assert_equal "No target hosts specified for task: flunk", e.message
   end
 
@@ -71,7 +71,7 @@ class TestRakeRemoteTask < VladTestCase
     @task.target_host = "app.example.com"
     @task.action = lambda { false }
 
-    e = assert_raise(Rake::RemoteTask::CommandFailedError) { @task.rsync 'local', 'remote' }
+    e = assert_raise(Vlad::CommandFailedError) { @task.rsync 'local', 'remote' }
     assert_equal "execution failed: rsync -aqz --delete local app.example.com:remote", e.message
   end
 
@@ -103,7 +103,7 @@ class TestRakeRemoteTask < VladTestCase
     @task.target_host =  'app.example.com'
     @task.action = lambda { 1 }
 
-    e = assert_raise(Rake::RemoteTask::CommandFailedError) { @task.run("ls") }
+    e = assert_raise(Vlad::CommandFailedError) { @task.run("ls") }
     assert_equal "execution failed with status 1: ssh app.example.com ls", e.message
 
     assert_equal 1, @task.commands.size

@@ -66,8 +66,8 @@ class TestVlad < VladTestCase
   end
 
   def test_initialize
-    assert_raise(Rake::RemoteTask::ConfigurationError) { @vlad.application }
-    assert_raise(Rake::RemoteTask::ConfigurationError) { @vlad.repository }
+    assert_raise(Vlad::ConfigurationError) { @vlad.application }
+    assert_raise(Vlad::ConfigurationError) { @vlad.repository }
   end
 
   def test_role
