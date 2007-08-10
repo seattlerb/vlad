@@ -49,3 +49,17 @@
   remote_task :update_monit, :roles => :app
     rsync "templates/#{target_host}.monitrc", "/etc/monitrc"
   end
+
+* fine-grained tasks
+  remote_task :update
+  remote_task :symlink
+  remote_task :migrate
+  remote_task :deploy => [:update, :symlink, :migrate, :restart]
+  Let's assume that this is a multi-server config with shared deploy path.
+  The user wants to do only a single checkout. If we make "update" be one big
+  task body that includes the update, symlink, and migrate steps,
+  it is difficult for the user to override the roles for the particular steps
+  they need to change.
+  If we break these into separate tasks, they can say:
+  Rake::Task["migrate"].options[:roles] = :master_db
+  and the migrations will only run on the master db
