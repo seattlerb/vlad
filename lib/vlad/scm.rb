@@ -18,16 +18,16 @@ class Vlad::SCM
   end
 
   ##
-  # Returns the command to checkout +revision+ from the repository into the
-  # directory +destination+.
+  # Returns the command that will checkout +revision+ from the repository into
+  # the directory +destination+.
 
   def checkout(revision, destination)
     raise NotImplementedError, "`checkout' is not implemented by #{self.class.name}"
   end
 
   ##
-  # Returns the command to export +revision+ from the repository into the
-  # directory +destination+.
+  # Returns the command that will export +revision+ from the repository into
+  # the directory +destination+.
 
   def export(revision, destination)
     raise NotImplementedError, "`export' is not implemented by #{self.class.name}"
