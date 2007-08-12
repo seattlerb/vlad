@@ -3,7 +3,7 @@ require 'vlad'
 class String
   def cleanup
     if ENV['FULL'] then
-      gsub(/\s+/, ' ').strip # TODO: make this prettier
+      gsub(/\s+/, ' ').strip
     else
       self[/\A.*?\./]
     end
@@ -45,52 +45,6 @@ namespace :vlad do
     run "umask 02 && mkdir -p #{dirs.join(' ')}"
   end
 
-  desc "Invoke a single command on the remote servers. This is useful
-  for performing one-off commands that may not require a full task to
-  be written for them.  Simply specify the command to execute via the
-  COMMAND environment variable.  To execute the command only on
-  certain roles, specify the ROLES environment variable as a
-  comma-delimited list of role names.
-
-    $ rake vlad:invoke COMMAND='uptime'".cleanup
-
-  remote_task :invoke do
-    command = ENV["COMMAND"]
-    abort "Please specify a command to execute on the remote servers (via the COMMAND environment variable)" unless command
-    puts run(command)
-  end
-
-  desc "Start the application servers. This will attempt to invoke a
-    script in your application called 'script/spin', which must know
-    how to start your application listeners. For Rails applications,
-    you might just have that script invoke 'script/process/spawner'
-    with the appropriate arguments.
-
-    By default, the script will be executed via sudo as the 'app'
-    user. If you wish to run it as a different user, set the :runner
-    variable to that user. If you are in an environment where you
-    can't use sudo, set the :use_sudo variable to false.".cleanup
-
-  remote_task :start, :roles => :app do
-    # TODO: extend run to automatically handle sudo and user options
-    run "cd #{current_path} && nohup script/spin"
-  end
-
-  desc "Stop the application servers. This will call
-    script/process/reaper for both the spawner process, and all of the
-    application processes it has spawned. As such, it is fairly Rails
-    specific and may need to be overridden for other systems.
-
-    By default, the script will be executed via sudo as the 'app'
-    user. If you wish to run it as a different user, set the :runner
-    variable to that user. If you are in an environment where you
-    can't use sudo, set the :use_sudo variable to false.".cleanup
-
-  remote_task :stop, :roles => :app do
-    run("#{current_path}/script/process/reaper -a kill -r dispatch.spawner.pid " +
-        "|| #{current_path}/script/process/reaper -a kill")
-  end
-
   desc "Copies your project and updates the symlink. It does this in a
     transaction, so that if either 'update_code' or 'symlink' fail,
     all changes made to the remote servers will be rolled back,
@@ -112,7 +66,7 @@ namespace :vlad do
 
       stamp = Time.now.utc.strftime("%Y%m%d%H%M.%S")
       asset_paths = %w(images stylesheets javascripts).map { |p| "#{latest_release}/public/#{p}" }.join(" ")
-      run "find #{asset_paths} -exec touch -t #{stamp} {} ';'; true" # HACK :env => { "TZ" => "UTC" }
+      run "find #{asset_paths} -exec touch -t #{stamp} {} ';'; true"
 
       Rake::Task["vlad:migrate"].invoke
       Rake::Task["vlad:symlink"].invoke
@@ -122,81 +76,6 @@ namespace :vlad do
       run "rm -rf #{release_path}"
       raise e
     end
-  end
-
-  desc "Updates the symlink to the most recently deployed
-    version. Capistrano works by putting each new release of your
-    application in its own directory. When you deploy a new version,
-    this task's job is to update the 'current' symlink to point at the
-    new version. You will rarely need to call this task directly;
-    instead, use the 'deploy' task (which performs a complete deploy,
-    including 'restart') or the 'update' task (which does everything
-    except 'restart').".cleanup
-
-  remote_task :symlink do # HACK :except => { :no_release => true }
-    begin
-      run "rm -f #{current_path} && ln -s #{latest_release} #{current_path}"
-    rescue => e
-      run "rm -f #{current_path} && ln -s #{previous_release} #{current_path}"
-      raise e
-    end
-  end
-
-  desc "Copy files to the currently deployed version. This is useful
-    for updating files piecemeal, such as when you need to quickly
-    deploy only a single file. Some files, such as updated templates,
-    images, or stylesheets, might not require a full deploy, and
-    especially in emergency situations it can be handy to just push
-    the updates to production, quickly.
-
-    To use this task, specify the files and directories you want to
-    copy as a comma-delimited list in the FILES environment
-    variable. All directories will be processed recursively, with all
-    files being pushed to the deployment servers. Any file or
-    directory starting with a '.' character will be ignored.
-
-      $ cap deploy:upload FILES=templates,controller.rb".cleanup
-
-  remote_task :upload do # HACK :except => { :no_release => true }
-    files = (ENV["FILES"] || "").
-      split(",").
-      map { |f| f.strip!; File.directory?(f) ? Dir["#{f}/**/*"] : f }.
-      flatten.
-      reject { |f| File.directory?(f) || File.basename(f)[0] == ?. }
-
-    abort "Please specify at least one file to update (via the FILES environment variable)" if files.empty?
-
-    files.each do |file|
-      put File.read(file), File.join(current_path, file)
-    end
-  end
-
-  desc "Restarts your application. This works by calling the
-    script/process/reaper script under the current path. By default,
-    this will be invoked via sudo, but if you are in an environment
-    where sudo is not an option, or is not allowed, you can indicate
-    that restarts should use 'run' instead by setting the 'use_sudo'
-    variable to false:
-
-      set :use_sudo, false".cleanup
-
-  remote_task :restart, :roles => :app do # HACK :except => { :no_release => true }
-    invoke_command "#{current_path}/script/process/reaper", :via => run_method
-  end
-
-  desc "Rolls back to a previous version and restarts. This is handy
-    if you ever discover that you've deployed a lemon; 'cap rollback'
-    and you're right back where you were, on the previously deployed
-    version.".cleanup
-
-  remote_task :rollback do
-    if releases.length < 2
-      abort "could not rollback the code because there is no prior release"
-    else
-      run "rm #{current_path}; ln -s #{previous_release} #{current_path} && rm -rf #{current_release}"
-    end
-
-    restart
   end
 
   desc "Run the migrate rake task. By default, it runs this in most recently
@@ -223,6 +102,127 @@ namespace :vlad do
     run "cd #{directory}; #{rake} RAILS_ENV=#{rails_env} #{migrate_env} db:migrate"
   end
 
+  desc "Start the application servers. This will attempt to invoke a
+    script in your application called 'script/spin', which must know
+    how to start your application listeners. For Rails applications,
+    you might just have that script invoke 'script/process/spawner'
+    with the appropriate arguments.
+
+    By default, the script will be executed via sudo as the 'app'
+    user. If you wish to run it as a different user, set the :runner
+    variable to that user. If you are in an environment where you
+    can't use sudo, set the :use_sudo variable to false.".cleanup
+
+  remote_task :start, :roles => :app do
+    # TODO: extend run to automatically handle sudo and user options
+    run "cd #{current_path} && nohup script/spin"
+  end
+
+  desc "Restarts your application. This works by calling the
+    script/process/reaper script under the current path. By default,
+    this will be invoked via sudo, but if you are in an environment
+    where sudo is not an option, or is not allowed, you can indicate
+    that restarts should use 'run' instead by setting the 'use_sudo'
+    variable to false:
+
+      set :use_sudo, false".cleanup
+
+  remote_task :restart, :roles => :app do
+    invoke_command "#{current_path}/script/process/reaper", :via => run_method
+  end
+
+  desc "Stop the application servers. This will call
+    script/process/reaper for both the spawner process, and all of the
+    application processes it has spawned. As such, it is fairly Rails
+    specific and may need to be overridden for other systems.
+
+    By default, the script will be executed via sudo as the 'app'
+    user. If you wish to run it as a different user, set the :runner
+    variable to that user. If you are in an environment where you
+    can't use sudo, set the :use_sudo variable to false.".cleanup
+
+  remote_task :stop, :roles => :app do
+    run("#{current_path}/script/process/reaper -a kill -r dispatch.spawner.pid " +
+        "|| #{current_path}/script/process/reaper -a kill")
+  end
+
+  desc "Invoke a single command on the remote servers. This is useful
+  for performing one-off commands that may not require a full task to
+  be written for them.  Simply specify the command to execute via the
+  COMMAND environment variable.  To execute the command only on
+  certain roles, specify the ROLES environment variable as a
+  comma-delimited list of role names.
+
+    $ rake vlad:invoke COMMAND='uptime'".cleanup
+
+  remote_task :invoke do
+    command = ENV["COMMAND"]
+    abort "Please specify a command to execute on the remote servers (via the COMMAND environment variable)" unless command
+    puts run(command)
+  end
+
+  desc "Updates the symlink to the most recently deployed
+    version. Capistrano works by putting each new release of your
+    application in its own directory. When you deploy a new version,
+    this task's job is to update the 'current' symlink to point at the
+    new version. You will rarely need to call this task directly;
+    instead, use the 'deploy' task (which performs a complete deploy,
+    including 'restart') or the 'update' task (which does everything
+    except 'restart').".cleanup
+
+  remote_task :symlink do
+    begin
+      run "rm -f #{current_path} && ln -s #{latest_release} #{current_path}"
+    rescue => e
+      run "rm -f #{current_path} && ln -s #{previous_release} #{current_path}"
+      raise e
+    end
+  end
+
+  desc "Copy files to the currently deployed version. This is useful
+    for updating files piecemeal, such as when you need to quickly
+    deploy only a single file. Some files, such as updated templates,
+    images, or stylesheets, might not require a full deploy, and
+    especially in emergency situations it can be handy to just push
+    the updates to production, quickly.
+
+    To use this task, specify the files and directories you want to
+    copy as a comma-delimited list in the FILES environment
+    variable. All directories will be processed recursively, with all
+    files being pushed to the deployment servers. Any file or
+    directory starting with a '.' character will be ignored.
+
+      $ cap deploy:upload FILES=templates,controller.rb".cleanup
+
+  remote_task :upload do
+    files = (ENV["FILES"] || "").
+      split(",").
+      map { |f| f.strip!; File.directory?(f) ? Dir["#{f}/**/*"] : f }.
+      flatten.
+      reject { |f| File.directory?(f) || File.basename(f)[0] == ?. }
+
+    abort "Please specify at least one file to update (via the FILES environment variable)" if files.empty?
+
+    files.each do |file|
+      put File.read(file), File.join(current_path, file)
+    end
+  end
+
+  desc "Rolls back to a previous version and restarts. This is handy
+    if you ever discover that you've deployed a lemon; 'cap rollback'
+    and you're right back where you were, on the previously deployed
+    version.".cleanup
+
+  remote_task :rollback do
+    if releases.length < 2
+      abort "could not rollback the code because there is no prior release"
+    else
+      run "rm #{current_path}; ln -s #{previous_release} #{current_path} && rm -rf #{current_release}"
+    end
+
+    restart
+  end
+
   desc "Clean up old releases. By default, the last 5 releases are
     kept on each server (though you can change this with the
     keep_releases variable). All other deployed revisions are removed
@@ -230,7 +230,7 @@ namespace :vlad do
     old releases, but if sudo is not available for your environment,
     set the :use_sudo variable to false instead.".cleanup
 
-  remote_task :cleanup do # HACK :except => { :no_release => true }
+  remote_task :cleanup do
     count = fetch(:keep_releases, 5).to_i
     if count >= releases.length
       logger.important "no old releases to clean up"

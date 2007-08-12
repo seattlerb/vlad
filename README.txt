@@ -1,32 +1,63 @@
-vlad
-    by FIX (your name)
-    FIX (url)
+Vlad the Deployer
+    by the Ruby Hit Squad
+    http://rubyhitsquad.com/
+    http://rubyforge.org/projects/hitsquad/
 
 == DESCRIPTION:
   
-FIX (describe your package)
+Vlad the Deployer is pragmatic application deployment automation,
+without mercy. Much like capistrano, but with 1/10th the
+complexity. Vlad integrates seemlessly with rake, and uses familiar
+and standard tools like ssh and rsync.
+
+Impale your application on the heartless spike of the Deployer.
 
 == FEATURES/PROBLEMS:
   
-* FIX (list of features or problems)
+* Full deployment automation stack.
+* Supports single server deployment with just 4 variables defined.
+* Very few dependencies. All simple.
+* Uses ssh with your ssh settings already in place.
+* Uses rsync for efficient transfers.
+* Exec remote commands on one or more servers.
+* Syncs files to one or more servers.
+* Mix and match local and remote tasks.
+* Built on rake. easy.
+* Compatible with all of your tab completion shell script rake-tastic goodness.
+* Ships with tests that actually pass.
+* Engine is under 500 lines of code.
+* Super uper simple.
+* Does NOT support windows right now. Coming soon in 1.1.
+
 
 == SYNOPSIS:
 
-  FIX (code sample of usage)
+    rake vlad:setup
+    rake vlad:update
+    rake vlad:migrate
+    rake vlad:start
 
 == REQUIREMENTS:
 
-* FIX (list of requirements)
+* Rake
+* Hoe
+* Rubyforge
 
 == INSTALL:
 
-* FIX (sudo gem install, anything else)
+* sudo gem install -y vlad
+
+== SPECIAL THANKS:
+
+* First, of course, to capistrano. For coming up with the idea and
+  providing a lot of meat for the recipes.
+* Scott Baron for coming up with one of the best project names evar.
 
 == LICENSE:
 
 (The MIT License)
 
-Copyright (c) 2007 FIX
+Copyright (c) 2007 Ryan Davis and the rest of the Ruby Hit Squad
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the

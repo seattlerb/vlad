@@ -243,10 +243,17 @@ class Rake::RemoteTask < Rake::Task
     @@tasks = {}
     @@env_locks = Hash.new { |h,k| h[k] = Mutex.new }
 
-    set(:application) { raise Vlad::ConfigurationError, "Please specify the name of the application" }
-    set(:repository)  { raise Vlad::ConfigurationError, "Please specify the repository path" }
-    set(:deploy_to)   { raise Vlad::ConfigurationError, "Please specify the deploy path" }
+    # mandatory
+    set(:application) { raise(Vlad::ConfigurationError,
+                              "Please specify the name of the application") }
+    set(:repository)  { raise(Vlad::ConfigurationError,
+                              "Please specify the repository path") }
+    set(:deploy_to)   { raise(Vlad::ConfigurationError,
+                              "Please specify the deploy path") }
+    set(:domain)      { raise(Vlad::ConfigurationError,
+                              "Please specify the server domain") }
 
+    # optional
     set(:current_path)    { File.join(deploy_to, "current") }
     set(:current_release) { File.join(releases_path, releases.last) }
     set(:deploy_timestamped, true)

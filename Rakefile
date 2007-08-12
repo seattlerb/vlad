@@ -18,84 +18,11 @@ Hoe.new('vlad', Vlad::VERSION) do |p|
 end
 
 task :mock_svn do
-  sh 'rails blah' unless test ?d, 'blah'
-
-  path = 'blah/config/deploy.rb'
-  File.open path, 'w' do |f|
-    f.write <<-"EOM"
-set :application, "blah"
-set :remote_home, "#{File.expand_path File.join(Dir.pwd, '..', 'blah-svn')}"
-set :user, "ryan"
-set :deploy_to, "#\{remote_home}/seattlerb.org"
-set :use_sudo, false
-set :domain, "localhost"
-
-set :scm, 'svn'
-set :repository, "#\{remote_home}/scm" # TODO
-set :repository, 'http://svn.supremetyrant.com/paste/'
-
-host domain, :app, :web, :db
-
-remote_task :check do
-  run "ls"
-end
-EOM
-  end unless test ?f, path
-
-  path = 'blah/Rakefile'
-  File.open path, 'a' do |f|
-    f.puts
-    f.puts "$: << '../lib'"
-    f.puts "require 'vlad'"
-    f.puts "Vlad.load 'config/deploy.rb'"
-  end unless File.read(path) =~ /vlad/
-  sh "cat #{path}"
-
-  Dir.chdir "blah" do
-    sh "rake -t -T vlad"
-    sh "rake -t vlad:setup"
-    sh "rake -t vlad:update"
-  end
+  mock "svn"
 end
 
 task :mock_p4 do
-  sh 'rails blah' unless test ?d, 'blah'
-
-  path = 'blah/config/deploy.rb'
-  File.open path, 'w' do |f|
-    f.write <<-"EOM"
-set :application, "blah"
-set :remote_home, "#{File.expand_path File.join(Dir.pwd, '..', 'blah-p4')}"
-set :user, "ryan"
-set :deploy_to, "#\{remote_home}/seattlerb.org"
-set :use_sudo, false
-set :domain, "localhost"
-
-set :scm, 'perforce'
-set :repository, "#\{remote_home}/scm"
-
-host domain, :app, :web, :db
-
-remote_task :check do
-  run "ls"
-end
-EOM
-  end unless test ?f, path
-
-  path = 'blah/Rakefile'
-  File.open path, 'a' do |f|
-    f.puts
-    f.puts "$: << '../lib'"
-    f.puts "require 'vlad'"
-    f.puts "Vlad.load 'config/deploy.rb'"
-  end unless File.read(path) =~ /vlad/
-  sh "cat #{path}"
-
-  Dir.chdir "blah" do
-    sh "rake -t -T vlad"
-    sh "rake -t vlad:setup"
-    sh "rake -t vlad:update"
-  end
+  mock "p4"
 end
 
 task :flog do
@@ -112,6 +39,46 @@ task :sort do
     sh 'for f in test/test_*.rb; do echo $f; grep "^ *def.test_" $f > x; sort x > y; echo $f; echo; diff x y; done'
   ensure
     sh 'rm x y'
+  end
+end
+
+def mock(svc)
+  sh 'rails blah' unless test ?d, 'blah'
+
+  path = 'blah/config/deploy.rb'
+  File.open path, 'w' do |f|
+    f.write <<-"EOM"
+set :application, "blah"
+set :user, "ryan"
+set :deploy_to, "#{File.expand_path File.join(Dir.pwd, '..', 'blah-'+svc.to_s)}/seattlerb.org"
+set :use_sudo, false
+set :domain, "localhost"
+
+set :scm, '#{svc}'
+#{"#" unless svc == "p4"}set :repository, "#\{deploy_to}/scm"
+#{"#" unless svc == "svn"}set :repository, 'http://svn.supremetyrant.com/paste/'
+
+host domain, :app, :web, :db
+
+remote_task :check do
+  run "ls"
+end
+EOM
+  end unless test ?f, path
+
+  path = 'blah/Rakefile'
+  File.open path, 'a' do |f|
+    f.puts
+    f.puts "$: << '../lib'"
+    f.puts "require 'vlad'"
+    f.puts "Vlad.load 'config/deploy.rb'"
+  end unless File.read(path) =~ /vlad/
+  sh "cat #{path}"
+
+  Dir.chdir "blah" do
+    sh "rake -t -T vlad"
+    sh "rake -t vlad:setup"
+    sh "rake -t vlad:update"
   end
 end
 
