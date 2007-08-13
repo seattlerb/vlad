@@ -89,6 +89,12 @@
 
 * Running migrations
   The migrate role will run on multiple app servers.  This is not desirable.
+  Scary hack workaround to only run it once.
+  remote_task :migrate
+    if target_host == Rake::RemoteTask.hosts_for(:app).first then
+      ... code here..
+    end
+  end
 
 * I really like tasks with naming <cmd>_<role> (eg setup_app,
   start_web). We could easily make the front end remote_task command
