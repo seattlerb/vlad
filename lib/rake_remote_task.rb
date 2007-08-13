@@ -143,7 +143,7 @@ class Rake::RemoteTask < Rake::Task
   # Returns an Array with every host configured.
 
   def self.all_hosts
-    hosts_for(@@roles.keys)
+    hosts_for(roles.keys)
   end
 
   ##
@@ -190,9 +190,9 @@ class Rake::RemoteTask < Rake::Task
   # Returns an Array of all hosts in +roles+.
 
   def self.hosts_for *roles
-    roles.flatten.map do |r|
-      @@roles[r].keys
-    end.flatten.uniq.sort
+    roles.flatten.map { |r|
+      self.roles[r].keys
+    }.flatten.uniq.sort
   end
 
   ##
@@ -221,17 +221,25 @@ class Rake::RemoteTask < Rake::Task
   ##
   # The configured roles.
 
-  def self.roles() @@roles end
+  def self.roles
+    host domain, :app, :web, :db if @@roles.empty?
+
+    @@roles
+  end
 
   ##
   # The configured Rake::RemoteTasks.
 
-  def self.tasks() @@tasks end
+  def self.tasks
+    @@tasks
+  end
 
   ##
   # The vlad environment.
 
-  def self.env() @@env end
+  def self.env
+    @@env
+  end
 
   ##
   # Resets vlad, restoring all roles, tasks and environment variables to the

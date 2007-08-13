@@ -54,17 +54,17 @@ def mock(svc)
   path = 'blah/config/deploy.rb'
   File.open path, 'w' do |f|
     f.write <<-"EOM"
+# required
 set :application, "blah"
-set :user, "ryan"
 set :deploy_to, "#{File.expand_path File.join(Dir.pwd, '..', 'blah-'+svc.to_s)}/seattlerb.org"
-set :use_sudo, false
 set :domain, "localhost"
-
-set :scm, '#{svc}'
 #{"#" unless svc == "perforce"}set :repository, "#\{deploy_to}/scm"
 #{"#" unless svc == "subversion"}set :repository, 'file:///#{Dir.pwd}/svnrepo'
 
-host domain, :app, :web, :db
+# optional
+set :scm, '#{svc}'
+set :user, "ryan"
+
 
 remote_task :check do
   run "ls"
