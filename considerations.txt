@@ -65,14 +65,25 @@
   and the migrations will only run on the master db
 
 * handling 'use_sudo'
-  Option 1: Check for this inside the 'run' command, and preface the command 
-    with 'sudo' if necessary
-  Option 2: Default this to 'false' in the reset method, and check for it
-    in the default tasks that we provide:
-      if use_sudo then
-        sudo "blah"
-      else
-        run "blah"
-      end
 
-  Option 2 has fewer moving parts, but clutters up the tasks that care about this.
+  1. Check for this inside the 'run' command, and preface the command
+     with 'sudo' if necessary
+
+  2. Default this to 'false' in the reset method, and check for it
+     in the default tasks that we provide:
+       if use_sudo then
+         sudo "blah"
+       else
+         run "blah"
+       end
+
+  Option 2 has fewer moving parts, but clutters up the tasks that care about
+  this.
+
+* Dependencies
+  Task dependencies aren't settable when creating a Rake::RemoteTask.
+
+* Apache configuration
+  Pull in railsmachine/rails/recipes/apache.rb's apache configuration.  Needs
+  erb to work.
+

@@ -242,6 +242,92 @@ namespace :vlad do
     end
   end
 
+  ##
+  # Mongrel app server
+
+  set :mongrel_address, "127.0.0.1"
+  set :mongrel_clean, false
+  set :mongrel_command, 'mongrel_rails'
+  set :mongrel_conf, "/etc/mongrel_cluster/#{application}.conf"
+  set :mongrel_config_script, nil
+  set :mongrel_environment, "production"
+  set :mongrel_group, nil
+  set :mongrel_log_file, nil
+  set :mongrel_pid_file, nil
+  set :mongrel_port, 8000
+  set :mongrel_prefix, nil
+  set :mongrel_servers, 2
+  set :mongrel_user, nil
+
+  desc "Configure Mongrel processes on the app server"
+
+  task :setup_app, :roles => :app do
+    cmd = [
+      "#{mongrel_command} cluster::configure",
+      "-N #{mongrel_servers}",
+      "-p #{mongrel_port}",
+      "-e #{mongrel_environment}",
+      "-a #{mongrel_address}",
+      "-c #{current_path}",
+      "-C #{mongrel_conf}",
+      "-P #{mongrel_pid_file}" if mongrel_pid_file,
+      "-l #{mongrel_log_file}" if mongrel_log_file,
+      "--user #{mongrel_user}" if mongrel_user,
+      "--group #{mongrel_group}" if mongrel_group,
+      "--prefix #{mongrel_prefix}" if mongrel_prefix,
+      "-S #{mongrel_config_script}" if mongrel_config_script,
+    ].join ' '
+
+    run cmd
+  end
+
+  desc "Restart the Mongrel processes on the app server by starting and
+    stopping the cluster.".cleanup
+
+  remote_task :start_app, :roles => :app do
+    cmd = "#{mongrel_command} cluster::restart -C #{mongrel_conf}"
+    cmd << ' --clean' if mongrel_clean
+    run cmd
+  end
+
+  desc "Stop the Mongrel processes on the app server."
+
+  remote_task :stop_app, :roles => :app do
+    cmd = "#{mongrel_command} cluster::stop -C #{mongrel_conf}"
+    cmd << ' --clean' if mongrel_clean
+    run cmd
+  end
+
+  ##
+  # Apache web server
+
+  set :web_command, "apachectl"
+
+  desc "Restart web server."
+  task :restart_web, :roles => :web  do
+    run "#{web_command} restart"
+  end
+
+  desc "Stop web server."
+  task :stop_web, :roles => :web  do
+    run "#{web_command} stop"
+  end
+
+  ##
+  # Everything HTTP.
+
+  desc "Restart web and app server"
+  task :start do
+    Rake::Task['vlad:restart_app'].invoke
+    Rake::Task['vlad:restart_web'].invoke
+  end
+
+  desc "Stop web and app server"
+  task :stop do
+    Rake::Task['vlad:stop_app'].invoke
+    Rake::Task['vlad:stop_web'].invoke
+  end
+
 end # namespace vlad
 
 ############################################################
