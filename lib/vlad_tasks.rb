@@ -27,30 +27,22 @@ end
 # 3) rake vlad:start
 
 namespace :vlad do
-  desc "show the vlad setup"
+  desc "Show the vlad setup.  This is all the default variables for vlad
+    tasks.".cleanup
   task :debug do
+    require 'yaml'
     y Vlad.instance
-  end
-
-  desc "DOC: Prepares one or more servers for deployment. Before you can
-    use any of the deployment tasks with your project, you will need
-    to make sure all of your servers have been prepared with 'rake
-    setup'. It is safe to run this task on servers that have already
-    been set up; it will not destroy any deployed revisions or
-    data.".cleanup
-
-  remote_task :setup do
-    dirs = [deploy_to, releases_path, scm_path, shared_path]
-    dirs += %w(system log pids).map { |d| File.join(shared_path, d) }
-    run "umask 02 && mkdir -p #{dirs.join(' ')}"
   end
 
   # used by update, out here so we can ensure all threads have the same value
   now = Time.now.utc.strftime("%Y%m%d%H%M.%S")
 
-  desc "Updates the scm directory, rsyncs to the new release
-  directory, and rolls symlinks".cleanup
-  remote_task :update do
+  desc "Updates your application server to the latest revision.  Syncs a copy
+    of the repository, exports it as the latest release, fixes up your
+    symlinks, touches your assets, symlinks the latest revision to current and
+    logs the update.".cleanup
+
+  remote_task :update, :roles => :app do
     set :migrate_target, :latest
     symlink = false
     begin
@@ -82,21 +74,15 @@ namespace :vlad do
     end
   end
 
-  desc "DOC: Run the migrate rake task. By default, it runs this in most recently
-    deployed version of the app. However, you can specify a different release
-    via the migrate_target variable, which must be one of :latest (for the
-    default behavior), or :current (for the release indicated by the
-    'current' symlink). Strings will work for those values instead of symbols,
-    too. You can also specify additional environment variables to pass to rake
-    via the migrate_env variable. Finally, you can specify the full path to the
-    rake executable by setting the rake variable. The defaults are:
+  desc "Run the migrate rake task for the the app. By default this is run in
+    the latest app directory.  You can run migrations for the current app
+    directory by setting :migrate_target to :current.  Additional environment
+    variables can be passed to rake via the migrate_env variable.".cleanup
 
-      set :rake,           'rake'
-      set :rails_env,      'production'
-      set :migrate_env,    ''
-      set :migrate_target, :latest".cleanup
-
-  remote_task :migrate, :roles => :db do # HACK :only => { :primary => true }
+  # HACK :only => { :primary => true }
+  # No application files are on the DB machine, also migrations should only be
+  # run once.
+  remote_task :migrate, :roles => :app do
     directory = case migrate_target.to_sym
                 when :current then current_path
                 when :latest  then current_release
@@ -106,58 +92,14 @@ namespace :vlad do
     run "cd #{directory}; #{rake} RAILS_ENV=#{rails_env} #{migrate_env} db:migrate"
   end
 
-  desc "DOC: Start the application servers. This will attempt to invoke a
-    script in your application called 'script/spin', which must know
-    how to start your application listeners. For Rails applications,
-    you might just have that script invoke 'script/process/spawner'
-    with the appropriate arguments.
+  desc "Invoke a single command on every remote server. This is useful for
+    performing one-off commands that may not require a full task to be written
+    for them.  Simply specify the command to execute via the COMMAND
+    environment variable.  To execute the command only on certain roles,
+    specify the ROLES environment variable as a comma-delimited list of role
+    names.
 
-    By default, the script will be executed via sudo as the 'app'
-    user. If you wish to run it as a different user, set the :runner
-    variable to that user. If you are in an environment where you
-    can't use sudo, set the :use_sudo variable to false.".cleanup
-
-  remote_task :start, :roles => :app do
-    # TODO: extend run to automatically handle sudo and user options
-    run "cd #{current_path} && nohup script/spin"
-  end
-
-  desc "DOC: Restarts your application. This works by calling the
-    script/process/reaper script under the current path. By default,
-    this will be invoked via sudo, but if you are in an environment
-    where sudo is not an option, or is not allowed, you can indicate
-    that restarts should use 'run' instead by setting the 'use_sudo'
-    variable to false:
-
-      set :use_sudo, false".cleanup
-
-  remote_task :restart, :roles => :app do
-    invoke_command "#{current_path}/script/process/reaper", :via => run_method
-  end
-
-  desc "DOC: Stop the application servers. This will call
-    script/process/reaper for both the spawner process, and all of the
-    application processes it has spawned. As such, it is fairly Rails
-    specific and may need to be overridden for other systems.
-
-    By default, the script will be executed via sudo as the 'app'
-    user. If you wish to run it as a different user, set the :runner
-    variable to that user. If you are in an environment where you
-    can't use sudo, set the :use_sudo variable to false.".cleanup
-
-  remote_task :stop, :roles => :app do
-    run("#{current_path}/script/process/reaper -a kill -r dispatch.spawner.pid " +
-        "|| #{current_path}/script/process/reaper -a kill")
-  end
-
-  desc "DOC: Invoke a single command on the remote servers. This is useful
-  for performing one-off commands that may not require a full task to
-  be written for them.  Simply specify the command to execute via the
-  COMMAND environment variable.  To execute the command only on
-  certain roles, specify the ROLES environment variable as a
-  comma-delimited list of role names.
-
-    $ rake vlad:invoke COMMAND='uptime'".cleanup
+      $ rake vlad:invoke COMMAND='uptime'".cleanup
 
   remote_task :invoke do
     command = ENV["COMMAND"]
@@ -165,32 +107,17 @@ namespace :vlad do
     puts run(command)
   end
 
-  desc "DOC: Updates the symlink to the most recently deployed
-    version. Capistrano works by putting each new release of your
-    application in its own directory. When you deploy a new version,
-    this task's job is to update the 'current' symlink to point at the
-    new version. You will rarely need to call this task directly;
-    instead, use the 'deploy' task (which performs a complete deploy,
-    including 'restart') or the 'update' task (which does everything
-    except 'restart').".cleanup
+  desc "Copy files to the currently deployed version. This is useful for
+    updating files piecemeal when you need to quickly deploy only a single
+    file.
 
-  remote_task :symlink do
-  end
+    To use this task, specify the files and directories you want to copy as a
+    comma-delimited list in the FILES environment variable. All directories
+    will be processed recursively, with all files being pushed to the
+    deployment servers. Any file or directory starting with a '.' character
+    will be ignored.
 
-  desc "DOC: Copy files to the currently deployed version. This is useful
-    for updating files piecemeal, such as when you need to quickly
-    deploy only a single file. Some files, such as updated templates,
-    images, or stylesheets, might not require a full deploy, and
-    especially in emergency situations it can be handy to just push
-    the updates to production, quickly.
-
-    To use this task, specify the files and directories you want to
-    copy as a comma-delimited list in the FILES environment
-    variable. All directories will be processed recursively, with all
-    files being pushed to the deployment servers. Any file or
-    directory starting with a '.' character will be ignored.
-
-      $ cap deploy:upload FILES=templates,controller.rb".cleanup
+      $ rake vlad:upload FILES=templates,controller.rb".cleanup
 
   remote_task :upload do
     files = (ENV["FILES"] || "").
@@ -206,39 +133,37 @@ namespace :vlad do
     end
   end
 
-  desc "DOC: Rolls back to a previous version and restarts. This is handy
-    if you ever discover that you've deployed a lemon; 'cap rollback'
-    and you're right back where you were, on the previously deployed
+  desc "Rolls back to a previous version and restarts. This is handy if you
+    ever discover that you've deployed a lemon; 'rake vlad:rollback' and
+    you're right back where you were, on the previously deployed
     version.".cleanup
 
   remote_task :rollback do
-    if releases.length < 2
+    if releases.length < 2 then
       abort "could not rollback the code because there is no prior release"
     else
       run "rm #{current_path}; ln -s #{previous_release} #{current_path} && rm -rf #{current_release}"
     end
 
-    restart
+    Rake::Task['vlad:restart'].invoke
   end
 
-  desc "DOC: Clean up old releases. By default, the last 5 releases are
-    kept on each server (though you can change this with the
-    keep_releases variable). All other deployed revisions are removed
-    from the servers. By default, this will use sudo to clean up the
-    old releases, but if sudo is not available for your environment,
-    set the :use_sudo variable to false instead.".cleanup
+  desc "Clean up old releases. By default, the last 5 releases are kept on
+    each server (though you can change this with the keep_releases variable).
+    All other deployed revisions are removed from the servers.".cleanup
 
   remote_task :cleanup do
     count = fetch(:keep_releases, 5).to_i
-    if count >= releases.length
-      logger.important "no old releases to clean up"
+    if count >= releases.length then
+      puts "no old releases to clean up"
     else
-      logger.info "keeping #{count} of #{releases.length} deployed releases"
+      puts "keeping #{count} of #{releases.length} deployed releases"
 
       directories = (releases - releases.last(count)).map { |release|
-        File.join(releases_path, release) }.join(" ")
+        File.join(releases_path, release)
+      }.join(" ")
 
-      invoke_command "rm -rf #{directories}", :via => run_method
+      invoke_command "rm -rf #{directories}"
     end
   end
 
@@ -259,9 +184,18 @@ namespace :vlad do
   set :mongrel_servers, 2
   set :mongrel_user, nil
 
-  desc "Configure Mongrel processes on the app server"
+  desc "Prepares application servers for deployment. Before you can use any of
+    the deployment tasks with your project, you will need to make sure all of
+    your servers have been prepared with 'rake setup'. It is safe to run this
+    task on servers that have already been set up; it will not destroy any
+    deployed revisions or data. mongrel configuration is set via the mongrel_*
+    variables.".cleanup
 
   remote_task :setup_app, :roles => :app do
+    dirs = [deploy_to, releases_path, scm_path, shared_path]
+    dirs += %w(system log pids).map { |d| File.join(shared_path, d) }
+    run "umask 02 && mkdir -p #{dirs.join(' ')}"
+
     cmd = [
            "#{mongrel_command} cluster::configure",
            "-N #{mongrel_servers}",
@@ -281,7 +215,7 @@ namespace :vlad do
     run cmd
   end
 
-  desc "Restart the Mongrel processes on the app server by starting and
+  desc "Restart mongrel processes on the app servers by starting and
     stopping the cluster.".cleanup
 
   remote_task :start_app, :roles => :app do
@@ -290,7 +224,7 @@ namespace :vlad do
     run cmd
   end
 
-  desc "Stop the Mongrel processes on the app server."
+  desc "Stop mongrel processes on the app servers."
 
   remote_task :stop_app, :roles => :app do
     cmd = "#{mongrel_command} cluster::stop -C #{mongrel_conf}"

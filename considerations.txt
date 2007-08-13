@@ -87,6 +87,8 @@
   Pull in railsmachine/rails/recipes/apache.rb's apache configuration.  Needs
   erb to work.
 
+* Running migrations
+  The migrate role will run on multiple app servers.  This is not desirable.
 
 * I really like tasks with naming <cmd>_<role> (eg setup_app,
   start_web). We could easily make the front end remote_task command
