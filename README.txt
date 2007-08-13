@@ -4,7 +4,7 @@ Vlad the Deployer
     http://rubyforge.org/projects/hitsquad/
 
 == DESCRIPTION:
-  
+
 Vlad the Deployer is pragmatic application deployment automation,
 without mercy. Much like Capistrano, but with 1/10th the
 complexity. Vlad integrates seamlessly with Rake, and uses familiar
@@ -13,7 +13,7 @@ and standard tools like ssh and rsync.
 Impale your application on the heartless spike of the Deployer.
 
 == FEATURES/PROBLEMS:
-  
+
 * Full deployment automation stack.
 * Supports single server deployment with just 4 variables defined.
 * Very few dependencies. All simple.
@@ -28,7 +28,7 @@ Impale your application on the heartless spike of the Deployer.
 * Engine is under 500 lines of code.
 * Super uper simple.
 * Does NOT support Windows right now. Coming soon in 1.1.
-
+* This is 1.0.0... expect rough edges.
 
 == SYNOPSIS:
 
