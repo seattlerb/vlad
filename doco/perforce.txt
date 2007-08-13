@@ -1,0 +1,5 @@
+# Using Perforce
+
+TODO: write real doco.
+
+Set up a .p4config file and put it in the client's scm directories.

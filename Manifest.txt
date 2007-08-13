@@ -5,6 +5,7 @@ Rakefile
 considerations.txt
 doco/getting_started.txt
 doco/migration.txt
+doco/perforce.txt
 doco/variables.txt
 lib/rake_remote_task.rb
 lib/vlad.rb
