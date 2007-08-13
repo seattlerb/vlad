@@ -1,6 +1,6 @@
 require 'vlad'
 
-class String
+class String #:nodoc:
   def cleanup
     if ENV['FULL'] then
       gsub(/\s+/, ' ').strip
