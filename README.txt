@@ -42,6 +42,7 @@ Impale your application on the heartless spike of the Deployer.
 * Rake
 * Hoe
 * Rubyforge
+* open4
 
 == INSTALL:
 

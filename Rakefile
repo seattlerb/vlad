@@ -116,22 +116,5 @@ task :go2 do
   Rake::Task["mock_p4"].invoke
 end
 
-#   501  cd /tmp/
-#   502  l
-#   503  cd blah/
-#   506  new_perforce localhost 1666 blah
-#   507  la
-#   508  l localhost/
-#   509  find localhost/
-#   510  mv localhost/.p4config .
-#   511  rmdir localhost/
-#   512  l
-#   513  cat .p4config
-#   514  p4 user
-#   515  p4 client
-#   516  p4 sync
-#   517  find . -type f | xargs p4 add
-#   518  p4 submit ...
-#   519  history
 
 # vim: syntax=Ruby

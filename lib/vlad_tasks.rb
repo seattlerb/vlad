@@ -29,6 +29,7 @@ end
 namespace :vlad do
   desc "Show the vlad setup.  This is all the default variables for vlad
     tasks.".cleanup
+
   task :debug do
     require 'yaml'
     puts "# Environment:"
@@ -39,11 +40,13 @@ namespace :vlad do
 
   # used by update, out here so we can ensure all threads have the same value
   now = Time.now.utc.strftime("%Y%m%d%H%M.%S")
-  desc "Setup your servers. Before you can use any of the deployment tasks
-    with your project, you will need to make sure all of your servers have
-    been prepared with 'rake setup'. It is safe to run this task on servers
-    that have already been set up; it will not destroy any deployed revisions
-    or data.".cleanup
+
+  desc "Setup your servers. Before you can use any of the deployment
+    tasks with your project, you will need to make sure all of your
+    servers have been prepared with 'rake vlad:setup'. It is safe to
+    run this task on servers that have already been set up; it will
+    not destroy any deployed revisions or data.".cleanup
+
   task :setup do
     Rake::Task['vlad:setup_app'].invoke
   end
@@ -246,11 +249,13 @@ namespace :vlad do
   set :web_command, "apachectl"
 
   desc "Restart the web servers"
+
   remote_task :start_web, :roles => :web  do
     run "#{web_command} restart"
   end
 
   desc "Stop the web servers"
+
   remote_task :stop_web, :roles => :web  do
     run "#{web_command} stop"
   end
@@ -259,12 +264,14 @@ namespace :vlad do
   # Everything HTTP.
 
   desc "Restart the web and app servers"
+
   remote_task :start do
     Rake::Task['vlad:start_app'].invoke
     Rake::Task['vlad:start_web'].invoke
   end
 
   desc "Stop the web and app servers"
+
   remote_task :stop do
     Rake::Task['vlad:stop_app'].invoke
     Rake::Task['vlad:stop_web'].invoke
