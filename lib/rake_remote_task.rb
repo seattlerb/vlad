@@ -44,7 +44,7 @@ class Rake::RemoteTask < Rake::Task
   # Rake::Task#enhance.
 
   def enhance(deps=nil, &block)
-    original_enhance(deps)
+    original_enhance(deps) # can't use super because block passed regardless.
     @remote_actions << Action.new(self, block) if block_given?
     self
   end
@@ -297,7 +297,6 @@ class Rake::RemoteTask < Rake::Task
     end
 
     set(:source) do
-      scm = fetch(:scm)
       require "vlad/#{scm}"
       Vlad.const_get(scm.to_s.capitalize).new
     end

@@ -52,6 +52,7 @@ Impale your application on the heartless spike of the Deployer.
 * First, of course, to Capistrano. For coming up with the idea and
   providing a lot of meat for the recipes.
 * Scott Baron for coming up with one of the best project names evar.
+* Bradley Taylor for giving us permission to use RailsMachine recipes sans-LGPL.
 
 == LICENSE:
 

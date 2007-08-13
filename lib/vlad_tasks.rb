@@ -60,7 +60,7 @@ namespace :vlad do
             "#{source.export ".", release_path}",
             "chmod -R g+w #{latest_release}",
             "rm -rf #{latest_release}/log #{latest_release}/public/system #{latest_release}/tmp/pids",
-            "mkdir -p #{latest_release}/public #{latest_release}/tmp",
+            "mkdir -p #{latest_release}/db #{latest_release}/tmp",
             "ln -s #{shared_path}/log #{latest_release}/log",
             "ln -s #{shared_path}/system #{latest_release}/public/system",
             "ln -s #{shared_path}/pids #{latest_release}/tmp/pids",
@@ -261,22 +261,22 @@ namespace :vlad do
 
   desc "Configure Mongrel processes on the app server"
 
-  task :setup_app, :roles => :app do
+  remote_task :setup_app, :roles => :app do
     cmd = [
-      "#{mongrel_command} cluster::configure",
-      "-N #{mongrel_servers}",
-      "-p #{mongrel_port}",
-      "-e #{mongrel_environment}",
-      "-a #{mongrel_address}",
-      "-c #{current_path}",
-      "-C #{mongrel_conf}",
-      "-P #{mongrel_pid_file}" if mongrel_pid_file,
-      "-l #{mongrel_log_file}" if mongrel_log_file,
-      "--user #{mongrel_user}" if mongrel_user,
-      "--group #{mongrel_group}" if mongrel_group,
-      "--prefix #{mongrel_prefix}" if mongrel_prefix,
-      "-S #{mongrel_config_script}" if mongrel_config_script,
-    ].join ' '
+           "#{mongrel_command} cluster::configure",
+           "-N #{mongrel_servers}",
+           "-p #{mongrel_port}",
+           "-e #{mongrel_environment}",
+           "-a #{mongrel_address}",
+           "-c #{current_path}",
+           "-C #{mongrel_conf}",
+           ("-P #{mongrel_pid_file}" if mongrel_pid_file),
+           ("-l #{mongrel_log_file}" if mongrel_log_file),
+           ("--user #{mongrel_user}" if mongrel_user),
+           ("--group #{mongrel_group}" if mongrel_group),
+           ("--prefix #{mongrel_prefix}" if mongrel_prefix),
+           ("-S #{mongrel_config_script}" if mongrel_config_script),
+            ].compact.join ' '
 
     run cmd
   end
@@ -304,12 +304,12 @@ namespace :vlad do
   set :web_command, "apachectl"
 
   desc "Restart web server."
-  task :restart_web, :roles => :web  do
+  remote_task :restart_web, :roles => :web  do
     run "#{web_command} restart"
   end
 
   desc "Stop web server."
-  task :stop_web, :roles => :web  do
+  remote_task :stop_web, :roles => :web  do
     run "#{web_command} stop"
   end
 
@@ -317,13 +317,13 @@ namespace :vlad do
   # Everything HTTP.
 
   desc "Restart web and app server"
-  task :start do
+  remote_task :start do
     Rake::Task['vlad:restart_app'].invoke
     Rake::Task['vlad:restart_web'].invoke
   end
 
   desc "Stop web and app server"
-  task :stop do
+  remote_task :stop do
     Rake::Task['vlad:stop_app'].invoke
     Rake::Task['vlad:stop_web'].invoke
   end

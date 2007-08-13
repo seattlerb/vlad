@@ -43,28 +43,36 @@ task :sort do
 end
 
 def mock(svc)
-  if svc == "subversion" then
+  src_dir = Dir.pwd
+  Dir.chdir "/tmp/"
+
+  case svc
+  when "subversion" then
     sh "svnadmin create svnrepo" unless test ?d, 'svnrepo'
-    sh "svn co file:///#{Dir.pwd}/svnrepo blah"
-    sh 'rails blah' unless test ?f, 'blah/Rakefile'
+    sh "svn co file:///tmp/svnrepo blah"
+  when "perforce" then
+    sh "mkdir p4repo" unless test ?d, 'p4repo'
+    sh "(cd /tmp; p4d -r /tmp/p4repo -p localhost:1666 -d)"
   else
-    sh 'rails blah' unless test ?d, 'blah'
+    raise "huh?"
   end
+
+  sh 'rails blah' unless test ?f, 'blah/Rakefile'
 
   path = 'blah/config/deploy.rb'
   File.open path, 'w' do |f|
     f.write <<-"EOM"
 # required
 set :application, "blah"
-set :deploy_to, "#{File.expand_path File.join(Dir.pwd, '..', 'blah-'+svc.to_s)}/seattlerb.org"
+set :deploy_to, "/tmp/blah-#{svc}"
 set :domain, "localhost"
 #{"#" unless svc == "perforce"}set :repository, "#\{deploy_to}/scm"
-#{"#" unless svc == "subversion"}set :repository, 'file:///#{Dir.pwd}/svnrepo'
+#{"#" unless svc == "perforce"}set :p4pass, "password"
+#{"#" unless svc == "perforce"}set :p4user, "ryan"
+#{"#" unless svc == "subversion"}set :repository, 'file:///tmp/svnrepo'
 
 # optional
 set :scm, '#{svc}'
-set :user, "ryan"
-
 
 remote_task :check do
   run "ls"
@@ -75,21 +83,55 @@ EOM
   path = 'blah/Rakefile'
   File.open path, 'a' do |f|
     f.puts
-    f.puts "$: << '#{Dir.pwd}/lib'"
+    f.puts "$: << '#{src_dir}/lib'"
     f.puts "require 'vlad'"
     f.puts "Vlad.load 'config/deploy.rb'"
   end unless File.read(path) =~ /vlad/
-  sh "cat #{path}"
 
-  if svc == "subversion" then
+  case svc
+  when "subversion" then
     sh "(cd blah && svn add * && svn ci -m 'woot')"
+  when "perforce" then
+    # nothing to do -- you must manually set up a user, client, and submit blah
+    abort "set up p4 user/client and check in blah" unless
+      test ?d, 'p4repo/depot'
   end
 
   Dir.chdir "blah" do
-    sh "rake -t -T vlad"
     sh "rake -t vlad:setup"
     sh "rake -t vlad:update"
+    sh "rake -t vlad:migrate"
+    sh "rake -t vlad:start"
   end
 end
+
+desc 'go'
+task :go do
+  sh "rm -rf /tmp/blah /tmp/svnrepo /tmp/blah-subversion && rake mock_svn"
+end
+
+desc 'go2'
+task :go2 do
+  sh "killall p4d ; rm -rf /tmp/blah"
+  Rake::Task["mock_p4"].invoke
+end
+
+#   501  cd /tmp/
+#   502  l
+#   503  cd blah/
+#   506  new_perforce localhost 1666 blah
+#   507  la
+#   508  l localhost/
+#   509  find localhost/
+#   510  mv localhost/.p4config .
+#   511  rmdir localhost/
+#   512  l
+#   513  cat .p4config
+#   514  p4 user
+#   515  p4 client
+#   516  p4 sync
+#   517  find . -type f | xargs p4 add
+#   518  p4 submit ...
+#   519  history
 
 # vim: syntax=Ruby

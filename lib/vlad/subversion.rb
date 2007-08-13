@@ -1,9 +1,5 @@
 class Vlad::Subversion
 
-  def update(revision)
-    "svn update -r #{revision} #{repository}}"
-  end
-
   ##
   # Returns the command that will check out +revision+ from the repository
   # into directory +destination+
