@@ -32,9 +32,9 @@ Impale your application on the heartless spike of the Deployer.
 
 == SYNOPSIS:
 
-    rake vlad:setup
+    rake vlad:setup   # first time only
     rake vlad:update
-    rake vlad:migrate
+    rake vlad:migrate # optional
     rake vlad:start
 
 == REQUIREMENTS:

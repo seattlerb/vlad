@@ -1,14 +1,7 @@
-require 'vlad/scm'
+class Vlad::Perforce
 
-##
-# Implements Vlad::SCM interface for the Perforce revision control system
-# http://www.perforce.com.
-
-class Vlad::Perforce < Vlad::SCM
-
-  def initialize # :nodoc:
-    @command = 'p4'
-    @head = 'head'
+  def update(revision)
+    "p4 sync ...#{rev_no(revision)}"
   end
 
   ##
@@ -16,9 +9,7 @@ class Vlad::Perforce < Vlad::SCM
   # +destination+.
 
   def checkout(revision, destination)
-    cmd = "cd #{repository} && "
-    cmd << command(:sync, "...#{rev_no(revision)}")
-    cmd << " && cp -rp . #{destination}"
+    "cd #{repository} && p4 sync ...#{rev_no(revision)} && cp -rp . #{destination}"
   end
 
   ##
@@ -32,8 +23,7 @@ class Vlad::Perforce < Vlad::SCM
   # into a Perforce revision specification.
 
   def revision(revision)
-    cmd = command :changes, "-s submitted -m 1 ...#{rev_no(revision)} | cut -f 2 -d\\ "
-    "`#{cmd}`"
+    "`p4 changes -s submitted -m 1 ...#{rev_no(revision)} | cut -f 2 -d\\ `"
   end
 
   ##
@@ -41,13 +31,12 @@ class Vlad::Perforce < Vlad::SCM
 
   def rev_no(revision)
     case revision.to_s
-    when @head then
+    when /head/i then
       "#head"
-    when /^\d+/ then
+    when /^\d+$/ then
       "@#{revision}"
     else
       revision
     end
   end
 end
-

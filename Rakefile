@@ -18,11 +18,11 @@ Hoe.new('vlad', Vlad::VERSION) do |p|
 end
 
 task :mock_svn do
-  mock "svn"
+  mock "subversion"
 end
 
 task :mock_p4 do
-  mock "p4"
+  mock "perforce"
 end
 
 task :flog do
@@ -43,7 +43,13 @@ task :sort do
 end
 
 def mock(svc)
-  sh 'rails blah' unless test ?d, 'blah'
+  if svc == "subversion" then
+    sh "svnadmin create svnrepo" unless test ?d, 'svnrepo'
+    sh "svn co file:///#{Dir.pwd}/svnrepo blah"
+    sh 'rails blah' unless test ?f, 'blah/Rakefile'
+  else
+    sh 'rails blah' unless test ?d, 'blah'
+  end
 
   path = 'blah/config/deploy.rb'
   File.open path, 'w' do |f|
@@ -55,8 +61,8 @@ set :use_sudo, false
 set :domain, "localhost"
 
 set :scm, '#{svc}'
-#{"#" unless svc == "p4"}set :repository, "#\{deploy_to}/scm"
-#{"#" unless svc == "svn"}set :repository, 'http://svn.supremetyrant.com/paste/'
+#{"#" unless svc == "perforce"}set :repository, "#\{deploy_to}/scm"
+#{"#" unless svc == "subversion"}set :repository, 'file:///#{Dir.pwd}/svnrepo'
 
 host domain, :app, :web, :db
 
@@ -69,11 +75,15 @@ EOM
   path = 'blah/Rakefile'
   File.open path, 'a' do |f|
     f.puts
-    f.puts "$: << '../lib'"
+    f.puts "$: << '#{Dir.pwd}/lib'"
     f.puts "require 'vlad'"
     f.puts "Vlad.load 'config/deploy.rb'"
   end unless File.read(path) =~ /vlad/
   sh "cat #{path}"
+
+  if svc == "subversion" then
+    sh "(cd blah && svn add * && svn ci -m 'woot')"
+  end
 
   Dir.chdir "blah" do
     sh "rake -t -T vlad"

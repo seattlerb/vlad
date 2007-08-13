@@ -1,14 +1,7 @@
-require 'vlad/scm'
+class Vlad::Subversion
 
-##
-# Implements Vlad::SCM interface for the Perforce revision control system
-# http://www.perforce.com.
-
-class Vlad::Subversion < Vlad::SCM
-
-  def initialize # :nodoc:
-    @command = 'svn'
-    @head = 'HEAD'
+  def update(revision)
+    "svn update -r #{revision} #{repository}}"
   end
 
   ##
@@ -16,15 +9,19 @@ class Vlad::Subversion < Vlad::SCM
   # into directory +destination+
 
   def checkout(revision, destination)
-    command :co, "-r #{revision}", fetch(:repository), destination
+    "svn co -r #{revision} #{repository} #{destination}"
   end
 
   ##
   # Returns the command that will export +revision+ from the repository into
   # the directory +destination+.
 
-  def export(revision, destination)
-    command :export, "-r #{revision}", fetch(:repository), destination
+  def export(revision_or_source, destination)
+    if revision_or_source =~ /^(\d+|head)$/i then
+      "svn export -r #{revision_or_source} #{repository} #{destination}"
+    else
+      "svn export #{revision_or_source} #{destination}"
+    end
   end
 
   ##
@@ -32,8 +29,6 @@ class Vlad::Subversion < Vlad::SCM
   # into a subversion revision specification.
 
   def revision(revision)
-    cmd = command :info, "#{fetch(:repository)} | grep 'Revision:' | cut -f2 -d\\ "
-    "`#{cmd}`"
+    "`svn info #{repository} | grep 'Revision:' | cut -f2 -d\\ `"
   end
-
 end

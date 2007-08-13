@@ -13,16 +13,11 @@ class TestVladSubversion < Test::Unit::TestCase
     assert_equal 'svn co -r HEAD svn+ssh://repo/myproject /the/place', cmd
   end
 
-  def test_command
-    cmd = @scm.command :export, "myproject"
-    assert_equal "svn export myproject", cmd
-  end
-
   def test_export
     cmd = @scm.export 'HEAD', '/the/place'
     assert_equal 'svn export -r HEAD svn+ssh://repo/myproject /the/place', cmd
   end
-  
+
   def test_revision
     cmd = @scm.revision('HEAD')
     expected = "`svn info svn+ssh://repo/myproject | grep 'Revision:' | cut -f2 -d\\ `"

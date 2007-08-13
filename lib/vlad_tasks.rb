@@ -23,8 +23,8 @@ end
 # Subsequent:
 #
 # 1) rake vlad:update
-# 2) rake vlad:migrate
-# 3) rake vlad:restart
+# 2) rake vlad:migrate (optional)
+# 3) rake vlad:start
 
 namespace :vlad do
   desc "show the vlad setup"
@@ -32,7 +32,7 @@ namespace :vlad do
     y Vlad.instance
   end
 
-  desc "Prepares one or more servers for deployment. Before you can
+  desc "DOC: Prepares one or more servers for deployment. Before you can
     use any of the deployment tasks with your project, you will need
     to make sure all of your servers have been prepared with 'rake
     setup'. It is safe to run this task on servers that have already
@@ -45,40 +45,44 @@ namespace :vlad do
     run "umask 02 && mkdir -p #{dirs.join(' ')}"
   end
 
-  desc "Copies your project and updates the symlink. It does this in a
-    transaction, so that if either 'update_code' or 'symlink' fail,
-    all changes made to the remote servers will be rolled back,
-    leaving your system in the same state it was in before 'update'
-    was invoked. Usually, you will want to call 'deploy' instead of
-    'update', but 'update' can be handy if you want to deploy, but not
-    immediately restart your application.".cleanup
+  # used by update, out here so we can ensure all threads have the same value
+  now = Time.now.utc.strftime("%Y%m%d%H%M.%S")
 
+  desc "Updates the scm directory, rsyncs to the new release
+  directory, and rolls symlinks".cleanup
   remote_task :update do
     set :migrate_target, :latest
+    symlink = false
     begin
-      run source.send(deploy_via, source.revision("head"), release_path)
-      # finalize_update
-      run "chmod -R g+w #{latest_release}"
+      # TODO: head/version should be parameterized
+      run [ "cd #{scm_path}",
+            "#{source.checkout "head", '.'}",
+            "#{source.export ".", release_path}",
+            "chmod -R g+w #{latest_release}",
+            "rm -rf #{latest_release}/log #{latest_release}/public/system #{latest_release}/tmp/pids",
+            "mkdir -p #{latest_release}/public #{latest_release}/tmp",
+            "ln -s #{shared_path}/log #{latest_release}/log",
+            "ln -s #{shared_path}/system #{latest_release}/public/system",
+            "ln -s #{shared_path}/pids #{latest_release}/tmp/pids",
+          ].join(" && ")
 
-      # mkdir -p is making sure that the directories are there for some
-      # SCM's that don't save empty folders
-      run "rm -rf #{latest_release}/log #{latest_release}/public/system #{latest_release}/tmp/pids && mkdir -p #{latest_release}/public && mkdir -p #{latest_release}/tmp && ln -s #{shared_path}/log #{latest_release}/log && ln -s #{shared_path}/system #{latest_release}/public/system && ln -s #{shared_path}/pids #{latest_release}/tmp/pids"
-
-      stamp = Time.now.utc.strftime("%Y%m%d%H%M.%S")
       asset_paths = %w(images stylesheets javascripts).map { |p| "#{latest_release}/public/#{p}" }.join(" ")
-      run "find #{asset_paths} -exec touch -t #{stamp} {} ';'; true"
+      run "find #{asset_paths} -exec touch -t #{now} {} ';'; true"
 
-      Rake::Task["vlad:migrate"].invoke
-      Rake::Task["vlad:symlink"].invoke
+      symlink = true
+      run "rm -f #{current_path} && ln -s #{latest_release} #{current_path}"
+      # Rake::Task["vlad:migrate"].invoke
 
-      run "echo `date +\"%Y-%m-%d %H:%M:%S\"` $USER #{real_revision} #{File.basename release_path} >> #{deploy_to}/revisions.log"
+      run "echo #{now} $USER #{'head'} #{File.basename release_path} >> #{deploy_to}/revisions.log" # FIX shouldn't be head
     rescue => e
+      run "rm -f #{current_path} && ln -s #{previous_release} #{current_path}" if
+        symlink
       run "rm -rf #{release_path}"
       raise e
     end
   end
 
-  desc "Run the migrate rake task. By default, it runs this in most recently
+  desc "DOC: Run the migrate rake task. By default, it runs this in most recently
     deployed version of the app. However, you can specify a different release
     via the migrate_target variable, which must be one of :latest (for the
     default behavior), or :current (for the release indicated by the
@@ -102,7 +106,7 @@ namespace :vlad do
     run "cd #{directory}; #{rake} RAILS_ENV=#{rails_env} #{migrate_env} db:migrate"
   end
 
-  desc "Start the application servers. This will attempt to invoke a
+  desc "DOC: Start the application servers. This will attempt to invoke a
     script in your application called 'script/spin', which must know
     how to start your application listeners. For Rails applications,
     you might just have that script invoke 'script/process/spawner'
@@ -118,7 +122,7 @@ namespace :vlad do
     run "cd #{current_path} && nohup script/spin"
   end
 
-  desc "Restarts your application. This works by calling the
+  desc "DOC: Restarts your application. This works by calling the
     script/process/reaper script under the current path. By default,
     this will be invoked via sudo, but if you are in an environment
     where sudo is not an option, or is not allowed, you can indicate
@@ -131,7 +135,7 @@ namespace :vlad do
     invoke_command "#{current_path}/script/process/reaper", :via => run_method
   end
 
-  desc "Stop the application servers. This will call
+  desc "DOC: Stop the application servers. This will call
     script/process/reaper for both the spawner process, and all of the
     application processes it has spawned. As such, it is fairly Rails
     specific and may need to be overridden for other systems.
@@ -146,7 +150,7 @@ namespace :vlad do
         "|| #{current_path}/script/process/reaper -a kill")
   end
 
-  desc "Invoke a single command on the remote servers. This is useful
+  desc "DOC: Invoke a single command on the remote servers. This is useful
   for performing one-off commands that may not require a full task to
   be written for them.  Simply specify the command to execute via the
   COMMAND environment variable.  To execute the command only on
@@ -161,7 +165,7 @@ namespace :vlad do
     puts run(command)
   end
 
-  desc "Updates the symlink to the most recently deployed
+  desc "DOC: Updates the symlink to the most recently deployed
     version. Capistrano works by putting each new release of your
     application in its own directory. When you deploy a new version,
     this task's job is to update the 'current' symlink to point at the
@@ -171,15 +175,9 @@ namespace :vlad do
     except 'restart').".cleanup
 
   remote_task :symlink do
-    begin
-      run "rm -f #{current_path} && ln -s #{latest_release} #{current_path}"
-    rescue => e
-      run "rm -f #{current_path} && ln -s #{previous_release} #{current_path}"
-      raise e
-    end
   end
 
-  desc "Copy files to the currently deployed version. This is useful
+  desc "DOC: Copy files to the currently deployed version. This is useful
     for updating files piecemeal, such as when you need to quickly
     deploy only a single file. Some files, such as updated templates,
     images, or stylesheets, might not require a full deploy, and
@@ -208,7 +206,7 @@ namespace :vlad do
     end
   end
 
-  desc "Rolls back to a previous version and restarts. This is handy
+  desc "DOC: Rolls back to a previous version and restarts. This is handy
     if you ever discover that you've deployed a lemon; 'cap rollback'
     and you're right back where you were, on the previously deployed
     version.".cleanup
@@ -223,7 +221,7 @@ namespace :vlad do
     restart
   end
 
-  desc "Clean up old releases. By default, the last 5 releases are
+  desc "DOC: Clean up old releases. By default, the last 5 releases are
     kept on each server (though you can change this with the
     keep_releases variable). All other deployed revisions are removed
     from the servers. By default, this will use sudo to clean up the

@@ -18,11 +18,6 @@ class TestVladPerforce < Test::Unit::TestCase
     assert_equal 'cd /repo/myproject && p4 sync ...@555 && cp -rp . /the/place', cmd
   end
 
-  def test_command
-    cmd = @scm.command :export, "myproject"
-    assert_equal "p4 export myproject", cmd
-  end
-
   def test_export
     cmd = @scm.export 'head', '/the/place'
     assert_equal 'cd /repo/myproject && p4 sync ...#head && cp -rp . /the/place', cmd
