@@ -1,36 +1,45 @@
 
 == Variables
 
-=== Required
-
-application :: Name of your application
-repository  :: Repository path: e.g. http://repo.example.com/svn/app/trunk
-deploy_to   :: Deploy path on target machines. e.g. /var/www/apps/foo
-domain      :: Used for the common case of a single target server
-
-=== Optional
-
-current_path        :: The full path on the remote host that will be symlinked
-                       as 'current'. Defaults to "#{deploy_to}/current"
-current_release     :: The full path to the current release's actual location.
-                       Defaults to "#{releases_path}/#{releases.last}"
-deploy_timestamped, :: Create timestamped release directories instead of using
-                       revision numbers. Defaults to true
-deploy_via,         :: Which SCM command should be used when deploying the app. Defaults to :export
-latest_release      :: The most recent release, which may not yet have been symlinked. . Defaults to { deploy_timestamped ? release_path : current_release }
-migrate_env,        :: Set this to change the RAILS_ENV that 'rake db:migrate' will run under. Defaults to "" 
-migrate_target,     :: Set this if you need to specify a particular migration 'VERSION' number. Defaults to :latest
-rails_env,          :: Specifies the RAILS_ENV environment variable that will be used. Defaults to "production"
-rake,               :: Set this if you need to specify an alternate path to 'rake'. Defaults to "rake"
-release_name        :: Name of the release directory, if deploy_timestamped is true. Defaults to { Time.now.utc.strftime("%Y%m%d%H%M%S") }
-release_path        :: Path to this release, which may not have been created yet. Defaults to { File.join(releases_path, release_name) }
-releases            :: An array of all existing releases, oldest first. Defaults to { task.run("ls -x #{releases_path}").split.sort }
-releases_path       :: Full path to the 'releases' directory on the remote host. Defaults to { File.join(deploy_to, "releases") }
-scm                 :: Which SCM module to use. Valid options are :subversion and :p4 as of 1.0. Defaults to :subversion
-scm_path            :: Path on the remote host that will be used as 'working space' for SCM tasks. Defaults to { File.join(deploy_to, "scm") }
-sudo_password       ::source # Defaults to an instance of Vlad::Subversion. Defaults to # Defaults to an interactive prompt. Override if needed
-shared_path         :: Full path to remote 'shared' directory, symlinked into your app by default. Defaults to { File.join(deploy_to, "shared") }
-web_command         :: Command to execute when controlling the web server. You might set this to '/etc/init.d/nginx' if you use that daemon. The command should support start, stop, and restart arguments. Defaults to "apachectl"
-
-
-
+application::          REQUIRED: Name of your application.
+repository::           REQUIRED: Repository path: e.g. http://repo.example.com/svn
+deploy_to::            REQUIRED: Deploy path on target machines.
+                       e.g. /var/www/apps/foo
+domain::               REQUIRED: Used for the common case of a single target
+                       server.
+current_path::         The full path on the remote host that will be symlinked
+                       as 'current'. Defaults to "#{deploy_to}/current".
+current_release::      The full path to the current release's actual location.
+                       Defaults to "#{releases_path}/#{releases.last}".
+deploy_timestamped::   Create timestamped release directories instead of using
+                       revision numbers. Defaults to true.
+deploy_via::           Which SCM command should be used when deploying the app.
+                       Defaults to "export".
+latest_release::       The most recent release, which may not yet have been
+                       symlinked. Defaults to release_path.
+migrate_args::         Set this to change the RAILS_ENV that 'rake db:migrate'
+                       will run under. Defaults to "".
+migrate_target::       Set this if you need to specify a particular migration
+                       'VERSION' number. Defaults to "latest".
+rails_env::            Specifies the RAILS_ENV environment variable that will
+                       be used. Defaults to "production".
+rake::                 Set this if you need to specify an alternate path to
+                       'rake'. Defaults to "rake".
+release_name::         Name of the release directory, if deploy_timestamped is
+                       true. Defaults to timestamp: "YYYYMMDDHHMMSS".
+release_path::         Path to this release, which may not have been created
+                       yet. Defaults to "#{releases_path}/#{release_name}".
+releases::             An array of all existing releases, oldest first.
+                       Defaults to latest release directory name.
+releases_path::        Full path to the 'releases' directory on the remote host.
+                       Defaults to "#{deploy_to}/releases".
+scm::                  Which SCM module to use. Valid options are :subversion
+                       and :perforce as of 1.0. Defaults to "subversion"
+scm_path::             Path on the remote host that will be used as 'working
+                       space' for SCM tasks. Defaults to "#{deploy_to}/scm".
+sudo_password::        Asks for password when referenced.
+source::               Read-Only: An SCM worker instance defined by scm.
+shared_path::          Full path to remote 'shared' directory, symlinked into
+                       your app by default. Defaults to "#{deploy_to}/shared".
+web_command::          Command to execute when controlling the web server.
+                       Defaults to "apachectl".

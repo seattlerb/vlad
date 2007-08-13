@@ -263,7 +263,7 @@ class Rake::RemoteTask < Rake::Task
 
     # optional
     set(:current_path)    { File.join(deploy_to, "current") }
-    set(:current_release) { File.join(releases_path, releases.last) }
+    set(:current_release) { File.join(releases_path, releases[-1]) }
     set(:deploy_timestamped, true)
     set(:deploy_via, :export)
     set(:latest_release)  { deploy_timestamped ? release_path : current_release }
@@ -278,6 +278,7 @@ class Rake::RemoteTask < Rake::Task
     set(:scm, :subversion)
     set(:scm_path)        { File.join(deploy_to, "scm") }
     set(:shared_path)     { File.join(deploy_to, "shared") }
+    set(:previous_release){ File.join(releases_path, releases[-2]) }
 
     set(:sudo_password) do
       state = `stty -g`
