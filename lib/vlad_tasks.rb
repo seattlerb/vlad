@@ -130,16 +130,19 @@ namespace :vlad do
       $ rake vlad:upload FILES=templates,controller.rb".cleanup
 
   remote_task :upload do
-    files = (ENV["FILES"] || "").
-      split(",").
-      map { |f| f.strip!; File.directory?(f) ? Dir["#{f}/**/*"] : f }.
-      flatten.
-      reject { |f| File.directory?(f) || File.basename(f)[0] == ?. }
+    file_list = (ENV["FILES"] || "").split(",")
+
+    files = file_list.map do |f|
+      f = f.strip
+      File.directory?(f) ? Dir["#{f}/**/*"] : f
+    end.flatten
+
+    files = files.reject { |f| File.directory?(f) || File.basename(f)[0] == ?. }
 
     abort "Please specify at least one file to update (via the FILES environment variable)" if files.empty?
 
     files.each do |file|
-      put File.read(file), File.join(current_path, file)
+      rsync file, File.join(current_path, file)
     end
   end
 

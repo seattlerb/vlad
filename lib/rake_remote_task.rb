@@ -64,7 +64,7 @@ class Rake::RemoteTask < Rake::Task
   # Use rsync to send +local+ to +remote+ on target_host.
 
   def rsync local, remote
-    cmd = ['rsync', '-aqz', '--delete', local, "#{@target_host}:#{remote}"]
+    cmd = ['rsync', '-azP', '--delete', local, "#{@target_host}:#{remote}"]
 
     success = system(*cmd)
 
