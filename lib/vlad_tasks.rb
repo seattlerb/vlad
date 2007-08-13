@@ -31,11 +31,22 @@ namespace :vlad do
     tasks.".cleanup
   task :debug do
     require 'yaml'
-    y Vlad.instance
+    puts "# Environment:"
+    y Rake::RemoteTask.env
+    puts "# Roles:"
+    y Rake::RemoteTask.roles
   end
 
   # used by update, out here so we can ensure all threads have the same value
   now = Time.now.utc.strftime("%Y%m%d%H%M.%S")
+  desc "Setup your servers. Before you can use any of the deployment tasks
+    with your project, you will need to make sure all of your servers have
+    been prepared with 'rake setup'. It is safe to run this task on servers
+    that have already been set up; it will not destroy any deployed revisions
+    or data.".cleanup
+  task :setup do
+    Rake::Task['vlad:setup_app'].invoke
+  end
 
   desc "Updates your application server to the latest revision.  Syncs a copy
     of the repository, exports it as the latest release, fixes up your
@@ -144,7 +155,7 @@ namespace :vlad do
       run "rm #{current_path}; ln -s #{previous_release} #{current_path} && rm -rf #{current_release}"
     end
 
-    Rake::Task['vlad:restart'].invoke
+    Rake::Task['vlad:start'].invoke
   end
 
   desc "Clean up old releases. By default, the last 5 releases are kept on
@@ -162,7 +173,7 @@ namespace :vlad do
         File.join(releases_path, release)
       }.join(" ")
 
-      invoke_command "rm -rf #{directories}"
+      run "rm -rf #{directories}"
     end
   end
 
@@ -172,7 +183,7 @@ namespace :vlad do
   set :mongrel_address, "127.0.0.1"
   set :mongrel_clean, false
   set :mongrel_command, 'mongrel_rails'
-  set :mongrel_conf, "/etc/mongrel_cluster/#{application}.conf"
+  set :mongrel_conf, "#{shared_path}/mongrel_cluster.conf"
   set :mongrel_config_script, nil
   set :mongrel_environment, "production"
   set :mongrel_group, nil
@@ -183,11 +194,7 @@ namespace :vlad do
   set :mongrel_servers, 2
   set :mongrel_user, nil
 
-  desc "Prepares application servers for deployment. Before you can use any of
-    the deployment tasks with your project, you will need to make sure all of
-    your servers have been prepared with 'rake setup'. It is safe to run this
-    task on servers that have already been set up; it will not destroy any
-    deployed revisions or data. mongrel configuration is set via the mongrel_*
+  desc "Prepares application servers for deployment. Mongrel configuration is set via the mongrel_*
     variables.".cleanup
 
   remote_task :setup_app, :roles => :app do
@@ -214,8 +221,7 @@ namespace :vlad do
     run cmd
   end
 
-  desc "Restart mongrel processes on the app servers by starting and
-    stopping the cluster.".cleanup
+  desc "Restart the app servers"
 
   remote_task :start_app, :roles => :app do
     cmd = "#{mongrel_command} cluster::restart -C #{mongrel_conf}"
@@ -223,7 +229,7 @@ namespace :vlad do
     run cmd
   end
 
-  desc "Stop mongrel processes on the app servers."
+  desc "Stop the app servers"
 
   remote_task :stop_app, :roles => :app do
     cmd = "#{mongrel_command} cluster::stop -C #{mongrel_conf}"
@@ -236,12 +242,12 @@ namespace :vlad do
 
   set :web_command, "apachectl"
 
-  desc "Restart web server."
-  remote_task :restart_web, :roles => :web  do
+  desc "Restart the web servers"
+  remote_task :start_web, :roles => :web  do
     run "#{web_command} restart"
   end
 
-  desc "Stop web server."
+  desc "Stop the web servers"
   remote_task :stop_web, :roles => :web  do
     run "#{web_command} stop"
   end
@@ -249,13 +255,13 @@ namespace :vlad do
   ##
   # Everything HTTP.
 
-  desc "Restart web and app server"
+  desc "Restart the web and app servers"
   remote_task :start do
-    Rake::Task['vlad:restart_app'].invoke
-    Rake::Task['vlad:restart_web'].invoke
+    Rake::Task['vlad:start_app'].invoke
+    Rake::Task['vlad:start_web'].invoke
   end
 
-  desc "Stop web and app server"
+  desc "Stop the web and app servers"
   remote_task :stop do
     Rake::Task['vlad:stop_app'].invoke
     Rake::Task['vlad:stop_web'].invoke
