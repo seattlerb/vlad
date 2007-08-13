@@ -1,68 +1,58 @@
-* Setting up additional boxes after the initial deployment
-  given: host "app1.example.com", :app
-  User adds: host "app2.example.com", :app
-  User wants to deploy nginx and mongrel to the new server without flattening app1
-  
-  rake vlad:setup HOSTS='app2.example.com'
-  should override the normal 'target_hosts' process and manually set the list
-
-* by merging Vlad and RemoteTask we avoid a lot of crap wrt
-  instance_eval and variable lookups etc. Consider it. At one point,
-  this wasn't possible but I was too tired to make note of why.
-
 * might we want per connection values?
 
-* sudo / via how? and if we call it via I will stab ppl. "user" is sufficient.
-
 * :except => {:no_release => true}
-  It is common to configure tasks to 'announce' deployments in IRC, Campfire, etc.
-  If you have 6 app servers, you don't want to see 6 announcements.
-  In Capistrano, this is handled via the :no_release => true flag.
-  Various tasks only execute on the 'release' servers.
-  An easier way to meet this would be to introduce a :release role in the default setup
-  role :release, "app1.example.com"
-  remote_task :announce_in_irc, :roles => :release ...
 
-  Drawback: Yet another thing to change when you migrate a project from cap to vlad
+  It is common to configure tasks to 'announce' deployments in IRC, Campfire,
+  etc.  If you have 6 app servers, you don't want to see 6 announcements.  In
+  Capistrano, this is handled via the :no_release => true flag.  Various tasks
+  only execute on the 'release' servers.
 
-* :primary => true
-  role :db, "db1.example.com", :primary => true
-  role :db, "db2.example.com"
-  rake vlad:migrate needs to run the Rails database migrations on only one box
-  to avoid melting the world.
+  An easier way to meet this would be to introduce a :release role in the
+  default setup
 
-  This is a huge pile of crap to support this simple use case, so let's just do:
-  role :master_db, "db1.example.com"
-  remote_task :migrate, :roles => :master_db
+    role :release, "app1.example.com"
+    
+    remote_task :announce_in_irc, :roles => :release ...
 
-  The 'host' method we have added makes this even easier:
-  host "only-one-db.example.com", :db, :master_db
+  Drawback: Yet another thing to change when you migrate a project from cap to
+  vlad
 
 * 'dynamic deployments'
-  role :app, "app1.example.com"
-  role :app, "app2.example.com"
+
+    role :app, "app1.example.com"
+    role :app, "app2.example.com"
+
   Let's say that app1 and app2 need slightly different monit configurations.
 
   In Capistrano, you might approach this by making two additional roles, and 
   splitting your 'push a monit config' task into two. This sucks.
+
   Vlad makes the 'execution context' of a task available. In Vlad, you would:
-  remote_task :update_monit, :roles => :app
-    rsync "templates/#{target_host}.monitrc", "/etc/monitrc"
-  end
+
+    remote_task :update_monit, :roles => :app
+      rsync "templates/#{target_host}.monitrc", "/etc/monitrc"
+    end
 
 * fine-grained tasks
-  remote_task :update
-  remote_task :symlink
-  remote_task :migrate
-  remote_task :deploy => [:update, :symlink, :migrate, :restart]
+
+    remote_task :update
+    remote_task :symlink
+    remote_task :migrate
+    remote_task :deploy => [:update, :symlink, :migrate, :restart]
+
   Let's assume that this is a multi-server config with shared deploy path.
   The user wants to do only a single checkout. If we make "update" be one big
   task body that includes the update, symlink, and migrate steps,
   it is difficult for the user to override the roles for the particular steps
   they need to change.
+
   If we break these into separate tasks, they can say:
-  Rake::Task["migrate"].options[:roles] = :master_db
+
+    Rake::Task["migrate"].options[:roles] = :master_db
+
   and the migrations will only run on the master db
+
+* sudo / via how? and if we call it via I will stab ppl. "user" is sufficient.
 
 * handling 'use_sudo'
 
@@ -81,25 +71,21 @@
   this.
 
 * Dependencies
+
   Task dependencies aren't settable when creating a Rake::RemoteTask.
 
 * Apache configuration
+
   Pull in railsmachine/rails/recipes/apache.rb's apache configuration.  Needs
   erb to work.
-
-* Running migrations
-  The migrate role will run on multiple app servers.  This is not desirable.
-  Scary hack workaround to only run it once.
-  remote_task :migrate
-    if target_host == Rake::RemoteTask.hosts_for(:app).first then
-      ... code here..
-    end
-  end
 
 * I really like tasks with naming <cmd>_<role> (eg setup_app,
   start_web). We could easily make the front end remote_task command
   look for such a convention and apply the :role => x automatically.
 
-* from bousquet: get a couple of server environment recipes that prepare your machine that would be the golden ticket:
-  rake vlad:prepare TYPE=accelerator | ubuntu | osx | osxserver | site5 | ...
-and have people maintaining those setups who depend on them
+* from bousquet: get a couple of server environment recipes that prepare your
+  machine that would be the golden ticket:
+
+    rake vlad:prepare TYPE=accelerator | ubuntu | osx | osxserver | site5 | ...
+
+  and have people maintaining those setups who depend on them
