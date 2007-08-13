@@ -89,7 +89,7 @@ namespace :vlad do
                 else raise ArgumentError, "unknown migration target #{migrate_target.inspect}"
                 end
 
-    run "cd #{directory}; #{rake} RAILS_ENV=#{rails_env} #{migrate_env} db:migrate"
+    run "cd #{directory}; #{rake} RAILS_ENV=#{rails_env} #{migrate_args} db:migrate"
   end
 
   desc "Invoke a single command on every remote server. This is useful for

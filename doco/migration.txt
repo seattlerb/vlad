@@ -14,5 +14,4 @@
 * The 'host' method can be used to consolidate multiple 'role' calls.
   - host "www.example.com", :app, :web, :db
     specifies a host with three roles.
-
-
+* migrate_env is now migrate_args.

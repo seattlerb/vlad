@@ -7,7 +7,6 @@ doco/getting_started.txt
 doco/migration.txt
 doco/variables.txt
 lib/rake_remote_task.rb
-lib/todo
 lib/vlad.rb
 lib/vlad/perforce.rb
 lib/vlad/subversion.rb

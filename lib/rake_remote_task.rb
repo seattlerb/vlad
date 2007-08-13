@@ -267,7 +267,7 @@ class Rake::RemoteTask < Rake::Task
     set(:deploy_timestamped, true)
     set(:deploy_via, :export)
     set(:latest_release)  { deploy_timestamped ? release_path : current_release }
-    set(:migrate_env, "")
+    set(:migrate_args, "")
     set(:migrate_target, :latest)
     set(:rails_env, "production")
     set(:rake, "rake")
