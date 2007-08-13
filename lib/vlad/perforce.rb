@@ -2,12 +2,7 @@ class Vlad::Perforce
 
   def self.reset
     set :p4cmd, "p4"
-    set :p4port, "localhost:1666"
-    set(:p4user) { raise(Vlad::ConfigurationError,
-                         "Please specify the name of the p4 user") }
-    set(:p4pass) { raise(Vlad::ConfigurationError,
-                         "Please specify the password of the p4 user") }
-    set :p4client do "#{p4user}-#{application}"; end
+    set :p4config, ".p4config"
   end
 
   reset
@@ -17,7 +12,7 @@ class Vlad::Perforce
   # +destination+.
 
   def checkout(revision, destination)
-    "#{p4cmd} -p #{p4port} -u #{p4user} -P #{p4pass} -c #{p4client} sync ...#{rev_no(revision)}"
+    "#{p4cmd} sync ...#{rev_no(revision)}"
   end
 
   ##
@@ -26,7 +21,7 @@ class Vlad::Perforce
 
   def export(revision_or_source, destination)
     if revision_or_source =~ /^(\d+|head)$/i then
-      "(cd #{destination} && #{p4cmd} -p #{p4port} -u #{p4user} -P #{p4pass} -c #{p4client} sync ...#{rev_no(revision_or_source)})"
+      "(cd #{destination} && #{p4cmd} sync ...#{rev_no(revision_or_source)})"
     else
       "cp -r #{revision_or_source} #{destination}"
     end
@@ -37,7 +32,7 @@ class Vlad::Perforce
   # into a Perforce revision specification.
 
   def revision(revision)
-    "`#{p4cmd} -p #{p4port} -u #{p4user} -P #{p4pass} -c #{p4client} changes -s submitted -m 1 ...#{rev_no(revision)} | cut -f 2 -d\\ `"
+    "`#{p4cmd} changes -s submitted -m 1 ...#{rev_no(revision)} | cut -f 2 -d\\ `"
   end
 
   ##
