@@ -10,7 +10,7 @@
     set :deploy_to, "/path/to/install"
     set :repository, 'http://svn.example.com/project/branches/stable/'
     
-This defaults to user "www", svn from +repository+, and a single
+This defaults to using 'svn export' from +repository+, and a single
 server for +app+, +db+, and +www+. If you need to tweak these things,
 refer to the variable documentation.
 
@@ -24,3 +24,4 @@ refer to the variable documentation.
 === Launch
 
 * <tt>rake vlad:update vlad:migrate vlad:start</tt>
+

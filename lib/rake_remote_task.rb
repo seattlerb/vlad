@@ -278,7 +278,6 @@ class Rake::RemoteTask < Rake::Task
     set(:scm, :subversion)
     set(:scm_path)        { File.join(deploy_to, "scm") }
     set(:shared_path)     { File.join(deploy_to, "shared") }
-    set(:user, "nobody")
 
     set(:sudo_password) do
       state = `stty -g`

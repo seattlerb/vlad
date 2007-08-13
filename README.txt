@@ -6,8 +6,8 @@ Vlad the Deployer
 == DESCRIPTION:
   
 Vlad the Deployer is pragmatic application deployment automation,
-without mercy. Much like capistrano, but with 1/10th the
-complexity. Vlad integrates seemlessly with rake, and uses familiar
+without mercy. Much like Capistrano, but with 1/10th the
+complexity. Vlad integrates seamlessly with Rake, and uses familiar
 and standard tools like ssh and rsync.
 
 Impale your application on the heartless spike of the Deployer.
@@ -19,7 +19,7 @@ Impale your application on the heartless spike of the Deployer.
 * Very few dependencies. All simple.
 * Uses ssh with your ssh settings already in place.
 * Uses rsync for efficient transfers.
-* Exec remote commands on one or more servers.
+* Run remote commands on one or more servers.
 * Syncs files to one or more servers.
 * Mix and match local and remote tasks.
 * Built on rake. easy.
@@ -27,7 +27,7 @@ Impale your application on the heartless spike of the Deployer.
 * Ships with tests that actually pass.
 * Engine is under 500 lines of code.
 * Super uper simple.
-* Does NOT support windows right now. Coming soon in 1.1.
+* Does NOT support Windows right now. Coming soon in 1.1.
 
 
 == SYNOPSIS:
@@ -49,7 +49,7 @@ Impale your application on the heartless spike of the Deployer.
 
 == SPECIAL THANKS:
 
-* First, of course, to capistrano. For coming up with the idea and
+* First, of course, to Capistrano. For coming up with the idea and
   providing a lot of meat for the recipes.
 * Scott Baron for coming up with one of the best project names evar.
 
