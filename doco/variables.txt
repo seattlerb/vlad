@@ -44,4 +44,9 @@
 + :source          # Defaults to an instance of Vlad::Subversion
 + :shared_path     { File.join(deploy_to, "shared") }
   - Full path to remote 'shared' directory, symlinked into your app by default.
++ :web_command     "apachectl"
+  - Command to execute when controlling the web server.
+    You might set this to '/etc/init.d/nginx' if you use that daemon.
+    The command should support start, stop, and restart arguments.
+
 
