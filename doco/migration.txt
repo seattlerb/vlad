@@ -8,9 +8,13 @@
 * Vlad doesn't use ':no_release' or ':primary'.
   - If you have a task that needs to run on only one host from a role,
     you should declare a new role for that host:
-    role :master_db, "master.example.com"
+
+      role :master_db, "master.example.com"
+
     ..and then override the role for the task you want to limit:
-    Rake::Task["vlad:migrate"].options[:roles] = :master_db
+
+      Rake::Task["mytask"].options[:roles] = :master_db
+
 * The 'host' method can be used to consolidate multiple 'role' calls.
   - host "www.example.com", :app, :web, :db
     specifies a host with three roles.
