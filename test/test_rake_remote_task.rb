@@ -69,7 +69,7 @@ class TestRakeRemoteTask < VladTestCase
     commands = @task.commands
 
     assert_equal 1, commands.size, 'not enough commands'
-    assert_equal %w[rsync -aqz --delete localfile app.example.com:remotefile],
+    assert_equal %w[rsync -azP --delete localfile app.example.com:remotefile],
                  commands.first, 'rsync'
   end
 
@@ -79,7 +79,7 @@ class TestRakeRemoteTask < VladTestCase
     @task.action = lambda { false }
 
     e = assert_raise(Vlad::CommandFailedError) { @task.rsync 'local', 'remote' }
-    assert_equal "execution failed: rsync -aqz --delete local app.example.com:remote", e.message
+    assert_equal "execution failed: rsync -azP --delete local app.example.com:remote", e.message
   end
 
   def test_run
