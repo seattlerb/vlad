@@ -1,12 +1,11 @@
 
 == Variables
 
-application::          REQUIRED: Name of your application.
+application::          REQUIRED: Name of your application. e.g. hitsquad
 repository::           REQUIRED: Repository path: e.g. http://repo.example.com/svn
-deploy_to::            REQUIRED: Deploy path on target machines.
-                       e.g. /var/www/apps/foo
+deploy_to::            REQUIRED: Deploy path on target machines. e.g. /var/www/app
 domain::               REQUIRED: Used for the common case of a single target
-                       server.
+                       server. e.g. example.com
 current_path::         The full path on the remote host that will be symlinked
                        as 'current'. Defaults to "#{deploy_to}/current".
 current_release::      The full path to the current release's actual location.

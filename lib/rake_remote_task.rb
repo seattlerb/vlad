@@ -264,21 +264,22 @@ class Rake::RemoteTask < Rake::Task
     # optional
     set(:current_path)    { File.join(deploy_to, "current") }
     set(:current_release) { File.join(releases_path, releases[-1]) }
-    set(:deploy_timestamped, true)
-    set(:deploy_via, :export)
+    set :keep_releases, 5
+    set :deploy_timestamped, true
+    set :deploy_via, :export
     set(:latest_release)  { deploy_timestamped ? release_path : current_release }
-    set(:migrate_args, "")
-    set(:migrate_target, :latest)
-    set(:rails_env, "production")
-    set(:rake, "rake")
+    set :migrate_args, ""
+    set :migrate_target, :latest
+    set(:previous_release){ File.join(releases_path, releases[-2]) }
+    set :rails_env, "production"
+    set :rake, "rake"
     set(:release_name)    { Time.now.utc.strftime("%Y%m%d%H%M%S") }
     set(:release_path)    { File.join(releases_path, release_name) }
     set(:releases)        { task.run("ls -x #{releases_path}").split.sort }
     set(:releases_path)   { File.join(deploy_to, "releases") }
-    set(:scm, :subversion)
+    set :scm, :subversion
     set(:scm_path)        { File.join(deploy_to, "scm") }
     set(:shared_path)     { File.join(deploy_to, "shared") }
-    set(:previous_release){ File.join(releases_path, releases[-2]) }
 
     set(:sudo_password) do
       state = `stty -g`

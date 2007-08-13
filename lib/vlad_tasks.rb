@@ -152,7 +152,7 @@ namespace :vlad do
     All other deployed revisions are removed from the servers.".cleanup
 
   remote_task :cleanup do
-    count = fetch(:keep_releases, 5).to_i
+    count = keep_releases
     if count >= releases.length then
       puts "no old releases to clean up"
     else

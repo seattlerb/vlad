@@ -1,10 +1,16 @@
 class Vlad::Perforce
 
-  set :p4cmd, "p4"
-  set :p4port, "localhost:1666"
-  set :p4user do raise "no"; end unless respond_to? :p4user
-  set :p4pass do raise "no"; end unless respond_to? :p4pass
-  set :p4client do "#{p4user}-#{application}"; end
+  def self.reset
+    set :p4cmd, "p4"
+    set :p4port, "localhost:1666"
+    set(:p4user) { raise(Vlad::ConfigurationError,
+                         "Please specify the name of the p4 user") }
+    set(:p4pass) { raise(Vlad::ConfigurationError,
+                         "Please specify the password of the p4 user") }
+    set :p4client do "#{p4user}-#{application}"; end
+  end
+
+  reset
 
   ##
   # Returns the p4 command that will checkout +revision+ into the directory

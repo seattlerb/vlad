@@ -46,6 +46,7 @@ class VladTestCase < Test::Unit::TestCase
     @vlad = Rake::RemoteTask
     Rake.application.clear
     @task_count = Rake.application.tasks.size
+    @vlad.set :domain, "example.com"
   end
 
   def teardown

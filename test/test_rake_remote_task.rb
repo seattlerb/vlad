@@ -45,7 +45,7 @@ class TestRakeRemoteTask < VladTestCase
   end
 
   def test_execute_with_no_roles
-    t = @vlad.remote_task(:flunk, :roles => :db) { flunk "should not have run" }
+    t = @vlad.remote_task(:flunk, :roles => :junk) { flunk "should not have run" }
     e = assert_raise(Vlad::ConfigurationError) { t.execute }
     assert_equal "No target hosts specified for task: flunk", e.message
   end
