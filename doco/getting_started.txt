@@ -17,7 +17,9 @@ refer to the variable documentation.
 * Add the following to your Rakefile:
 
     require 'vlad'
-    Vlad.load 'config/deploy.rb'
+    Vlad.load
+
+You can pass a path to Vlad.load. It defaults to 'config/deploy.rb'.
 
 * <tt>rake vlad:setup</tt>
 
