@@ -10,22 +10,6 @@ class String #:nodoc:
   end
 end
 
-##
-# Ideal scenarios:
-#
-# Initial:
-#
-# 1) rake vlad:setup
-# 2) rake vlad:update
-# 3) rake vlad:migrate
-# 4) rake vlad:start
-#
-# Subsequent:
-#
-# 1) rake vlad:update
-# 2) rake vlad:migrate (optional)
-# 3) rake vlad:start
-
 namespace :vlad do
   desc "Show the vlad setup.  This is all the default variables for vlad
     tasks.".cleanup
@@ -51,10 +35,10 @@ namespace :vlad do
     Rake::Task['vlad:setup_app'].invoke
   end
 
-  desc "Updates your application server to the latest revision.  Syncs a copy
-    of the repository, exports it as the latest release, fixes up your
-    symlinks, touches your assets, symlinks the latest revision to current and
-    logs the update.".cleanup
+  desc "Updates your application server to the latest revision.  Syncs
+    a copy of the repository, exports it as the latest release, fixes
+    up your symlinks, symlinks the latest revision to current and logs
+    the update.".cleanup
 
   remote_task :update, :roles => :app do
     symlink = false
@@ -71,12 +55,8 @@ namespace :vlad do
             "ln -s #{shared_path}/pids #{latest_release}/tmp/pids",
           ].join(" && ")
 
-      asset_paths = %w(images stylesheets javascripts).map { |p| "#{latest_release}/public/#{p}" }.join(" ")
-      run "find #{asset_paths} -exec touch -t #{now} {} ';'; true"
-
       symlink = true
       run "rm -f #{current_path} && ln -s #{latest_release} #{current_path}"
-      # Rake::Task["vlad:migrate"].invoke
 
       run "echo #{now} $USER #{'head'} #{File.basename release_path} >> #{deploy_to}/revisions.log" # FIX shouldn't be head
     rescue => e
@@ -122,9 +102,9 @@ namespace :vlad do
     puts run(command)
   end
 
-  desc "Copy files to the currently deployed version. This is useful for
-    updating files piecemeal when you need to quickly deploy only a single
-    file.
+  desc "Copy arbitrary files to the currently deployed version using
+    FILES=a,b,c. This is useful for updating files piecemeal when you
+    need to quickly deploy only a single file.
 
     To use this task, specify the files and directories you want to copy as a
     comma-delimited list in the FILES environment variable. All directories
