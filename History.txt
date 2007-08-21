@@ -1,3 +1,16 @@
+== 1.1.0 / ????-??-??
+
+* N major enhancements:
+* N minor enhancements:
+* N bug fixes:
+
+ * Added Rake.clear_tasks *str_or_regexp
+ * Updated documentation.
+ * Vlad.load now takes a hash of recipe overrides.
+ * Removed vlad_tasks.rb and split into vlad/apache.rb,
+   vlad/mongrel.rb, and vlad/core.rb.
+
+
 == 1.0.0 / 2007-08-04
 
 * 1 major enhancement
