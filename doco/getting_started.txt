@@ -19,11 +19,14 @@ refer to the variable documentation.
     require 'vlad'
     Vlad.load
 
-You can pass a path to Vlad.load. It defaults to 'config/deploy.rb'.
+Vlad.load has a lot of flexibility. See the rdoc for full information.
 
-* <tt>rake vlad:setup</tt>
+=== Initial Launch
 
-=== Launch
+* Run <tt>rake vlad:setup vlad:update vlad:migrate vlad:start</tt>
+
+=== Subsequent Updates:
 
 * <tt>rake vlad:update vlad:migrate vlad:start</tt>
 
+Each step may be run separately.

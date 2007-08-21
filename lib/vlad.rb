@@ -18,7 +18,7 @@ module Vlad
 
   ##
   # This is the version of Vlad you are running.
-  VERSION = '1.0.0'
+  VERSION = '1.0.1'
 
   ##
   # Base error class for all Vlad errors.
@@ -37,11 +37,39 @@ module Vlad
   class FetchError < Error; end
 
   ##
-  # Loads tasks file +tasks_file+ and the vlad_tasks file. Pass true
-  # to override_tasks to prevent Vlad from loading the standard
-  # recipes.
-  def self.load tasks_file = 'config/deploy.rb', override_tasks = false
+  # Loads tasks file +tasks_file+ and various recipe styles as a hash
+  # of category/style pairs. +tasks_file+ defaults to
+  # 'config/deploy.rb'. Recipes default to:
+  #
+  #     :core => :core
+  #     :app  => :mongrel
+  #     :web  => :apache
+  #
+  # You can override individual values and/or set to nil to
+  # deactivate. You may also pass nil/false to turn off recipe loading
+  # entirely so you can do your own thing.
+  def self.load tasks_file = 'config/deploy.rb', recipes = {}
+    if recipes then
+      recipes = {
+        :core => :core,
+        :app => :mongrel,
+        :web => :apache,
+      }.merge recipes
+      recipes.each do |_, recipe|
+        require "vlad/#{recipe}" if recipe
+      end
+    end
     Kernel.load tasks_file
-    require 'vlad_tasks' unless override_tasks
+  end
+
+end
+
+class String #:nodoc:
+  def cleanup
+    if ENV['FULL'] then
+      gsub(/\s+/, ' ').strip
+    else
+      self[/\A.*?\./]
+    end
   end
 end
