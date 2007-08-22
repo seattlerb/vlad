@@ -16,10 +16,19 @@ refer to the variable documentation.
 
 * Add the following to your Rakefile:
 
-    require 'vlad'
-    Vlad.load
+    begin
+      require 'vlad'
+      Vlad.load
+    rescue LoadError
+      # do nothing
+    end
 
 Vlad.load has a lot of flexibility. See the rdoc for full information.
+
+You don't need the begin/rescue/end block if you ensure that Vlad is
+installed on all your servers. To be lazy, you can install vlad via:
+
+    % rake vlad:invoke COMMAND='sudo gem install vlad -y'
 
 === Initial Launch
 
