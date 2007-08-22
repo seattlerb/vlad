@@ -1,6 +1,8 @@
 require 'test/vlad_test_case'
 require 'vlad'
 
+$TESTING = true
+
 class TestVlad < VladTestCase
   def test_all_hosts
     util_set_hosts
@@ -66,8 +68,10 @@ class TestVlad < VladTestCase
   end
 
   def test_initialize
-    assert_raise(Vlad::ConfigurationError) { @vlad.application }
+    @vlad.reset
     assert_raise(Vlad::ConfigurationError) { @vlad.repository }
+    assert_raise(Vlad::ConfigurationError) { @vlad.deploy_to }
+    assert_raise(Vlad::ConfigurationError) { @vlad.domain }
   end
 
   def test_role
@@ -212,8 +216,11 @@ class TestVlad < VladTestCase
   end
 
   def test_set_with_reserved_name
+    $TESTING = false
     e = assert_raise(ArgumentError) { set(:all_hosts, []) }
     assert_equal "cannot set reserved name: 'all_hosts'", e.message
+  ensure
+    $TESTING = true
   end
 end
 

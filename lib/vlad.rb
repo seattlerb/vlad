@@ -2,6 +2,8 @@ require 'rubygems'
 require 'thread'
 require 'rake_remote_task'
 
+$TESTING ||= false
+
 ##
 # Vlad the Deployer - Pragmatic application deployment automation, without mercy.
 #

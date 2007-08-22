@@ -1,5 +1,11 @@
 require 'vlad'
 
+##
+# used by update, out here so we can ensure all threads have the same value
+def now
+  @now ||= Time.now.utc.strftime("%Y%m%d%H%M.%S")
+end
+
 namespace :vlad do
   desc "Show the vlad setup.  This is all the default variables for vlad
     tasks.".cleanup
@@ -11,9 +17,6 @@ namespace :vlad do
     puts "# Roles:"
     y Rake::RemoteTask.roles
   end
-
-  # used by update, out here so we can ensure all threads have the same value
-  now = Time.now.utc.strftime("%Y%m%d%H%M.%S")
 
   desc "Setup your servers. Before you can use any of the deployment
     tasks with your project, you will need to make sure all of your

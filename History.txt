@@ -4,8 +4,12 @@
 * N minor enhancements:
 * N bug fixes:
 
+ * Raised now method (static timestamp) to Kernel for other
+   libs. Thanks Geoffrey.
+ * Removed mandatory application var. Use it if you want it. We don't.
  * Added Rake.clear_tasks *str_or_regexp
  * Updated documentation.
+ * Improved tests a bit.
  * Vlad.load now takes a hash of recipe overrides.
  * Removed vlad_tasks.rb and split into vlad/apache.rb,
    vlad/mongrel.rb, and vlad/core.rb.

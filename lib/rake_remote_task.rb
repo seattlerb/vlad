@@ -3,6 +3,8 @@ require 'open4'
 require 'rake'
 require 'vlad'
 
+$TESTING ||= false
+
 module Rake
   module TaskManager
     ##
@@ -42,12 +44,6 @@ end
 # Equivalent to the <tt>host</tt> method; provided for capistrano compatibility.
 def role role_name, host, args = {}
   Rake::RemoteTask.role role_name, host, args
-end
-
-##
-# Execute the given command on the <tt>target_host</tt> for the current task.
-def run *args, &b
-  Thread.current[:task].run(*args, &b)
 end
 
 ##
@@ -326,8 +322,6 @@ class Rake::RemoteTask < Rake::Task
     @@env_locks = Hash.new { |h,k| h[k] = Mutex.new }
 
     # mandatory
-    set(:application) { raise(Vlad::ConfigurationError,
-                              "Please specify the name of the application") }
     set(:repository)  { raise(Vlad::ConfigurationError,
                               "Please specify the repository path") }
     set(:deploy_to)   { raise(Vlad::ConfigurationError,
@@ -408,7 +402,7 @@ class Rake::RemoteTask < Rake::Task
     raise ArgumentError, "cannot provide both a value and a block" if
       value and default_block
     raise ArgumentError, "cannot set reserved name: '#{name}'" if
-      Rake::RemoteTask.reserved_name?(name)
+      Rake::RemoteTask.reserved_name?(name) unless $TESTING
 
     Rake::RemoteTask.env[name.to_s] = value || default_block
 
