@@ -24,4 +24,6 @@ task :flog_full do
   sh 'find lib -name \*.rb | xargs flog -a'
 end
 
+Vlad.load :config => 'foo.rb', :scm => :perforce
+
 # vim: syntax=Ruby

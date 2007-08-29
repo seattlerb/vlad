@@ -1,5 +1,6 @@
 == Converting from Capistrano
 
+* 'set scm' is removed. Vlad.load :scm => :something if you don't use subversion.
 * 'task' blocks are renamed to 'remote_task'.
 * Most variables are the same. See variables.txt for details.
 * No +with_command+ / +sudo+ / +via+ wonkiness

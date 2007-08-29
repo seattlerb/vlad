@@ -1,19 +1,22 @@
 == 1.1.0 / ????-??-??
 
 * N major enhancements:
+  * Vlad.load now takes a hash of recipe overrides, eg: Vlad.load :web => :nginx.
+  * Removed vlad_tasks.rb and split into vlad/apache.rb,
+    vlad/mongrel.rb, and vlad/core.rb.
+  * Added default_env, set now sets both env and default_env.
 * N minor enhancements:
+  * Removed :scm variable. Now a Vlad.load component/flavor/need-a-word-here.
+  * Raised now method (static timestamp) to Kernel for other
+    libs. Thanks Geoffrey.
+  * Removed mandatory application var. Use it if you want it. We don't.
+  * Added Rake.clear_tasks *str_or_regexp
+  * Updated documentation.
+  * Improved tests a bit.
+  * Added :svncmd variable.
+  * Changed up doco/variables.txt to break out module variables.
 * N bug fixes:
-
- * Raised now method (static timestamp) to Kernel for other
-   libs. Thanks Geoffrey.
- * Removed mandatory application var. Use it if you want it. We don't.
- * Added Rake.clear_tasks *str_or_regexp
- * Updated documentation.
- * Improved tests a bit.
- * Vlad.load now takes a hash of recipe overrides.
- * Removed vlad_tasks.rb and split into vlad/apache.rb,
-   vlad/mongrel.rb, and vlad/core.rb.
-
+  * Vlad.load calls user config last, allowing variable overrides. Sorry!
 
 == 1.0.0 / 2007-08-04
 

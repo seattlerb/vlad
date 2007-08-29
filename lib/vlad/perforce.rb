@@ -1,11 +1,7 @@
 class Vlad::Perforce
 
-  def self.reset
-    set :p4cmd, "p4" unless respond_to? :p4cmd
-    set :p4config, ".p4config" unless respond_to? :p4config
-  end
-
-  reset
+  set :p4cmd, "p4"
+  set :source, Vlad::Perforce.new
 
   ##
   # Returns the p4 command that will checkout +revision+ into the directory

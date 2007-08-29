@@ -6,7 +6,6 @@ class TestVladPerforce < VladTestCase
   def setup
     super
     @scm = Vlad::Perforce.new
-    Vlad::Perforce.reset
   end
 
   def test_checkout

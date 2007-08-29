@@ -45,6 +45,7 @@ module Vlad
   #     :app    => :mongrel
   #     :config => 'config/deploy.rb',
   #     :core   => :core
+  #     :scm    => :subversion,
   #     :web    => :apache
   #
   # You can override individual values and/or set to nil to
@@ -54,10 +55,11 @@ module Vlad
     options = {:config => options} if String === options
 
     recipes = {
-      :app => :mongrel,
+      :app    => :mongrel,
       :config => 'config/deploy.rb',
-      :core => :core,
-      :web => :apache,
+      :core   => :core,
+      :scm    => :subversion,
+      :web    => :apache,
     }.merge(options)
 
     recipes.each do |flavor, recipe|

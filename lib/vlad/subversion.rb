@@ -1,11 +1,14 @@
 class Vlad::Subversion
 
+  set :source, Vlad::Subversion.new
+  set :svncmd, "svn"
+
   ##
   # Returns the command that will check out +revision+ from the repository
   # into directory +destination+
 
   def checkout(revision, destination)
-    "svn co -r #{revision} #{repository} #{destination}"
+    "#{svncmd} co -r #{revision} #{repository} #{destination}"
   end
 
   ##
@@ -14,9 +17,9 @@ class Vlad::Subversion
 
   def export(revision_or_source, destination)
     if revision_or_source =~ /^(\d+|head)$/i then
-      "svn export -r #{revision_or_source} #{repository} #{destination}"
+      "#{svncmd} export -r #{revision_or_source} #{repository} #{destination}"
     else
-      "svn export #{revision_or_source} #{destination}"
+      "#{svncmd} export #{revision_or_source} #{destination}"
     end
   end
 
@@ -25,6 +28,7 @@ class Vlad::Subversion
   # into a subversion revision specification.
 
   def revision(revision)
-    "`svn info #{repository} | grep 'Revision:' | cut -f2 -d\\ `"
+    "`#{svncmd} info #{repository} | grep 'Revision:' | cut -f2 -d\\ `"
   end
 end
+

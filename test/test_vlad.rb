@@ -68,7 +68,7 @@ class TestVlad < VladTestCase
   end
 
   def test_initialize
-    @vlad.reset
+    @vlad.set_defaults # ensure these three are virginal
     assert_raise(Vlad::ConfigurationError) { @vlad.repository }
     assert_raise(Vlad::ConfigurationError) { @vlad.deploy_to }
     assert_raise(Vlad::ConfigurationError) { @vlad.domain }
@@ -158,21 +158,6 @@ class TestVlad < VladTestCase
 
     task.options[:roles] = [:master_db]
     assert_equal %w[master], task.target_hosts
-  end
-
-  def test_source
-    set :scm, :perforce
-    assert_equal "Vlad::Perforce", @vlad.source.class.name
-  end
-
-  def test_source_default
-    assert_equal "Vlad::Subversion", @vlad.source.class.name
-  end
-
-  def test_source_singleton
-    s1 = @vlad.source
-    s2 = @vlad.source
-    assert_equal s1.object_id, s2.object_id
   end
 
   def test_set

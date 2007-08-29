@@ -313,15 +313,13 @@ class Rake::RemoteTask < Rake::Task
     @@env
   end
 
-  ##
-  # Resets vlad, restoring all roles, tasks and environment variables to the
-  # defaults.
+  def self.default_env
+    @@default_env
+  end
 
-  def self.reset
-    @@roles = Hash.new { |h,k| h[k] = {} }
-    @@env = {}
-    @@tasks = {}
-    @@env_locks = Hash.new { |h,k| h[k] = Mutex.new }
+  def self.set_defaults
+    @@default_env ||= {}
+    self.reset
 
     # mandatory
     set(:repository)  { raise(Vlad::ConfigurationError,
@@ -347,7 +345,6 @@ class Rake::RemoteTask < Rake::Task
     set(:release_path)    { File.join(releases_path, release_name) }
     set(:releases)        { task.run("ls -x #{releases_path}").split.sort }
     set(:releases_path)   { File.join(deploy_to, "releases") }
-    set :scm, :subversion
     set(:scm_path)        { File.join(deploy_to, "scm") }
     set(:shared_path)     { File.join(deploy_to, "shared") }
 
@@ -368,9 +365,34 @@ class Rake::RemoteTask < Rake::Task
       sudo_password
     end
 
+    set :scm do
+      raise "no" # :subversion
+    end
+
     set(:source) do
+      raise "no"
       require "vlad/#{scm}"
       Vlad.const_get(scm.to_s.capitalize).new
+    end
+  end
+
+  ##
+  # Resets vlad, restoring all roles, tasks and environment variables to the
+  # defaults.
+
+  def self.reset
+    @@roles = Hash.new { |h,k| h[k] = {} }
+    @@env = {}
+    @@tasks = {}
+    @@env_locks = Hash.new { |h,k| h[k] = Mutex.new }
+
+    @@default_env.each do |k,v|
+      case v
+      when Symbol, Fixnum, nil, true, false then
+        @@env[k] = v
+      else
+        @@env[k] = v.dup
+      end
     end
   end
 
@@ -406,6 +428,7 @@ class Rake::RemoteTask < Rake::Task
     raise ArgumentError, "cannot set reserved name: '#{name}'" if
       Rake::RemoteTask.reserved_name?(name) unless $TESTING
 
+    Rake::RemoteTask.default_env[name.to_s] = value || default_block
     Rake::RemoteTask.env[name.to_s] = value || default_block
 
     Object.send :define_method, name do
@@ -467,4 +490,4 @@ class Rake::RemoteTask < Rake::Task
   end
 end
 
-Rake::RemoteTask.reset
+Rake::RemoteTask.set_defaults
