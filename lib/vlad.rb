@@ -61,7 +61,8 @@ module Vlad
     }.merge(options)
 
     recipes.each do |flavor, recipe|
-      next unless recipe or flavor == :config
+      next unless recipe
+      next if flavor == :config
       require "vlad/#{recipe}"
     end
 

@@ -7,7 +7,7 @@ namespace :vlad do
   set :mongrel_address, "127.0.0.1"
   set :mongrel_clean, false
   set :mongrel_command, 'mongrel_rails'
-  set :mongrel_conf, "#{shared_path}/mongrel_cluster.conf"
+  set(:mongrel_conf) { "#{shared_path}/mongrel_cluster.conf" }
   set :mongrel_config_script, nil
   set :mongrel_environment, "production"
   set :mongrel_group, nil
