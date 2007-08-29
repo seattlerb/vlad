@@ -9,16 +9,18 @@ module Rake
   module TaskManager
     ##
     # This gives us access to the tasks already defined in rake.
-    attr_reader :tasks
+    def all_tasks
+      @tasks
+    end
   end
 
   def self.clear_tasks(*tasks)
     tasks.flatten.each do |name|
       case name
       when Regexp then
-        Rake.application.tasks.delete_if { |k,v| k =~ name }
+        Rake.application.all_tasks.delete_if { |k,v| k =~ name }
       else
-        Rake.application.tasks.delete(name)
+        Rake.application.all_tasks.delete(name)
       end
     end
   end
