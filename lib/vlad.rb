@@ -40,30 +40,33 @@ module Vlad
 
   ##
   # Loads tasks file +tasks_file+ and various recipe styles as a hash
-  # of category/style pairs. +tasks_file+ defaults to
-  # 'config/deploy.rb'. Recipes default to:
+  # of category/style pairs. Recipes default to:
   #
-  #     :core => :core
-  #     :app  => :mongrel
-  #     :web  => :apache
+  #     :app    => :mongrel
+  #     :config => 'config/deploy.rb',
+  #     :core   => :core
+  #     :web    => :apache
   #
   # You can override individual values and/or set to nil to
-  # deactivate. You may also pass nil/false to turn off recipe loading
-  # entirely so you can do your own thing.
-  def self.load tasks_file = 'config/deploy.rb', recipes = {}
-    if recipes then
-      recipes = {
-        :core => :core,
-        :app => :mongrel,
-        :web => :apache,
-      }.merge recipes
-      recipes.each do |_, recipe|
-        require "vlad/#{recipe}" if recipe
-      end
-    end
-    Kernel.load tasks_file
-  end
+  # deactivate. :config will get loaded last to ensure that user
+  # variables override default values.
+  def self.load options = {}
+    options = {:config => options} if String === options
 
+    recipes = {
+      :app => :mongrel,
+      :config => 'config/deploy.rb',
+      :core => :core,
+      :web => :apache,
+    }.merge(options)
+
+    recipes.each do |flavor, recipe|
+      next unless recipe or flavor == :config
+      require "vlad/#{recipe}"
+    end
+
+    Kernel.load recipes[:config]
+  end
 end
 
 class String #:nodoc:
