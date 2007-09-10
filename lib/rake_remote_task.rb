@@ -155,11 +155,29 @@ class Rake::RemoteTask < Rake::Task
 
     puts cmd.join(' ') if Rake.application.options.trace
 
-    status = popen4(*cmd) do |pid, inn, out, err|
-      inn.sync = true
+    pid, inn, out, err = popen4(*cmd)
 
-      until out.eof? and err.eof? do
-        unless err.eof? then
+    inn.sync = true
+
+    # Handle process termination ourselves
+    status = nil
+    Thread.start do
+      status = Process.waitpid2(pid).last
+    end
+
+    streams = [out, err]
+
+    until streams.empty? do
+      # don't busy loop
+      selected, = select streams, nil, nil, 0.1
+      next if selected.nil? or selected.empty?
+
+      selected.each do |stream|
+        if stream.eof? then
+          streams.delete stream if status # we've quit, so no more writing
+          next
+
+        elsif err == stream then
           data = err.readpartial(1024)
           result << data
           $stderr.write data
@@ -169,9 +187,8 @@ class Rake::RemoteTask < Rake::Task
             result << "\n"
             $stderr.write "\n"
           end
-        end
 
-        unless out.eof? then
+        elsif out == stream then
           data = out.readpartial(1024)
           result << data
           $stdout.write data
