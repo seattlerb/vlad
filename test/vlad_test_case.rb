@@ -6,6 +6,18 @@ class StringIO
   def readpartial(size) read end # suck!
 end
 
+module Process
+  def self.expected status
+    @@expected ||= []
+    @@expected << status
+  end
+
+  def self.waitpid2(pid)
+    [ @@expected.shift ]
+  end
+end
+
+
 class Rake::RemoteTask
   attr_accessor :commands, :action, :input, :output, :error
 
@@ -27,10 +39,12 @@ class Rake::RemoteTask
     out = StringIO.new @output.shift.to_s
     err = StringIO.new @error.shift.to_s
 
-    yield 42, @input, out, err
+    raise if block_given?
 
     status = self.action ? self.action[command.join(' ')] : 0
-    Status.new status
+    Process.expected Status.new(status)
+
+    return 42, @input, out, err
   end
 
   def select reads, writes, errs, timeout

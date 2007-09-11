@@ -51,6 +51,11 @@ module Vlad
   # You can override individual values and/or set to nil to
   # deactivate. :config will get loaded last to ensure that user
   # variables override default values.
+  #
+  # And by all means, feel free to skip this entirely if it doesn't
+  # fit for you. All it does is a fancy-pants require. Require
+  # whatever files you need as you see fit straight from your
+  # Rakefile. YAY for simple and clean!
   def self.load options = {}
     options = {:config => options} if String === options
 
@@ -63,8 +68,7 @@ module Vlad
     }.merge(options)
 
     recipes.each do |flavor, recipe|
-      next unless recipe
-      next if flavor == :config
+      next if recipe.nil? or flavor == :config
       require "vlad/#{recipe}"
     end
 

@@ -16,14 +16,35 @@ Hoe.new('vlad', Vlad::VERSION) do |p|
   p.extra_deps << 'open4'
 end
 
+desc "quick little hack to see what the state of the nation looks like"
+task :debug do
+  Vlad.load :config => "lib/vlad/subversion.rb"
+  set :repository, "repository path"
+  set :deploy_to,  "deploy path"
+  set :domain,     "server domain"
+
+  Rake::Task['vlad:debug'].invoke
+end
+
 task :flog do
-  sh 'find lib -name \*.rb | grep -v vlad_tasks | xargs flog | head -1'
+  sh 'flog -s lib'
 end
 
 task :flog_full do
-  sh 'find lib -name \*.rb | xargs flog -a'
+  sh 'flog -a lib'
 end
 
-Vlad.load :config => 'foo.rb', :scm => :perforce
+task :mana_from_heaven do
+  # vlad = vlad + rake + open4
+  # rake sans-contrib = 2035.98356718206
+  vlad  = `flog -s lib`.to_f + 2350.30744806517 + 502.363818023761
+  cap   = 11480.3919695285
+  ratio = cap / vlad
+  target = cap / Math::PI
+
+  puts "%14.8f = %s" % [vlad, "vlad"]
+  puts "%14.8f = %s" % [ratio, "ratio"]
+  puts "%14.8f = %s" % [target - vlad, "needed delta"]
+end
 
 # vim: syntax=Ruby

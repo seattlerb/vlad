@@ -1,6 +1,6 @@
 class Vlad::Perforce
 
-  set :p4cmd, "p4"
+  set :p4_cmd, "p4"
   set :source, Vlad::Perforce.new
 
   ##
@@ -8,7 +8,7 @@ class Vlad::Perforce
   # +destination+.
 
   def checkout(revision, destination)
-    "#{p4cmd} sync ...#{rev_no(revision)}"
+    "#{p4_cmd} sync ...#{rev_no(revision)}"
   end
 
   ##
@@ -17,7 +17,7 @@ class Vlad::Perforce
 
   def export(revision_or_source, destination)
     if revision_or_source =~ /^(\d+|head)$/i then
-      "(cd #{destination} && #{p4cmd} sync ...#{rev_no(revision_or_source)})"
+      "(cd #{destination} && #{p4_cmd} sync ...#{rev_no(revision_or_source)})"
     else
       "cp -r #{revision_or_source} #{destination}"
     end
@@ -28,7 +28,7 @@ class Vlad::Perforce
   # into a Perforce revision specification.
 
   def revision(revision)
-    "`#{p4cmd} changes -s submitted -m 1 ...#{rev_no(revision)} | cut -f 2 -d\\ `"
+    "`#{p4_cmd} changes -s submitted -m 1 ...#{rev_no(revision)} | cut -f 2 -d\\ `"
   end
 
   ##

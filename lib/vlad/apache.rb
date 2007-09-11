@@ -6,7 +6,7 @@ namespace :vlad do
 
   set :web_command, "apachectl"
 
-  desc "Restart the web servers"
+  desc "(Re)Start the web servers"
 
   remote_task :start_web, :roles => :web  do
     run "#{web_command} restart"
@@ -21,7 +21,7 @@ namespace :vlad do
   ##
   # Everything HTTP.
 
-  desc "Restart the web and app servers"
+  desc "(Re)Start the web and app servers"
 
   remote_task :start do
     Rake::Task['vlad:start_app'].invoke

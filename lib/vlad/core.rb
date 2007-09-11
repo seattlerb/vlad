@@ -12,7 +12,15 @@ namespace :vlad do
 
   task :debug do
     require 'yaml'
+
+    # force them into values
+    Rake::RemoteTask.env.keys.each do |key|
+      next if key =~ /_release|releases|sudo_password/
+      Rake::RemoteTask.fetch key
+    end
+
     puts "# Environment:"
+    puts
     y Rake::RemoteTask.env
     puts "# Roles:"
     y Rake::RemoteTask.roles
@@ -65,7 +73,6 @@ namespace :vlad do
     directory by setting :migrate_target to :current.  Additional environment
     variables can be passed to rake via the migrate_env variable.".cleanup
 
-  # HACK :only => { :primary => true }
   # No application files are on the DB machine, also migrations should only be
   # run once.
   remote_task :migrate, :roles => :app do
@@ -77,7 +84,7 @@ namespace :vlad do
                 else raise ArgumentError, "unknown migration target #{migrate_target.inspect}"
                 end
 
-    run "cd #{directory}; #{rake} RAILS_ENV=#{rails_env} #{migrate_args} db:migrate"
+    run "cd #{current_path}; #{rake_cmd} RAILS_ENV=#{rails_env} db:migrate #{migrate_args}"
   end
 
   desc "Invoke a single command on every remote server. This is useful for
@@ -145,7 +152,7 @@ namespace :vlad do
 
   remote_task :cleanup do
     count = keep_releases
-    if count >= releases.length then
+    unless count >= releases.length then
       puts "no old releases to clean up"
     else
       puts "keeping #{count} of #{releases.length} deployed releases"

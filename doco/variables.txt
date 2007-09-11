@@ -1,7 +1,6 @@
 
 == Core Variables
 
-application::          REQUIRED: Name of your application. e.g. hitsquad
 repository::           REQUIRED: Repository path: e.g. http://repo.example.com/svn
 deploy_to::            REQUIRED: Deploy path on target machines. e.g. /var/www/app
 domain::               REQUIRED: Used for the common case of a single target
@@ -32,11 +31,17 @@ releases::             An array of all existing releases, oldest first.
                        Defaults to latest release directory name.
 releases_path::        Full path to the 'releases' directory on the remote host.
                        Defaults to "#{deploy_to}/releases".
+rsync_cmd::            Path to rsync command. Defaults to "rsync".
+rsync_flags::          Flags for rsync. Defaults to ['-azP', '--delete'].
 scm_path::             Path on the remote host that will be used as 'working
                        space' for SCM tasks. Defaults to "#{deploy_to}/scm".
-sudo_password::        Asks for password when referenced.
 shared_path::          Full path to remote 'shared' directory, symlinked into
                        your app by default. Defaults to "#{deploy_to}/shared".
+ssh_cmd::              Path to ssh. Defaults to "ssh".
+ssh_flags::            Flags for ssh. Defaults to "".
+sudo_cmd::             Path to sudo command. Defaults to "sudo".
+sudo_flags::           Flogs for sudo. Defaults to nil.
+sudo_password::        Asks for password when referenced.
 
 == Apache Web Variables:
 
@@ -61,11 +66,11 @@ mongrel_user::          Defaults to nil
 
 == Perforce SCM Variables:
 
-p4cmd::                The perforce command to use. Defaults to "p4"
-source::               A perforce SCM worker instance.
+p4_cmd::                The perforce command to use. Defaults to "p4"
+source::                A perforce SCM worker instance.
 
 == Subversion SCM Variables:
 
-source::               A subversion SCM worker instance.
-svncmd::               The subversion command to use. Defaults to "svn"
+source::                A subversion SCM worker instance.
+svn_cmd::               The subversion command to use. Defaults to "svn"
 
