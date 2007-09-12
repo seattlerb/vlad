@@ -24,21 +24,20 @@
 
 == BEFORE:
 
-set :application, "rubyholic"
-set :domain,      "zenspider.textdriven.com"
-set :repository,  "svn://svn.example.com/rubyholic/branches/stable"
-set :deploy_to,   "/users/home/zenspider/domains/new.rubyholic.com"
-
-set :user,        "zenspider"
-set :use_sudo,    false
-
-role :web, domain
-role :app, domain
-role :db,  domain, :primary => true
+  set :application, "rubyholic"
+  set :domain,      "zenspider.textdriven.com"
+  set :repository,  "svn://svn.example.com/rubyholic/branches/stable"
+  set :deploy_to,   "/users/home/zenspider/domains/new.rubyholic.com"
+  
+  set :user,        "zenspider"
+  set :use_sudo,    false
+  
+  role :web, domain
+  role :app, domain
+  role :db,  domain, :primary => true
 
 == AFTER:
 
-set :application, "rubyholic"
-set :domain,      "zenspider.textdriven.com"
-set :repository,  "svn://svn.example.com/rubyholic/branches/stable"
-set :deploy_to,   "/users/home/zenspider/domains/new.rubyholic.com"
+  set :domain,      "zenspider.textdriven.com"
+  set :repository,  "svn://svn.example.com/rubyholic/branches/stable"
+  set :deploy_to,   "/users/home/zenspider/domains/new.rubyholic.com"

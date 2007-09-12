@@ -15,27 +15,24 @@ Impale your application on the heartless spike of the Deployer.
 == FEATURES/PROBLEMS:
 
 * Full deployment automation stack.
-* Supports single server deployment with just 4 variables defined.
+* Turnkey deployment for mongrel+apache+svn.
+* Supports single server deployment with just 3 variables defined.
+* Built on rake. Easy. Engine is small.
 * Very few dependencies. All simple.
 * Uses ssh with your ssh settings already in place.
 * Uses rsync for efficient transfers.
 * Run remote commands on one or more servers.
-* Syncs files to one or more servers.
 * Mix and match local and remote tasks.
-* Built on rake. easy.
 * Compatible with all of your tab completion shell script rake-tastic goodness.
-* Ships with tests that actually pass.
-* Engine is under 500 lines of code.
-* Super uper simple.
-* Does NOT support Windows right now. Coming soon in 1.1.
-* This is 1.0.0... expect rough edges.
+* Ships with tests that actually pass in 0.028 seconds!
+* Does NOT support Windows right now (we think). Coming soon in 1.2.
 
 == SYNOPSIS:
 
-    rake vlad:setup   # first time only
-    rake vlad:update
-    rake vlad:migrate # optional
-    rake vlad:start
+    % rake vlad:setup   # first time only
+    % rake vlad:update
+    % rake vlad:migrate # optional
+    % rake vlad:start
 
 == REQUIREMENTS:
 

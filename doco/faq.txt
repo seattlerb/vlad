@@ -1,0 +1,75 @@
+== Rake & Recipes
+
+=== Q: Why is there no vlad:restart?
+=== A: It is cleaner!
+
+We don't want to have to think about what state we're in and where. So vlad:start does a restart if necessary. Restart is just "start again" after all... That is what start does.
+
+=== Q: Why are there no before_action and after_action hooks?
+=== A: Because we use rake!
+
+Rake don't need no stinkin' hooks! They're too clever. Last I checked before_after_before_start worked in cap... how? why? I dunno...
+
+To extend a task (adding something after), just define it again:
+
+  task :action1 do
+    puts "one fish, two fish"
+  end
+
+  task :action1 do
+    puts "red fish, blue fish"
+  end
+
+To prepend on a task, add a dependency:
+
+  task :action2 do
+    puts "red fish, blue fish"
+  end
+
+  task :myaction do
+    puts "one fish, two fish"
+  end
+
+  task :action2 => :myaction
+
+=== Q: How do I invoke another rule?
+=== A: The easiest way is via dependencies.
+
+  task :shazam! => [:action1, :action2]
+
+ The other way is to look it up and call invoke:
+
+  task :shazam! do
+    Rake::Task[:action1].invoke
+    Rake::Task[:action2].invoke
+  end
+
+(Or, cheat and call out to rake again: sh "rake action1")
+
+== Using SSH
+
+=== Q: Is there any way to set the ssh user?
+=== A: Yes, using ~/.ssh/config
+
+  Host example.com
+    User fluffy_bunny
+
+OR: Alternatively, you can do this within your recipes like so:
+
+  set :user, "fluffy_bunny"
+  set :domain, "#{user}@example.com"
+
+=== Q: Is there any way to speed up ssh connections?
+=== A: Yes, add to your Host entry in ~/.ssh/config:
+
+  ControlMaster auto
+  ControlPath ~/.ssh/master-%r@%h:%p
+
+=== Q: I'm tired of typing in my password!
+=== A: Me too!
+
+Put a password on your key, distribute your public key to the server and then use ssh-agent.
+
+Check out this tiny tutorial at LBL: A brief ssh-agent tutorial <http://upc.lbl.gov/docs/user/sshagent.html>
+
+If you're on a mac, use SSHKeychain, we love it. <http://www.sshkeychain.org/>

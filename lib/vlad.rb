@@ -20,7 +20,7 @@ module Vlad
 
   ##
   # This is the version of Vlad you are running.
-  VERSION = '1.0.1'
+  VERSION = '1.1.0'
 
   ##
   # Base error class for all Vlad errors.
@@ -43,9 +43,9 @@ module Vlad
   # of category/style pairs. Recipes default to:
   #
   #     :app    => :mongrel
-  #     :config => 'config/deploy.rb',
+  #     :config => 'config/deploy.rb'
   #     :core   => :core
-  #     :scm    => :subversion,
+  #     :scm    => :subversion
   #     :web    => :apache
   #
   # You can override individual values and/or set to nil to

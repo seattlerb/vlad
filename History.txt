@@ -1,25 +1,30 @@
-== 1.1.0 / ????-??-??
+== 1.1.0 / 2007-09-12
 
-* N major enhancements:
+* 3 major enhancements:
   * Vlad.load now takes a hash of recipe overrides, eg: Vlad.load :web => :nginx.
-  * Removed vlad_tasks.rb and split into vlad/apache.rb,
-    vlad/mongrel.rb, and vlad/core.rb.
-  * Added default_env, set now sets both env and default_env.
-* N minor enhancements:
-  * Removed :scm variable. Now a Vlad.load component/flavor/need-a-word-here.
-  * Raised now method (static timestamp) to Kernel for other
-    libs. Thanks Geoffrey.
-  * Removed mandatory application var. Use it if you want it. We don't.
+    See rdoc for defaults.
+  * Removed vlad_tasks.rb and split into vlad/apache.rb, vlad/mongrel.rb,
+    and vlad/core.rb.
+  * The flog ratio between capistrano+deps / vlad+deps is pi (or, damn close)!
+* 12 minor enhancements:
+  * Added $TRACE to make it more available and cleaner to read.
+  * Added :svn_cmd variable.
   * Added Rake.clear_tasks *str_or_regexp
-  * Updated documentation.
-  * Improved tests a bit.
-  * Added :svncmd variable.
-  * Changed up doco/variables.txt to break out module variables.
-* N bug fixes:
-  * Vlad.load calls user config last, allowing variable overrides. Sorry!
+  * Added debug and mana_from_heaven tasks to Rakefile.
+  * Added more documentation.
+  * Added :rsync_cmd and :rsync_flags.
+  * Added :ssh_cmd and :ssh_flags.
+  * Added variable expansion to vlad:debug task.
+  * Removed :scm variable. Now a Vlad.load component/flavor/need-a-word-here.
+  * Removed :application var. Use it if you want it. We don't require it.
+  * Renamed :p4cmd to :p4_cmd.
+  * Renamed :rake var to :rake_cmd.
+* 2 (important) bug fixes:
+  * HUGE: Fixed sudo hang bug #13072.  Fix suggested by Chris Van Pelt.
+  * HUGE: Vlad.load calls user config last, allowing variable overrides.
+    ACK! Sorry!
 
 == 1.0.0 / 2007-08-04
 
 * 1 major enhancement
   * Birthday!
-

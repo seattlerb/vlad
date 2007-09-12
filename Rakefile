@@ -11,6 +11,7 @@ Hoe.new('vlad', Vlad::VERSION) do |p|
   p.email = "ryand-ruby@zenspider.com"
   p.url = p.paragraphs_of('README.txt', 0).first.split(/\n/).map { |s| s.strip }[2..-1]
   p.description = p.paragraphs_of('README.txt', 2..5).join("\n\n")
+  p.summary = p.paragraphs_of('README.txt', 2).join
   p.changes = p.paragraphs_of('History.txt', 0..1).join("\n\n")
   p.extra_deps << 'rake'
   p.extra_deps << 'open4'
