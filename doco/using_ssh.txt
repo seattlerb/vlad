@@ -1,18 +1,18 @@
 == Using SSH:
 
-Q: is there any way to set the ssh user?
-A: yes, using ~/.ssh/config
+=== Q: is there any way to set the ssh user?
+=== A: yes, using ~/.ssh/config
 
-Host zenspider.textdriven.com
-	User zenspider
+  Host zenspider.textdriven.com
+      User zenspider
 
-A: Alternatively, you can do this within your recipes like so:
+=== A: Alternatively, you can do this within your recipes like so:
 
   set :user, "fluffy_bunny"
   set :domain, "#{user}@bunnyworld.com"
 
-Q: is there any way to speed up ssh connections?
-A: yes, add to your entry in ~/.ssh/config:
+=== Q: is there any way to speed up ssh connections?
+=== A: yes, add to your entry in ~/.ssh/config:
 
-	ControlMaster auto
-	ControlPath ~/.ssh/master-%r@%h:%p
+  ControlMaster auto
+  ControlPath ~/.ssh/master-%r@%h:%p
