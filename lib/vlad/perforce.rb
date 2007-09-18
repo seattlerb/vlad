@@ -45,3 +45,80 @@ class Vlad::Perforce
     end
   end
 end
+
+namespace :vlad do
+  remote_task :setup_app, :roles => :app do
+    p4data = p4port = p4user = p4passwd = nil
+
+    if ENV['P4CONFIG'] then
+      p4config_name = ENV['P4CONFIG']
+      p4config = nil
+      orig_dir = Dir.pwd.split File::SEPARATOR
+
+      until orig_dir.length == 1 do
+        p4config = orig_dir + [p4config_name]
+        p4config = File.join p4config
+        break if File.exist? p4config
+        orig_dir.pop
+      end
+
+      raise "couldn't find .p4config" unless File.exist? p4config
+
+      p4data = File.readlines(p4config).map { |line| line.strip.split '=', 2 }
+      p4data = Hash[*p4data.flatten]
+    else
+      p4data = ENV
+    end
+
+    p4port = p4data['P4PORT']
+    p4user = p4data['P4USER']
+    p4passwd = p4data['P4PASSWD']
+
+    raise "couldn't get P4PORT" if p4port.nil?
+    raise "couldn't get P4USER" if p4user.nil?
+    raise "couldn't get P4PASSWD" if p4passwd.nil?
+
+    p4client = [p4user, target_host, application].join '-'
+
+    require 'tmpdir'
+    require 'tempfile'
+
+    Tempfile.open 'vlad.p4config' do |fp|
+      fp.puts "P4PORT=#{p4port}"
+      fp.puts "P4USER=#{p4user}"
+      fp.puts "P4PASSWD=#{p4passwd}"
+      fp.puts "P4CLIENT=#{p4client}"
+
+      fp.flush
+
+      rsync fp.path, File.join(scm_path, '.p4config')
+    end
+
+    p4client_path = File.join deploy_to, 'p4client.tmp'
+
+    Tempfile.open 'vlad.p4client' do |fp|
+      fp.puts <<-CLIENT
+Client:	#{p4client}
+
+Owner:	#{p4user}
+
+Root:	#{scm_path}
+
+View:
+  #{repository}/... //#{p4client}/...
+      CLIENT
+      fp.flush
+
+      rsync fp.path, p4client_path
+    end
+
+    cmds = [
+      "cd #{scm_path}",
+      "p4 client -i < #{p4client_path}",
+      "rm #{p4client_path}",
+    ]
+
+    run cmds.join(' && ')
+  end
+end
+

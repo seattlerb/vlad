@@ -2,6 +2,7 @@
 
 * N minor enhancements:
   * Moved generic app setup to core from mongrel.
+  * Added automatic p4 client setup for perforce.
 
 == 1.1.0 / 2007-09-12
 
