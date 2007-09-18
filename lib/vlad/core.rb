@@ -36,6 +36,14 @@ namespace :vlad do
     Rake::Task['vlad:setup_app'].invoke
   end
 
+  desc "Prepares application servers for deployment.".cleanup
+
+  remote_task :setup_app, :roles => :app do
+    dirs = [deploy_to, releases_path, scm_path, shared_path]
+    dirs += %w(system log pids).map { |d| File.join(shared_path, d) }
+    run "umask 02 && mkdir -p #{dirs.join(' ')}"
+  end
+
   desc "Updates your application server to the latest revision.  Syncs
     a copy of the repository, exports it as the latest release, fixes
     up your symlinks, symlinks the latest revision to current and logs

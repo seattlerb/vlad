@@ -22,10 +22,6 @@ namespace :vlad do
 configuration is set via the mongrel_* variables.".cleanup
 
   remote_task :setup_app, :roles => :app do
-    dirs = [deploy_to, releases_path, scm_path, shared_path]
-    dirs += %w(system log pids).map { |d| File.join(shared_path, d) }
-    run "umask 02 && mkdir -p #{dirs.join(' ')}"
-
     cmd = [
            "#{mongrel_command} cluster::configure",
            "-N #{mongrel_servers}",
