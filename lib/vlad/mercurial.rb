@@ -1,5 +1,7 @@
 class Vlad::Mercurial
 
+  set :source, Vlad::Mercurial.new
+
   ##
   # Returns the command that will check out +revision+ from the repository
   # into directory +destination+
