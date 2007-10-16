@@ -52,9 +52,8 @@ namespace :vlad do
   remote_task :update, :roles => :app do
     symlink = false
     begin
-      # TODO: head/version should be parameterized
       run [ "cd #{scm_path}",
-            "#{source.checkout "head", '.'}",
+            "#{source.checkout revision, '.'}",
             "#{source.export ".", release_path}",
             "chmod -R g+w #{latest_release}",
             "rm -rf #{latest_release}/log #{latest_release}/public/system #{latest_release}/tmp/pids",
@@ -67,7 +66,7 @@ namespace :vlad do
       symlink = true
       run "rm -f #{current_path} && ln -s #{latest_release} #{current_path}"
 
-      run "echo #{now} $USER #{'head'} #{File.basename release_path} >> #{deploy_to}/revisions.log" # FIX shouldn't be head
+      run "echo #{now} $USER #{revision} #{File.basename release_path} >> #{deploy_to}/revisions.log"
     rescue => e
       run "rm -f #{current_path} && ln -s #{previous_release} #{current_path}" if
         symlink

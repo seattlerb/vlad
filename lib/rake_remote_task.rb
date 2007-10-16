@@ -394,6 +394,7 @@ class Rake::RemoteTask < Rake::Task
                :migrate_target,     :latest,
                :rails_env,          "production",
                :rake_cmd,           "rake",
+               :revision,           "head",
                :rsync_cmd,          "rsync",
                :rsync_flags,        ['-azP', '--delete'],
                :ssh_cmd,            "ssh",

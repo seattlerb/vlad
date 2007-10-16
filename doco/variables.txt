@@ -31,6 +31,7 @@ releases::             An array of all existing releases, oldest first.
                        Defaults to latest release directory name.
 releases_path::        Full path to the 'releases' directory on the remote host.
                        Defaults to "#{deploy_to}/releases".
+revision::             Revision to use for release. Defaults to 'head'.
 rsync_cmd::            Path to rsync command. Defaults to "rsync".
 rsync_flags::          Flags for rsync. Defaults to ['-azP', '--delete'].
 scm_path::             Path on the remote host that will be used as 'working
