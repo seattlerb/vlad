@@ -158,13 +158,13 @@ namespace :vlad do
     All other deployed revisions are removed from the servers.".cleanup
 
   remote_task :cleanup do
-    count = keep_releases
-    unless count >= releases.length then
-      puts "no old releases to clean up"
+    max = keep_releases
+    if releases.length <= max then
+      puts "no old releases to clean up #{releases.length} <= #{max}"
     else
-      puts "keeping #{count} of #{releases.length} deployed releases"
+      puts "keeping #{max} of #{releases.length} deployed releases"
 
-      directories = (releases - releases.last(count)).map { |release|
+      directories = (releases - releases.last(max)).map { |release|
         File.join(releases_path, release)
       }.join(" ")
 

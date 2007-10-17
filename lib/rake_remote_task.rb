@@ -39,6 +39,19 @@ def host host_name, *roles
 end
 
 ##
+# Copy a (usually generated) file to +remote_path+. Contents of block
+# are copied to +remote_path+ and you may specify an optional
+# base_name for the tempfile (aids in debugging).
+
+def put remote_path, base_name = 'vlad.unknown'
+  Tempfile.open base_name do |fp|
+    fp.puts yield
+    fp.flush
+    rsync fp.path, remote_path
+  end
+end
+
+##
 # Declare a Vlad task that will execute on all hosts by default. To
 # limit that task to specific roles, use:
 #
@@ -184,6 +197,7 @@ class Rake::RemoteTask < Rake::Task
     until streams.empty? do
       # don't busy loop
       selected, = select streams, nil, nil, 0.1
+
       next if selected.nil? or selected.empty?
 
       selected.each do |stream|

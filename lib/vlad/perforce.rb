@@ -83,21 +83,17 @@ namespace :vlad do
     require 'tmpdir'
     require 'tempfile'
 
-    Tempfile.open 'vlad.p4config' do |fp|
-      fp.puts "P4PORT=#{p4port}"
-      fp.puts "P4USER=#{p4user}"
-      fp.puts "P4PASSWD=#{p4passwd}"
-      fp.puts "P4CLIENT=#{p4client}"
-
-      fp.flush
-
-      rsync fp.path, File.join(scm_path, '.p4config')
+    put File.join(scm_path, '.p4config'), 'vlad.p4config' do
+      [ "P4PORT=#{p4port}",
+        "P4USER=#{p4user}",
+        "P4PASSWD=#{p4passwd}",
+        "P4CLIENT=#{p4client}" ].join("\n")
     end
 
     p4client_path = File.join deploy_to, 'p4client.tmp'
 
-    Tempfile.open 'vlad.p4client' do |fp|
-      fp.puts <<-CLIENT
+    put p4client_path, 'vlad.p4client' do
+      conf = <<-"CLIENT"
 Client:	#{p4client}
 
 Owner:	#{p4user}
@@ -107,9 +103,6 @@ Root:	#{scm_path}
 View:
   #{repository}/... //#{p4client}/...
       CLIENT
-      fp.flush
-
-      rsync fp.path, p4client_path
     end
 
     cmds = [
