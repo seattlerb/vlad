@@ -24,7 +24,7 @@ class TestRakeRemoteTask < VladTestCase
     set :some_variable, 1
     x = 5
     task = @vlad.remote_task(:some_task) { x += some_variable }
-    task.execute
+    task.execute nil
     assert_equal 1, task.some_variable
     assert_equal 2, task.remote_actions.first.workers.size
     assert_equal 7, x
@@ -33,20 +33,20 @@ class TestRakeRemoteTask < VladTestCase
   def test_execute_exposes_target_host
     host "app.example.com", :app
     task = remote_task(:target_task) { set(:test_target_host, target_host) }
-    task.execute
+    task.execute nil
     assert_equal "app.example.com", Rake::RemoteTask.fetch(:test_target_host)
   end
 
   def test_execute_with_no_hosts
     @vlad.host "app.example.com", :app
     t = @vlad.remote_task(:flunk, :roles => :db) { flunk "should not have run" }
-    e = assert_raise(Vlad::ConfigurationError) { t.execute }
+    e = assert_raise(Vlad::ConfigurationError) { t.execute nil }
     assert_equal "No target hosts specified for task: flunk", e.message
   end
 
   def test_execute_with_no_roles
     t = @vlad.remote_task(:flunk, :roles => :junk) { flunk "should not have run" }
-    e = assert_raise(Vlad::ConfigurationError) { t.execute }
+    e = assert_raise(Vlad::ConfigurationError) { t.execute nil }
     assert_equal "No target hosts specified for task: flunk", e.message
   end
 
@@ -55,7 +55,7 @@ class TestRakeRemoteTask < VladTestCase
     set :some_variable, 1
     x = 5
     task = @vlad.remote_task(:some_task, :roles => :db) { x += some_variable }
-    task.execute
+    task.execute nil
     assert_equal 1, task.some_variable
     assert_equal 6, x
   end

@@ -96,6 +96,16 @@ def target_host
   Thread.current[:task].target_host
 end
 
+if Gem::Version.new(RAKEVERSION) < Gem::Version.new('0.8') then
+  class Rake::Task
+    alias vlad_original_execute execute
+
+    def execute(args = nil)
+      vlad_original_execute
+    end
+  end
+end
+
 ##
 # Rake::RemoteTask is a subclass of Rake::Task that adds
 # remote_actions that execute in parallel on multiple hosts via ssh.
@@ -148,12 +158,14 @@ class Rake::RemoteTask < Rake::Task
   # actions will be performed in parallel on each host configured for this
   # RemoteTask.
 
-  def execute
+  def execute(args = nil)
     raise(Vlad::ConfigurationError,
           "No target hosts specified for task: #{self.name}") if
       target_hosts.empty?
-    super
-    @remote_actions.each { |act| act.execute(target_hosts) }
+
+    super args
+
+    @remote_actions.each { |act| act.execute(target_hosts, args) }
   end
 
   ##
@@ -536,13 +548,13 @@ class Rake::RemoteTask < Rake::Task
     # Execute this action on +hosts+ in parallel. Returns when block
     # has completed for each host.
 
-    def execute hosts
+    def execute hosts, args = nil
       hosts.each do |host|
         t = task.clone
         t.target_host = host
         thread = Thread.new(t) do |task|
           Thread.current[:task] = task
-          block.call
+          block.call args
         end
         @workers << thread
       end

@@ -126,7 +126,7 @@ class TestVlad < VladTestCase
     @vlad.host 'www.example.com', :app
     @vlad.remote_task(:some_task) do $some_task_result = some_variable end
 
-    Rake::Task['some_task'].execute
+    Rake::Task['some_task'].execute nil
     assert_equal @vlad.fetch(:some_variable), $some_task_result
   end
 
