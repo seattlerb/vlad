@@ -1,10 +1,21 @@
-== 1.1.1 / ??
+== 1.1.1 / 2008-01-14
 
-* N major enhancements:
-  * Support for Rake 0.8.
-* N minor enhancements:
-  * Moved generic app setup to core from mongrel.
+* 5 major enhancements:
+  * Support for Rake 0.8. Should still work for Rake 0.7.
+  * Added git support (contributed by Garry Dolley).
+    * Reviewed for accuracy by Evan Phoenix.
+  * Added lighttpd.rb
+  * Added automatic client setup for perforce.
+  * Added mercurial SCM support patch. Closes ticket 13475.
+* 6 minor enhancements:
+  * Added #put method that wraps up Tempfile/rsync pattern.
   * Added automatic p4 client setup for perforce.
+  * Added vladdemo.sh
+  * Moved everything over to put.
+  * Moved generic app setup to core from mongrel.
+  * Parameterized 'head' into 'revision' variable (with head as default).
+* 1 bug fix
+  * Fixed cleanup to actually properly clean up.
 
 == 1.1.0 / 2007-09-12
 
