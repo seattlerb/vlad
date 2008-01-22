@@ -72,4 +72,10 @@ Put a password on your key, distribute your public key to the server and then us
 
 Check out this tiny tutorial at LBL: A brief ssh-agent tutorial <http://upc.lbl.gov/docs/user/sshagent.html>
 
-If you're on a mac, use SSHKeychain, we love it. <http://www.sshkeychain.org/>
+If you're on a mac (on tiger, not leopard), use SSHKeychain, we love it. <http://www.sshkeychain.org/>. If you are on leopard, you get all of this for free.
+
+=== Q: How do I use Vlad with a gateway?
+=== A: Add the following to your deploy.rb variables:
+
+  set :ssh_flags, "-A #{mygateway}"
+  set :rsync_flags, "--rsh ssh -A #{mygateway} ssh"
