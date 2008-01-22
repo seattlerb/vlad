@@ -429,7 +429,8 @@ class Rake::RemoteTask < Rake::Task
                :ssh_cmd,            "ssh",
                :ssh_flags,          nil,
                :sudo_cmd,           "sudo",
-               :sudo_flags,         nil)
+               :sudo_flags,         nil,
+               :umask,              '02')
 
     set(:current_release)    { File.join(releases_path, releases[-1]) }
     set(:latest_release)     { deploy_timestamped ?release_path: current_release }

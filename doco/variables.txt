@@ -43,6 +43,7 @@ ssh_flags::            Flags for ssh. Defaults to "".
 sudo_cmd::             Path to sudo command. Defaults to "sudo".
 sudo_flags::           Flogs for sudo. Defaults to nil.
 sudo_password::        Asks for password when referenced.
+umask::                Sets your umask value. Defaults to "02".
 
 == Apache Web Variables:
 
