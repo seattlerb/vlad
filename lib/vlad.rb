@@ -73,6 +73,7 @@ module Vlad
     end
 
     Kernel.load recipes[:config]
+    Kernel.load "config/deploy_#{ENV['to']}.rb" if ENV['to']
   end
 end
 
