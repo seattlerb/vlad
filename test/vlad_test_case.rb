@@ -12,8 +12,12 @@ module Process
     @@expected << status
   end
 
-  def self.waitpid2(pid)
-    [ @@expected.shift ]
+  class << self
+    alias :waitpid2_old :waitpid2
+
+    def waitpid2(pid)
+      [ @@expected.shift ]
+    end
   end
 end
 
