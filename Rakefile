@@ -5,16 +5,16 @@ require 'hoe'
 $: << 'lib'
 require 'vlad'
 
-Hoe.new('vlad', Vlad::VERSION) do |p|
-  p.rubyforge_name = 'hitsquad'
-  p.author = ["Ryan Davis", "Eric Hodel", "Wilson Bilkovich"]
-  p.email = "ryand-ruby@zenspider.com"
-  p.url = p.paragraphs_of('README.txt', 0).first.split(/\n/).map { |s| s.strip }[2..-1]
-  p.description = p.paragraphs_of('README.txt', 2..5).join("\n\n")
-  p.summary = p.paragraphs_of('README.txt', 2).join
-  p.changes = p.paragraphs_of('History.txt', 0..1).join("\n\n")
-  p.extra_deps << 'rake'
-  p.extra_deps << 'open4'
+Hoe.new('vlad', Vlad::VERSION) do |vlad|
+  vlad.rubyforge_name = 'hitsquad'
+
+  vlad.developer('Ryan Davis', 'ryand-ruby@zenspider.com')
+  vlad.developer('Eric Hodel', 'drbrain@segment7.net')
+  vlad.developer('Wilson Bilkovich', 'wilson@supremetyrant.com')
+
+  vlad.extra_deps << 'rake' << 'open4'
+
+  vlad.multiruby_skip << "1.9" << "rubinius"
 end
 
 desc "quick little hack to see what the state of the nation looks like"
