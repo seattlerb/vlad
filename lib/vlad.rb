@@ -58,6 +58,8 @@ module Vlad
   # Rakefile. YAY for simple and clean!
   def self.load options = {}
     options = {:config => options} if String === options
+    order = [:app, :config, :core, :scm, :web]
+    order += options.keys - order
 
     recipes = {
       :app    => :mongrel,
@@ -67,7 +69,8 @@ module Vlad
       :web    => :apache,
     }.merge(options)
 
-    recipes.each do |flavor, recipe|
+    order.each do |flavor|
+      recipe = recipes[flavor]
       next if recipe.nil? or flavor == :config
       require "vlad/#{recipe}"
     end
