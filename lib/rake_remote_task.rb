@@ -63,8 +63,20 @@ end
 ##
 # Declare a role and assign a remote host to it. Equivalent to the
 # <tt>host</tt> method; provided for capistrano compatibility.
-def role role_name, host, args = {}
-  Rake::RemoteTask.role role_name, host, args
+def role role_name, host = nil, args = {}
+  if block_given? then
+    raise ArgumentError, 'host not allowed with block' unless host.nil?
+
+    begin
+      Rake::RemoteTask.current_roles << role_name
+      yield
+    ensure
+      Rake::RemoteTask.current_roles.delete role_name
+    end
+  else
+    raise ArgumentError, 'host required' if host.nil?
+    Rake::RemoteTask.role role_name, host, args
+  end
 end
 
 ##
@@ -112,6 +124,8 @@ end
 
 class Rake::RemoteTask < Rake::Task
 
+  @@current_roles = []
+
   include Open4
 
   ##
@@ -129,6 +143,10 @@ class Rake::RemoteTask < Rake::Task
   # enhance to add new actions to a task.
 
   attr_reader :remote_actions
+
+  def self.current_roles
+    @@current_roles
+  end
 
   ##
   # Create a new task named +task_name+ attached to Rake::Application +app+.
@@ -160,7 +178,7 @@ class Rake::RemoteTask < Rake::Task
 
   def execute(args = nil)
     raise(Vlad::ConfigurationError,
-          "No target hosts specified for task: #{self.name}") if
+          "No target hosts specified on task #{self.name} for roles #{options[:roles].inspect}") if
       target_hosts.empty?
 
     super args
@@ -335,6 +353,8 @@ class Rake::RemoteTask < Rake::Task
 
   def self.remote_task name, options = {}, &block
     t = Rake::RemoteTask.define_task(name, &block)
+    options[:roles] = Array options[:roles]
+    options[:roles] |= @@current_roles
     t.options = options
     t
   end
@@ -507,8 +527,13 @@ class Rake::RemoteTask < Rake::Task
     if hosts = ENV["HOSTS"] then
       hosts.strip.gsub(/\s+/, '').split(",")
     else
-      roles = options[:roles]
-      roles ? Rake::RemoteTask.hosts_for(roles) : Rake::RemoteTask.all_hosts
+      roles = Array options[:roles]
+
+      if roles.nil? or roles.empty? then
+        Rake::RemoteTask.all_hosts
+      else
+        Rake::RemoteTask.hosts_for roles
+      end
     end
   end
 

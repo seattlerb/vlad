@@ -102,7 +102,7 @@ class TestVlad < VladTestCase
   def test_remote_task
     t = @vlad.remote_task(:test_task) { 5 }
     assert_equal @task_count + 1, Rake.application.tasks.size
-    assert_equal Hash.new, t.options
+    assert_equal({ :roles => [] }, t.options)
   end
 
   def test_remote_task_all_hosts_by_default
