@@ -529,7 +529,7 @@ class Rake::RemoteTask < Rake::Task
     else
       roles = Array options[:roles]
 
-      if roles.nil? or roles.empty? then
+      if roles.empty? then
         Rake::RemoteTask.all_hosts
       else
         Rake::RemoteTask.hosts_for roles
