@@ -57,11 +57,9 @@ namespace :vlad do
             "#{source.export ".", release_path}",
             "chmod -R g+w #{latest_release}",
             "rm -rf #{latest_release}/log #{latest_release}/public/system #{latest_release}/tmp/pids",
-            "mkdir -p #{latest_release}/db #{latest_release}/tmp",
-            "ln -s #{shared_path}/log #{latest_release}/log",
-            "ln -s #{shared_path}/system #{latest_release}/public/system",
-            "ln -s #{shared_path}/pids #{latest_release}/tmp/pids",
+            "mkdir -p #{latest_release}/db #{latest_release}/tmp"
           ].join(" && ")
+      Rake::Task['vlad:update_symlinks'].invoke
 
       symlink = true
       run "rm -f #{current_path} && ln -s #{latest_release} #{current_path}"
@@ -73,6 +71,14 @@ namespace :vlad do
       run "rm -rf #{release_path}"
       raise e
     end
+  end
+
+  desc "Updates the symlinks for shared paths".cleanup
+
+  remote_task :update_symlinks, :roles => :app do
+    run [ "ln -s #{shared_path}/log #{latest_release}/log",
+          "ln -s #{shared_path}/system #{latest_release}/public/system",
+          "ln -s #{shared_path}/pids #{latest_release}/tmp/pids" ].join(" && ")
   end
 
   desc "Run the migrate rake task for the the app. By default this is run in

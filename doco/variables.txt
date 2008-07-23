@@ -39,7 +39,7 @@ scm_path::             Path on the remote host that will be used as 'working
 shared_path::          Full path to remote 'shared' directory, symlinked into
                        your app by default. Defaults to "#{deploy_to}/shared".
 ssh_cmd::              Path to ssh. Defaults to "ssh".
-ssh_flags::            Flags for ssh. Defaults to "".
+ssh_flags::            Flags for ssh. Defaults to [].
 sudo_cmd::             Path to sudo command. Defaults to "sudo".
 sudo_flags::           Flogs for sudo. Defaults to nil.
 sudo_password::        Asks for password when referenced.

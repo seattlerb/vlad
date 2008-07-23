@@ -207,7 +207,7 @@ class Rake::RemoteTask < Rake::Task
   # sudo password will be prompted for then saved for subsequent sudo commands.
 
   def run command
-    cmd = [ssh_cmd, ssh_flags, target_host, command].compact
+    cmd = [ssh_cmd, ssh_flags, target_host, command].flatten
     result = []
 
     warn cmd.join(' ') if $TRACE
@@ -447,7 +447,7 @@ class Rake::RemoteTask < Rake::Task
                :rsync_cmd,          "rsync",
                :rsync_flags,        ['-azP', '--delete'],
                :ssh_cmd,            "ssh",
-               :ssh_flags,          nil,
+               :ssh_flags,          [],
                :sudo_cmd,           "sudo",
                :sudo_flags,         nil,
                :umask,              '02')
