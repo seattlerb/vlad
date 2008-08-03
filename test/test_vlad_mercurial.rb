@@ -10,7 +10,11 @@ class TestVladMercurial < Test::Unit::TestCase
 
   def test_checkout
     cmd = @scm.checkout 'head', '/the/place'
-    assert_equal 'hg pull -r tip -R /the/place http://repo/project', cmd
+
+    expected = "if [ ! -d /the/place/.hg ]; then hg init -R /the/place; fi " \
+               "&& hg pull -r tip -R /the/place http://repo/project"
+
+    assert_equal expected, cmd
   end
 
   def test_export
@@ -24,3 +28,4 @@ class TestVladMercurial < Test::Unit::TestCase
     assert_equal expected, cmd
   end
 end
+

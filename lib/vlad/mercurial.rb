@@ -8,7 +8,8 @@ class Vlad::Mercurial
 
   def checkout(revision, destination)
     revision = 'tip' if revision =~ /^head$/i
-    [ "if [ ! -d #{destination}/.hg ]; then hg init -R #{destination}; fi"
+
+    [ "if [ ! -d #{destination}/.hg ]; then hg init -R #{destination}; fi",
       "hg pull -r #{revision} -R #{destination} #{repository}"
     ].join(' && ')
   end
