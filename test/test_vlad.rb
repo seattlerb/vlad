@@ -26,7 +26,6 @@ class TestVlad < VladTestCase
   end
 
   def test_host_invalid
-    assert_raise(ArgumentError) { @vlad.host "", :app, :db }
     assert_raise(ArgumentError) { @vlad.host nil, :web }
   end
 

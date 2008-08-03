@@ -3,6 +3,8 @@
 * N major enhancements:
   * Added darcs support.  Patch #14141 by Brian Palmer.
   * Added merb support.  Patch #17455 by Jamie Macey.
+  * remote_task now supports arguments and supplies task like rake 0.8.  Patch
+    by Daniel P. Kionka.
 * N minor enhancements:
   * Added #role toplevel method, similar to #namespace.
   * Mercurial now automatically initializes the repository.  Patch #17429 by
@@ -10,6 +12,8 @@
   * Basic passenger support.  Patch 20743 by Alan Harper.
   * Split shared symlink creation to a separate task.  Patch #18158 by Steve
     Purcell.
+  * remote_task :role now allows an empty list of hosts.  Patch by Daniel P.
+    Kionka.
 * N bug fixes:
   * SSH flags are now an Array for proper inclusion in the command.  Patch
     #19513 by Guillaume Pierronnet.

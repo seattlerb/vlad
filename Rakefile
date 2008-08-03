@@ -12,7 +12,8 @@ Hoe.new('vlad', Vlad::VERSION) do |vlad|
   vlad.developer('Eric Hodel', 'drbrain@segment7.net')
   vlad.developer('Wilson Bilkovich', 'wilson@supremetyrant.com')
 
-  vlad.extra_deps << 'rake' << 'open4'
+  vlad.extra_deps << ['rake', '>= 0.8.1']
+  vlad.extra_deps << 'open4'
 
   vlad.multiruby_skip << "1.9" << "rubinius"
 end

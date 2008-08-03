@@ -6,31 +6,6 @@ require 'vlad'
 $TESTING ||= false
 $TRACE = Rake.application.options.trace
 
-module Rake
-  module TaskManager
-    ##
-    # This gives us access to the tasks already defined in rake.
-    def all_tasks
-      @tasks
-    end
-  end
-
-  ##
-  # Hooks into rake and allows us to clear out a task by name or
-  # regexp. Use this if you want to completely override a task instead
-  # of extend it.
-  def self.clear_tasks(*tasks)
-    tasks.flatten.each do |name|
-      case name
-      when Regexp then
-        Rake.application.all_tasks.delete_if { |k,_| k =~ name }
-      else
-        Rake.application.all_tasks.delete(name)
-      end
-    end
-  end
-end
-
 ##
 # Declare a remote host and its roles. Equivalent to <tt>role</tt>,
 # but shorter for multiple roles.
@@ -55,9 +30,9 @@ end
 # Declare a Vlad task that will execute on all hosts by default. To
 # limit that task to specific roles, use:
 #
-#     remote_task :example, :roles => [:app, :web] do
-def remote_task name, options = {}, &b
-  Rake::RemoteTask.remote_task name, options, &b
+#     remote_task :example, :arg1, :roles => [:app, :web] do
+def remote_task name, *args_options, &b
+  Rake::RemoteTask.remote_task name, *args_options, &b
 end
 
 ##
@@ -179,11 +154,11 @@ class Rake::RemoteTask < Rake::Task
   def execute(args = nil)
     raise(Vlad::ConfigurationError,
           "No target hosts specified on task #{self.name} for roles #{options[:roles].inspect}") if
-      target_hosts.empty?
+      ! defined_target_hosts?
 
     super args
 
-    @remote_actions.each { |act| act.execute(target_hosts, args) }
+    @remote_actions.each { |act| act.execute(target_hosts, self, args) }
   end
 
   ##
@@ -351,8 +326,9 @@ class Rake::RemoteTask < Rake::Task
   # Adds a remote task named +name+ with options +options+ that will
   # execute +block+.
 
-  def self.remote_task name, options = {}, &block
-    t = Rake::RemoteTask.define_task(name, &block)
+  def self.remote_task name, *args, &block
+    options = (Hash === args.last) ? args.pop : {}
+    t = Rake::RemoteTask.define_task(name, *args, &block)
     options[:roles] = Array options[:roles]
     options[:roles] |= @@current_roles
     t.options = options
@@ -371,7 +347,8 @@ class Rake::RemoteTask < Rake::Task
   # to the defaults.
 
   def self.reset
-    @@roles = Hash.new { |h,k| h[k] = {} }
+    @@def_role_hash = {}                # official default role value
+    @@roles = Hash.new { |h,k| h[k] = @@def_role_hash }
     @@env = {}
     @@tasks = {}
     @@env_locks = Hash.new { |h,k| h[k] = Mutex.new }
@@ -390,7 +367,10 @@ class Rake::RemoteTask < Rake::Task
   # Adds role +role_name+ with +host+ and +args+ for that host.
 
   def self.role role_name, host, args = {}
-    raise ArgumentError, "invalid host" if host.nil? or host.empty?
+    [*host].each do |hst|
+      raise ArgumentError, "invalid host: #{hst}" if hst.nil? or hst.empty?
+    end
+    @@roles[role_name] = {} if @@def_role_hash.eql? @@roles[role_name]
     @@roles[role_name][host] = args
   end
 
@@ -538,6 +518,21 @@ class Rake::RemoteTask < Rake::Task
   end
 
   ##
+  # Similar to target_hosts, but returns true if user defined any hosts, even
+  # an empty list.
+
+  def defined_target_hosts?
+    return true if ENV["HOSTS"]
+    roles = Array options[:roles]
+    return true if roles.empty?
+    # borrowed from hosts_for:
+    roles.flatten.each { |r|
+      return true unless @@def_role_hash.eql? Rake::RemoteTask.roles[r] 
+    }
+    return false
+  end
+
+  ##
   # Action is used to run a task's remote_actions in parallel on each
   # of its hosts. Actions are created automatically in
   # Rake::RemoteTask#enhance.
@@ -577,13 +572,18 @@ class Rake::RemoteTask < Rake::Task
     # Execute this action on +hosts+ in parallel. Returns when block
     # has completed for each host.
 
-    def execute hosts, args = nil
+    def execute hosts, task, args
       hosts.each do |host|
         t = task.clone
         t.target_host = host
         thread = Thread.new(t) do |task|
           Thread.current[:task] = task
-          block.call args
+          case block.arity
+          when 1
+            block.call task
+          else
+            block.call task, args
+          end
         end
         @workers << thread
       end
