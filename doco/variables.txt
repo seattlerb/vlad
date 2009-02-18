@@ -21,7 +21,7 @@ migrate_target::       Set this if you need to specify a particular migration
                        'VERSION' number. Defaults to "latest".
 rails_env::            Specifies the RAILS_ENV environment variable that will
                        be used. Defaults to "production".
-rake::                 Set this if you need to specify an alternate path to
+rake_cmd::             Set this if you need to specify an alternate path to
                        'rake'. Defaults to "rake".
 release_name::         Name of the release directory, if deploy_timestamped is
                        true. Defaults to timestamp: "YYYYMMDDHHMMSS".
