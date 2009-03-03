@@ -1,58 +1,86 @@
-== 1.3.0 / ??
+== 1.3.0 / 2009-03-03
 
-* N major enhancements:
+* 8 major enhancements:
 
   * Added darcs support. (Brian Palmer)
+  * Added git support. (Garry Dolley)
+  * Added lighttpd support.
   * Added merb support. (Jamie Macey)
-  * remote_task now supports arguments and supplies task like rake
-    0.8. (Daniel P. Kionka)
+  * Added passenger support. (Alan Harper)
   * Added/merged god, nginx, thin, and maintenance tasks. (github clusterfuck)
+  * Apply Mercurial SCM support patch. Closes ticket 13475
+  * remote_task now supports args and supplies task (by Daniel P. Kionka).
 
-* N minor enhancements:
+* 18 minor enhancements:
 
+  * Add role toplevel method similar to namespace.
+  * Added #put method that wraps up Tempfile/rsync pattern.
   * Added #role toplevel method, similar to #namespace.
+  * Added FAQ for using vlad through a gateway.
+  * Added Phil Hagelburg's one-line multi-stage deployment patch
+  * Added rake tracing for rsync command.
+  * Added umask variable.
+  * Adds specific order to loading. Should fix a number of bugs.
+  * Fixed tempfile dependency in #put if you don't load lighttpd or perforce (yipstar)
   * Mercurial now automatically initializes the repository. (Jamie Macey)
-  * Basic passenger support. (Alan Harper)
+  * Moved everything over to put.
+  * Now requires rake 0.8.1+.
+  * Parameterized 'head' into 'revision' variable (with head as default).
   * Split shared symlink creation to a separate task. (Steve Purcell)
-  * remote_task :role now allows an empty list of hosts. (Daniel P. Kionka)
-  * Switched to ThreadGroup in Action#execute to clean up threads better.
+  * Support rake 0.8.
+  * Switched to ThreadGroup for Action#execute
+  * Updated rakefile for new hoe abilities
+  * remote_task :role now allows an empty list of hosts.
+
+* 10 bug fixes:
+
+	* Fixed vladdemo.rb, now uses my checkout for further stress testing.
+	* Moved core recipe to front. Was breaking mongrel setup.
+  * Added automatic client setup for perforce.
+  * Fix mercurial support.
+  * Fixed a lame warning in the tests.
+  * Fixed cleanup to actually properly clean up.
+  * Fixed rake var doco
+  * Moved generic app setup to core from mongrel.
+  * SSH flags are now an Array for proper inclusion in the command. (Guillaume Pierronnet)
   * git archive now specifically specifies tar format. (knaveofdiamonds)
-
-* N bug fixes:
-
-  * SSH flags are now an Array for proper inclusion in the command.
-    (Guillaume Pierronnet)
-  * Fixed tempfile dependency in #put if you don't load lighttpd or perforce
-    (yipstar)
 
 == 1.1.1 / 2008-01-14
 
 * 5 major enhancements:
+
   * Support for Rake 0.8. Should still work for Rake 0.7.
   * Added git support (contributed by Garry Dolley).
     * Reviewed for accuracy by Evan Phoenix.
   * Added lighttpd.rb
   * Added automatic client setup for perforce.
   * Added mercurial SCM support patch. Closes ticket 13475.
+
 * 6 minor enhancements:
+
   * Added #put method that wraps up Tempfile/rsync pattern.
   * Added automatic p4 client setup for perforce.
   * Added vladdemo.sh
   * Moved everything over to put.
   * Moved generic app setup to core from mongrel.
   * Parameterized 'head' into 'revision' variable (with head as default).
+
 * 1 bug fix
+
   * Fixed cleanup to actually properly clean up.
 
 == 1.1.0 / 2007-09-12
 
 * 3 major enhancements:
+
   * Vlad.load now takes a hash of recipe overrides, eg: Vlad.load :web => :nginx.
     See rdoc for defaults.
   * Removed vlad_tasks.rb and split into vlad/apache.rb, vlad/mongrel.rb,
     and vlad/core.rb.
   * The flog ratio between capistrano+deps / vlad+deps is pi (or, damn close)!
+
 * 12 minor enhancements:
+
   * Added $TRACE to make it more available and cleaner to read.
   * Added :svn_cmd variable.
   * Added Rake.clear_tasks *str_or_regexp
@@ -65,7 +93,9 @@
   * Removed :application var. Use it if you want it. We don't require it.
   * Renamed :p4cmd to :p4_cmd.
   * Renamed :rake var to :rake_cmd.
+
 * 2 (important) bug fixes:
+
   * HUGE: Fixed sudo hang bug #13072. Fix suggested by Chris Van Pelt.
   * HUGE: Vlad.load calls user config last, allowing variable overrides.
     ACK! Sorry!
@@ -73,4 +103,5 @@
 == 1.0.0 / 2007-08-04
 
 * 1 major enhancement
+
   * Birthday!
