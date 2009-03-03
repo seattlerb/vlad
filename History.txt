@@ -1,22 +1,28 @@
 == 1.3.0 / ??
 
 * N major enhancements:
-  * Added darcs support.  Patch #14141 by Brian Palmer.
-  * Added merb support.  Patch #17455 by Jamie Macey.
-  * remote_task now supports arguments and supplies task like rake 0.8.  Patch
-    by Daniel P. Kionka.
+
+  * Added darcs support. (Brian Palmer)
+  * Added merb support. (Jamie Macey)
+  * remote_task now supports arguments and supplies task like rake
+    0.8. (Daniel P. Kionka)
+
 * N minor enhancements:
+
   * Added #role toplevel method, similar to #namespace.
-  * Mercurial now automatically initializes the repository.  Patch #17429 by
-    Jamie Macey.
-  * Basic passenger support.  Patch 20743 by Alan Harper.
-  * Split shared symlink creation to a separate task.  Patch #18158 by Steve
-    Purcell.
-  * remote_task :role now allows an empty list of hosts.  Patch by Daniel P.
-    Kionka.
+  * Mercurial now automatically initializes the repository. (Jamie Macey)
+  * Basic passenger support. (Alan Harper)
+  * Split shared symlink creation to a separate task. (Steve Purcell)
+  * remote_task :role now allows an empty list of hosts. (Daniel P. Kionka)
+  * Switched to ThreadGroup in Action#execute to clean up threads better.
+  * git archive now specifically specifies tar format. (knaveofdiamonds)
+
 * N bug fixes:
-  * SSH flags are now an Array for proper inclusion in the command.  Patch
-    #19513 by Guillaume Pierronnet.
+
+  * SSH flags are now an Array for proper inclusion in the command.
+    (Guillaume Pierronnet)
+  * Fixed tempfile dependency in #put if you don't load lighttpd or perforce
+    (yipstar)
 
 == 1.1.1 / 2008-01-14
 
@@ -59,7 +65,7 @@
   * Renamed :p4cmd to :p4_cmd.
   * Renamed :rake var to :rake_cmd.
 * 2 (important) bug fixes:
-  * HUGE: Fixed sudo hang bug #13072.  Fix suggested by Chris Van Pelt.
+  * HUGE: Fixed sudo hang bug #13072. Fix suggested by Chris Van Pelt.
   * HUGE: Vlad.load calls user config last, allowing variable overrides.
     ACK! Sorry!
 
