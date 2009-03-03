@@ -19,6 +19,7 @@ end
 # base_name for the tempfile (aids in debugging).
 
 def put remote_path, base_name = 'vlad.unknown'
+  require 'tempfile'
   Tempfile.open base_name do |fp|
     fp.puts yield
     fp.flush
