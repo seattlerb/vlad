@@ -560,7 +560,7 @@ class Rake::RemoteTask < Rake::Task
     def initialize task, block
       @task  = task
       @block = block
-      @workers = []
+      @workers = ThreadGroup.new
     end
 
     def == other # :nodoc:
@@ -584,10 +584,11 @@ class Rake::RemoteTask < Rake::Task
           else
             block.call task, args
           end
+          Thread.current[:task] = nil
         end
-        @workers << thread
+        @workers.add thread
       end
-      @workers.each { |w| w.join }
+      @workers.list.each { |thr| thr.join }
     end
   end
 end
