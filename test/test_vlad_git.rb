@@ -26,7 +26,7 @@ class TestVladGit < VladTestCase
 
   def test_export
     cmd = @scm.export 'master', 'the/release/path'
-    assert_equal 'mkdir -p the/release/path && git archive master | (cd the/release/path && tar xf -)', cmd
+    assert_equal 'mkdir -p the/release/path && git archive --format=tar master | (cd the/release/path && tar xf -)', cmd
   end
 
   def test_revision

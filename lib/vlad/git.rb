@@ -27,7 +27,7 @@ class Vlad::Git
     revision = 'HEAD' if revision == "."
 
     [ "mkdir -p #{destination}",
-      "#{git_cmd} archive #{revision} | (cd #{destination} && tar xf -)"
+      "#{git_cmd} archive --format=tar #{revision} | (cd #{destination} && tar xf -)"
     ].join(" && ")
   end
 
