@@ -6,6 +6,7 @@
   * Added merb support. (Jamie Macey)
   * remote_task now supports arguments and supplies task like rake
     0.8. (Daniel P. Kionka)
+  * Added/merged god, nginx, thin, and maintenance tasks. (github clusterfuck)
 
 * N minor enhancements:
 
