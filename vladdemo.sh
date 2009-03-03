@@ -33,7 +33,7 @@ Vlad.load" >> Rakefile
 
 echo "set :repository, 'svn://localhost/blah'
 set :domain, 'localhost'
-set :deploy_to, '/Users/ryan/demo/website'
+set :deploy_to, File.expand_path('~/demo/website')
 set :web_command, 'sudo apachectl'" > config/deploy.rb
 
 svn import -m Added . svn://localhost/blah
@@ -49,7 +49,7 @@ echo "The next step deploys and fires up the application"
 echo
 pause
 
-rake -t vlad:setup vlad:update vlad:start
+ruby -I ~/Work/p4/zss/src/vlad/dev/lib -S rake -t vlad:setup vlad:update vlad:start
 
 open http://localhost:8000/
 

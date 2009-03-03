@@ -23,28 +23,29 @@ configuration is set via the mongrel_* variables.".cleanup
 
   remote_task :setup_app, :roles => :app do
     cmd = [
-           "#{mongrel_command} cluster::configure",
+           'cluster::configure',
            "-N #{mongrel_servers}",
            "-p #{mongrel_port}",
            "-e #{mongrel_environment}",
            "-a #{mongrel_address}",
            "-c #{current_path}",
-           "-C #{mongrel_conf}",
            ("-P #{mongrel_pid_file}" if mongrel_pid_file),
            ("-l #{mongrel_log_file}" if mongrel_log_file),
            ("--user #{mongrel_user}" if mongrel_user),
            ("--group #{mongrel_group}" if mongrel_group),
            ("--prefix #{mongrel_prefix}" if mongrel_prefix),
            ("-S #{mongrel_config_script}" if mongrel_config_script),
-          ].compact.join ' '
+          ]
 
-    run cmd
+    run mongrel(*cmd)
   end
 
-  def mongrel(cmd) # :nodoc:
-    cmd = "#{mongrel_command} #{cmd} -C #{mongrel_conf}"
-    cmd << ' --clean' if mongrel_clean
-    cmd
+  def mongrel(cmd, *opts) # :nodoc:
+    cmd = ["#{mongrel_command} #{cmd} -C #{mongrel_conf}"]
+    cmd << ' --clean' if mongrel_clean unless cmd == 'cluster::configure'
+    cmd.push(*opts)
+
+    cmd.compact.join ' '
   end
 
   desc "Restart the app servers"

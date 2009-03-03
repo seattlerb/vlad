@@ -58,7 +58,7 @@ module Vlad
   # Rakefile. YAY for simple and clean!
   def self.load options = {}
     options = {:config => options} if String === options
-    order = [:app, :config, :core, :scm, :web]
+    order = [:core, :app, :config, :scm, :web]
     order += options.keys - order
 
     recipes = {
