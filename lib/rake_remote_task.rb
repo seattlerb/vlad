@@ -5,6 +5,7 @@ require 'vlad'
 
 $TESTING ||= false
 $TRACE = Rake.application.options.trace
+$-w = true if $TRACE # asshat, don't mess with my warn.
 
 ##
 # Declare a remote host and its roles. Equivalent to <tt>role</tt>,
@@ -166,7 +167,7 @@ class Rake::RemoteTask < Rake::Task
   # Use rsync to send +local+ to +remote+ on target_host.
 
   def rsync local, remote
-    cmd = [rsync_cmd, rsync_flags, local, "#{@target_host}:#{remote}"]
+    cmd = [rsync_cmd, rsync_flags, local, "#{target_host}:#{remote}"]
     cmd = cmd.flatten.compact
 
     warn cmd.join(' ') if $TRACE
@@ -186,7 +187,8 @@ class Rake::RemoteTask < Rake::Task
     cmd = [ssh_cmd, ssh_flags, target_host, command].flatten
     result = []
 
-    warn cmd.join(' ') if $TRACE
+    trace = [ssh_cmd, ssh_flags, target_host, "'#{command}'"].flatten.join(' ')
+    warn trace if $TRACE
 
     pid, inn, out, err = popen4(*cmd)
 
@@ -234,6 +236,10 @@ class Rake::RemoteTask < Rake::Task
     end
 
     result.join
+  ensure
+    inn.close rescue nil
+    out.close rescue nil
+    err.close rescue nil
   end
 
   ##
@@ -249,6 +255,10 @@ class Rake::RemoteTask < Rake::Task
 
   def self.default_env
     @@default_env
+  end
+
+  def self.per_thread
+    @@per_thread
   end
 
   ##
@@ -267,7 +277,8 @@ class Rake::RemoteTask < Rake::Task
     if @@env.has_key? name then
       protect_env(name) do
         v = @@env[name]
-        v = @@env[name] = v.call if Proc === v
+        v = @@env[name] = v.call if Proc === v unless per_thread[name]
+        v = v.call if Proc === v
         v
       end
     elsif default
@@ -349,10 +360,10 @@ class Rake::RemoteTask < Rake::Task
 
   def self.reset
     @@def_role_hash = {}                # official default role value
-    @@roles = Hash.new { |h,k| h[k] = @@def_role_hash }
-    @@env = {}
-    @@tasks = {}
-    @@env_locks = Hash.new { |h,k| h[k] = Mutex.new }
+    @@env           = {}
+    @@tasks         = {}
+    @@roles         = Hash.new { |h,k| h[k] = @@def_role_hash }
+    @@env_locks     = Hash.new { |h,k| h[k] = Mutex.new }
 
     @@default_env.each do |k,v|
       case v
@@ -393,12 +404,18 @@ class Rake::RemoteTask < Rake::Task
 
   def self.set name, value = nil, &default_block
     raise ArgumentError, "cannot provide both a value and a block" if
-      value and default_block
+      value and default_block unless
+      value == :per_thread
     raise ArgumentError, "cannot set reserved name: '#{name}'" if
       Rake::RemoteTask.reserved_name?(name) unless $TESTING
 
-    Rake::RemoteTask.default_env[name.to_s] = Rake::RemoteTask.env[name.to_s] =
-      value || default_block
+    name = name.to_s
+
+    Rake::RemoteTask.per_thread[name] = true if
+      default_block && value == :per_thread
+
+    Rake::RemoteTask.default_env[name] = Rake::RemoteTask.env[name] =
+      default_block || value
 
     Object.send :define_method, name do
       Rake::RemoteTask.fetch name
@@ -411,6 +428,7 @@ class Rake::RemoteTask < Rake::Task
 
   def self.set_defaults
     @@default_env ||= {}
+    @@per_thread  ||= {}
     self.reset
 
     mandatory :repository, "repository path"
