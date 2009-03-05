@@ -32,6 +32,18 @@ To prepend on a task, add a dependency:
 
   task :action2 => :myaction
 
+=== Q: How can I replace a rake task instead of just adding to it?
+=== A: Use Rake.clear_tasks str_or_regexp
+
+  namespace :vlad do
+    # Clear existing update task so that we can redefine instead of adding to it.
+    Rake.clear_tasks('vlad:update') 
+  
+    remote_task :update, :roles => :app do
+      #custom update stuff
+    end
+  end
+
 === Q: How do I invoke another rule?
 === A: The easiest way is via dependencies.
 
