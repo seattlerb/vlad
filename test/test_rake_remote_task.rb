@@ -155,7 +155,7 @@ class TestRakeRemoteTask < VladTestCase
     commands = @task.commands
 
     assert_equal 1, commands.size, 'wrong number of commands'
-    assert_equal ["ssh", "app.example.com", "sudo ls"],
+    assert_equal ["ssh", "app.example.com", "sudo -p Password: ls"],
                  commands.first, 'app'
   end
 
