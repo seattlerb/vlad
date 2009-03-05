@@ -6,7 +6,7 @@ namespace :vlad do
   desc "Prepares application servers for deployment.".cleanup
 
   remote_task :setup_app, :roles => :app do
-    
+    # do nothing?
   end
 
   desc "Restart the app servers"
