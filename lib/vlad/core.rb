@@ -153,7 +153,7 @@ namespace :vlad do
     if releases.length < 2 then
       abort "could not rollback the code because there is no prior release"
     else
-      run "rm #{current_path}; ln -s #{previous_release} #{current_path} && rm -rf #{current_release}"
+      run "rm -f #{current_path}; ln -s #{previous_release} #{current_path} && rm -rf #{current_release}"
     end
 
     Rake::Task['vlad:start'].invoke
