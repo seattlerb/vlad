@@ -245,7 +245,7 @@ class Rake::RemoteTask < Rake::Task
         data = stream.readpartial(1024)
         out_stream[stream].write data
 
-        if stream == err and data =~ /^Password:/ then
+        if stream == err and data =~ sudo_prompt then
           inn.puts sudo_password
           data << "\n"
           $stderr.write "\n"
@@ -473,7 +473,8 @@ class Rake::RemoteTask < Rake::Task
                :ssh_cmd,            "ssh",
                :ssh_flags,          [],
                :sudo_cmd,           "sudo",
-               :sudo_flags,         nil,
+               :sudo_flags,         ['-p Password:'],
+               :sudo_prompt,        /^Password:/,
                :umask,              '02')
 
     set(:current_release)    { File.join(releases_path, releases[-1]) }
@@ -535,7 +536,7 @@ class Rake::RemoteTask < Rake::Task
   # Execute +command+ under sudo using run.
 
   def sudo command
-    run [sudo_cmd, sudo_flags, command].compact.join(" ")
+    run [sudo_cmd, sudo_flags, command].flatten.compact.join(" ")
   end
 
   ##

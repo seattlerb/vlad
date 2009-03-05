@@ -41,7 +41,8 @@ shared_path::          Full path to remote 'shared' directory, symlinked into
 ssh_cmd::              Path to ssh. Defaults to "ssh".
 ssh_flags::            Flags for ssh. Defaults to [].
 sudo_cmd::             Path to sudo command. Defaults to "sudo".
-sudo_flags::           Flogs for sudo. Defaults to nil.
+sudo_flags::           Flogs for sudo. Defaults to ["-p Password:"].
+sudo_prompt::          Regexp for sudo password prompt. Defaults to /^Password:/.
 sudo_password::        Asks for password when referenced.
 umask::                Sets your umask value. Defaults to "02".
 
