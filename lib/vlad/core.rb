@@ -53,8 +53,8 @@ namespace :vlad do
     symlink = false
     begin
       run [ "cd #{scm_path}",
-            "#{source.checkout revision, '.'}",
-            "#{source.export ".", release_path}",
+            "#{source.checkout revision, scm_path}",
+            "#{source.export scm_path, release_path}",
             "chmod -R g+w #{latest_release}",
             "rm -rf #{latest_release}/log #{latest_release}/public/system #{latest_release}/tmp/pids",
             "mkdir -p #{latest_release}/db #{latest_release}/tmp"
