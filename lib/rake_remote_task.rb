@@ -68,6 +68,11 @@ def rsync local, remote
   Thread.current[:task].rsync local, remote
 end
 
+# run the command w/ sudo
+def sudo command
+  Thread.current[:task].sudo(command)
+end
+
 # Declare a variable called +name+ and assign it a value. A
 # globally-visible method with the name of the variable is defined.
 # If a block is given, it will be called when the variable is first
