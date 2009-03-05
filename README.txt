@@ -1,9 +1,9 @@
-Vlad the Deployer
-    by the Ruby Hit Squad
-    http://rubyhitsquad.com/
-    http://rubyforge.org/projects/hitsquad/
+= Vlad the Deployer by the Ruby Hit Squad
 
-== DESCRIPTION:
+* http://rubyhitsquad.com/
+* http://rubyforge.org/projects/hitsquad/
+
+== DESCRIPTION
 
 Vlad the Deployer is pragmatic application deployment automation,
 without mercy. Much like Capistrano, but with 1/10th the
@@ -12,7 +12,7 @@ and standard tools like ssh and rsync.
 
 Impale your application on the heartless spike of the Deployer.
 
-== FEATURES/PROBLEMS:
+== FEATURES/PROBLEMS
 
 * Full deployment automation stack.
 * Turnkey deployment for mongrel+apache+svn.
@@ -27,36 +27,36 @@ Impale your application on the heartless spike of the Deployer.
 * Ships with tests that actually pass in 0.028 seconds!
 * Does NOT support Windows right now (we think). Coming soon in 1.2.
 
-== SYNOPSIS:
+== SYNOPSIS
 
     % rake vlad:setup   # first time only
     % rake vlad:update
     % rake vlad:migrate # optional
     % rake vlad:start
 
-== REQUIREMENTS:
+== REQUIREMENTS
 
 * Rake
 * Hoe
 * Rubyforge
 * open4
 
-== INSTALL:
+== INSTALL
 
-* sudo gem install -y vlad
+* sudo gem install vlad
 
-== SPECIAL THANKS:
+== SPECIAL THANKS
 
 * First, of course, to Capistrano. For coming up with the idea and
   providing a lot of meat for the recipes.
 * Scott Baron for coming up with one of the best project names evar.
 * Bradley Taylor for giving us permission to use RailsMachine recipes sans-LGPL.
 
-== LICENSE:
+== LICENSE
 
 (The MIT License)
 
-Copyright (c) 2007 Ryan Davis and the rest of the Ruby Hit Squad
+Copyright (c) 2007-2009 Ryan Davis and the rest of the Ruby Hit Squad
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
