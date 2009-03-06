@@ -16,11 +16,12 @@ class Vlad::Subversion
   # the directory +destination+.
 
   def export(revision_or_source, destination)
-    if revision_or_source =~ /^(\d+|head)$/i then
-      "#{svn_cmd} export -r #{revision_or_source} #{repository} #{destination}"
-    else
-      "#{svn_cmd} export #{revision_or_source} #{destination}"
-    end
+    "#{svn_cmd} #{deploy_via} " +
+      if revision_or_source =~ /^(\d+|head)$/i then
+        "-r #{revision_or_source} #{repository} #{destination}"
+      else
+        "#{revision_or_source} #{destination}"
+      end
   end
 
   ##
