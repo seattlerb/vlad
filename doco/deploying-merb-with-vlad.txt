@@ -1,0 +1,155 @@
+# Deploying Merb with Vlad
+
+This tutorial has been adapted from [Deploying Merb with Vlad](http://effectif.com/articles/deploying-merb-with-vlad) by [Graham Ashton](http://effectif.com "Effectif Development").
+
+You've built your Merb app, and you want to get it running on your web server. You could use Capistrano, but if you prefer the simple things in life you might find that [Vlad](http://rubyhitsquad.com/Vlad_the_Deployer.html "Vlad the Deployer") is a better fit.
+
+This is a Merb version of the [Deploying Sinatra with Vlad](deploying-sinatra-with-vlad "Deploying Sinatra with Vlad") article that I wrote yesterday. There are big similarities to that article, but in this one we also look at how to restart Merb automatically after the code has been deployed.
+
+## Creating a sample application
+
+Let's start by making ourselves a test app:
+
+    $ merb-gen flat hi
+    $ cd hi
+
+We can check that the app works locally by running it...
+
+    $ merb
+
+...and then opening [http://localhost:4000](http://localhost:4000) in a web browser.
+
+We need to create a `public` directory too (because this is a flat app I don't already have one), as Vlad assumes that we have a `public` directory for our static assets. I'm also going to make an empty CSS file so that the directory doesn't get ignored by Git:
+
+    $ mkdir public
+    $ touch public/master.css
+
+We'll deploy our application from version control. I'm using Git, but you can use any system that Vlad supports; just check your files into a repository that will be accessible from your web server.
+
+## Configuring Vlad
+
+Okay, we're ready for Vlad. It's a Ruby gem, so it's very easy to install:
+
+    $ sudo gem install vlad
+    Successfully installed vlad-1.2.0
+    1 gem installed
+    Installing ri documentation for vlad-1.2.0...
+    Installing RDoc documentation for vlad-1.2.0...
+
+There's no need to install Vlad on your server, just your workstation.
+
+You access Vlad's functionality through Rake tasks. Add the following code to a file called `lib/tasks/vlad.rake` (you may have to make the directory first, but Merb will automatically find it):
+
+    begin
+      $TESTING = true # workaround a conflict between DataMapper and Vlad
+      require "vlad"
+      Vlad.load(:app => nil, :scm => "git")
+    rescue LoadError
+      # do nothing
+    end
+
+Note that we've told Vlad that we intend to use Git (subversion is the default). We've set `:app` to `nil` as Vlad assumes that we'll run our application with `mongrel_rails` (it seems to think everybody who uses Mongrel is using Rails). Merb has support for clusters built in, so we'll setup some simple replacements later.
+
+If you run `rake -T` now you should see a bunch of vlad tasks that are available to you. You can't run them yet; you need to configure Vlad. Create a `config/deploy.rb` file in your editor and set the following variables in it:
+
+    set :application, "hi"
+    set :repository, "ssh://your.git.server/path/to/project/hi.git"
+    set :domain, "your.web.server"
+    set :deploy_to, "/var/apps/#{application}"
+
+Make sure that `:repository` correctly references your source control system, and that `:domain` is set to the hostname of your server.
+
+I won't be able to create any directories under the `/var/apps` directory (I'm going to run vlad using my own username in this example), so I need to login to my server and make sure that I can create files in the `hi` directory:
+
+    $ ssh your.web.server
+    $ sudo mkdir -p /var/apps/hi
+    $ sudo chown yourusername /var/apps/hi
+
+Now you can try running Vlad, to create all the directories necessary to serve your project. Back on your workstation, type:
+
+    $ rake vlad:setup
+
+You should find that some directories have been created within `/var/apps/hi` on your server.
+
+Let's trying deploying some code:
+
+    $ rake vlad:update
+    (in /Users/graham/data/effectif/projects/hi)
+    Initialized empty Git repository in /var/apps/hi/scm/repo/.git/
+    Switched to a new branch "deployed-HEAD"
+
+You should now find that if you ssh into your server that you can run the application:
+
+    $ ssh your.web.server
+    $ cd /var/apps/hi/current
+    $ merb
+
+Try making a change to your source, committing it to your repository, then run `vlad:update` again. Your code will be updated. If you restart Merb in the new directory you'll see your changes in the browser.
+
+If you're following along with these commands, be careful that you're running `merb` in the freshly deployed directory. `current` is a symlink to a specific release directory, so you'll need to leave the directory and return to it to see the new source code (i.e. symlinks don't get updated under your shell's feet). This should do it:
+
+    $ cd ~ && cd -
+    $ merb
+
+Okay, we're nearly there. All we need to do now is to automatically restart Merb when we deploy a new copy of the code with the `vlad:update` task. Add the following code to the bottom of your `config/deploy.rb` file:
+
+    Rake.clear_tasks("vlad:stop", "vlad:start")
+
+    namespace :vlad do
+      def stop
+        run "merb -m #{deploy_to}/current -K all"
+      end
+  
+      def start
+        run "merb -m #{deploy_to}/current -e production -c 2"
+      end
+  
+      remote_task :start, :roles => :app do
+        stop
+        start
+      end
+  
+      remote_task :stop, :roles => :app do
+        stop
+      end
+  
+      remote_task :update do
+        Rake::Task["vlad:start"].invoke
+      end
+    end
+
+Note that in this example we've started a two process cluster with the `-c` option in the `start` method.
+
+You'll find (with the `vlad:start` command I've shown above) that Merb is running on port 4000. If you want to run Merb on port 80 then I would recommend running these Merb processes behind Nginx, but I'll leave configuring Nginx as an exercise for the reader (Google will help you out there).
+
+Let's just make sure that it's working. Run `rake vlad:update` a couple of times and check that Merb is getting stopped and started properly (it fails to stop Merb on the first run below simply because this was the first time I'd started it):
+
+    $ rake vlad:update
+    (in /Users/graham/data/effectif/projects/hi)
+    Loading init file from /Users/graham/data/effectif/projects/hi/config/init.rb
+    Initialized empty Git repository in /var/apps/hi/scm/repo/.git/
+    Switched to a new branch "deployed-HEAD"
+     ~ Could not find a PID file at /var/apps/hi/current/log/merb.main.pid. Most likely the process is no longer running and the pid file was not cleaned up.
+     ~ In 7643
+    $ rake vlad:update
+    (in /Users/graham/data/effectif/projects/hi)
+    Loading init file from /Users/graham/data/effectif/projects/hi/config/init.rb
+    Initialized empty Git repository in /var/apps/hi/scm/repo/.git/
+    Switched to a new branch "deployed-HEAD"
+     ~ Killing pid 7643 with INT
+     ~ In 7840
+
+Now point your browser at port 4000 of your server – your application should be running!
+
+## Deploying from a Git branch
+
+If you want to deploy from a specific Git branch (`master` is the default) you can set the `:revision` variable in `deploy.rb`:
+
+    set :revision, "origin/mybranch"
+
+## Deploying as a different user
+
+It's not a great idea to deploy and run applications as your own login name (it's better practice to run web applications as users that don't have many privileges). I've not really addressed users in this article in order to focus on the basics of Vlad, but if you're interested you can deploy as a different user with these settings in `deploy.rb`:
+
+    set :user, "deploy"
+    set :domain, "#{user}@domain.com"
