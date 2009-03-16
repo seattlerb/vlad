@@ -12,9 +12,9 @@ class Vlad::Darcs
     ].join(" && ")
   end
 
-  def export(dir, dest)
-    [ %{mkdir -p #{dest}},
-      %{ls | grep ^[^_] | xargs -I vlad cp -R vlad #{dest}}
+  def export(revision, destination)
+    [ %{mkdir -p #{destination}},
+      %{ls | grep ^[^_] | xargs -I vlad cp -R vlad #{destination}}
     ].join(" && ")
   end
 

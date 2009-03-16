@@ -7,26 +7,29 @@ class TestVladGit < VladTestCase
     super
     @scm = Vlad::Git.new
     set :repository, "git@myhost:/home/john/project1"
+    #set :scm_path, "/the/scm/path"
   end
 
+  # Checkout the way the default :update task invokes the method
   def test_checkout
-    # Checkout to the current directory (which is what the :update task passes)
-    cmd = @scm.checkout 'master', '.'
-    assert_equal 'rm -rf repo && git clone git@myhost:/home/john/project1 repo && cd repo && git checkout -f -b deployed-master master', cmd
+    cmd = @scm.checkout 'head', '/the/scm/path'
+    assert_equal 'rm -rf /the/scm/path/repo && git clone git@myhost:/home/john/project1 /the/scm/path/repo && cd /the/scm/path/repo && git checkout -f -b deployed-HEAD HEAD && cd -', cmd
+  end
 
-    # Mimic :update task
-    # 'head' should become HEAD
-    cmd = @scm.checkout 'head', '.'
-    assert_equal 'rm -rf repo && git clone git@myhost:/home/john/project1 repo && cd repo && git checkout -f -b deployed-HEAD HEAD', cmd
+  # This is not how the :update task invokes the method
+  def test_checkout_revision
+    # Checkout to the current directory
+    cmd = @scm.checkout 'master', '.'
+    assert_equal 'rm -rf ./repo && git clone git@myhost:/home/john/project1 ./repo && cd ./repo && git checkout -f -b deployed-master master && cd -', cmd
 
     # Checkout to a relative path
     cmd = @scm.checkout 'master', 'some/relative/path'
-    assert_equal 'rm -rf some/relative/path && git clone git@myhost:/home/john/project1 some/relative/path && cd some/relative/path && git checkout -f -b deployed-master master', cmd
+    assert_equal 'rm -rf some/relative/path/repo && git clone git@myhost:/home/john/project1 some/relative/path/repo && cd some/relative/path/repo && git checkout -f -b deployed-master master && cd -', cmd
   end
 
   def test_export
     cmd = @scm.export 'master', 'the/release/path'
-    assert_equal 'mkdir -p the/release/path && git archive --format=tar master | (cd the/release/path && tar xf -)', cmd
+    assert_equal 'mkdir -p the/release/path && cd repo && git archive --format=tar deployed-master | (cd the/release/path && tar xf -) && cd - && cd ..', cmd
   end
 
   def test_revision
