@@ -3,6 +3,8 @@ Manifest.txt
 README.txt
 Rakefile
 considerations.txt
+doco/deploying-merb-with-vlad.txt
+doco/deploying-sinatra-with-vlad.txt
 doco/faq.txt
 doco/getting_started.txt
 doco/migration.txt
