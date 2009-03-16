@@ -1,9 +1,14 @@
-=== 1.3.2 / 2009-03-17
+=== 1.3.2 / 2009-03-16
 
-* 2 bug fixes:
+* 3 minor enhancements:
 
-  * Fixed deploying from a Git branch
-  * Git checkout and export now restore the previous working directory
+  * Added 'Deploying Merb with Vlad' by Graham Ashton.
+  * Added 'Deploying Sinatra with Vlad' by Graham Ashton.
+  * Core update task calls update with the actual revision once again
+
+* 1 bug fix:
+
+  * Fix Git checkout/export methods. (Wilson)
 
 === 1.3.1 / 2009-03-06
 
