@@ -7,7 +7,6 @@ class TestVladGit < VladTestCase
     super
     @scm = Vlad::Git.new
     set :repository, "git@myhost:/home/john/project1"
-    #set :scm_path, "/the/scm/path"
   end
 
   # Checkout the way the default :update task invokes the method
