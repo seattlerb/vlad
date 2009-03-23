@@ -91,3 +91,22 @@ If you're on a mac (on tiger, not leopard), use SSHKeychain, we love it. <http:/
 
   set :ssh_flags, "-A #{mygateway}"
   set :rsync_flags, "--rsh ssh -A #{mygateway} ssh"
+
+=== Q: OMG subversion is stupid! It keeps asking for "Authentication Realm"
+=== A: Yes, yes it is.
+
+If you're seeing local checkouts work fine but they don't over ssh
+(even to localhost!) then ssh into that machine (yes, even localhost)
+and do a checkout there to a temporary directory. From then on,
+checkout over ssh should work fine.
+
+  % svn co https://blah/blah /tmp/happy
+    ... works fine ...
+  % ssh localhost svn co https://blah/blah /tmp/sad
+    ... asks for authentication and then hangs ...
+  % ssh localhost
+  % svn co https://blah/blah /tmp/sad-no-happy
+    ... asks for authentication ...
+    ... works fine ...
+  % ssh localhost svn co https://blah/blah /tmp/happy2
+    ... works fine ...
