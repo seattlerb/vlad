@@ -1,5 +1,12 @@
 require 'vlad'
 
+##
+# See the following documents for recipes:
+#
+# * http://clarkware.com/cgi/blosxom/2007/01/05/CustomMaintenancePages
+# * http://blog.nodeta.fi/2009/03/11/stopping-your-rails-application-with-phusion-passenger/
+#
+
 namespace :vlad do
   namespace :maintenance do
     remote_task :on, :roles => [:web] do
