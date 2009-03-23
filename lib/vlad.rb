@@ -42,7 +42,7 @@ module Vlad
   # Loads tasks file +tasks_file+ and various recipe styles as a hash
   # of category/style pairs. Recipes default to:
   #
-  #     :app    => :mongrel
+  #     :app    => :passenger
   #     :config => 'config/deploy.rb'
   #     :core   => :core
   #     :scm    => :subversion
@@ -62,7 +62,7 @@ module Vlad
     order += options.keys - order
 
     recipes = {
-      :app    => :mongrel,
+      :app    => :passenger,
       :config => 'config/deploy.rb',
       :core   => :core,
       :scm    => :subversion,
