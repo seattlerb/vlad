@@ -14,6 +14,26 @@ This defaults to using 'svn export' from +repository+, and a single
 server for +app+, +db+, and +www+. If you need to tweak these things,
 refer to the variable documentation.
 
+* If you want a multi-config environment, change your config like so:
+
+    set :application, "project"
+    set :repository, 'http://svn.example.com/project/branches/stable/'
+    
+    task :beta do
+      set :domain,    "beta.example.com"
+      set :deploy_to, "/path/to/install-beta"
+    end
+    
+    task :dev do
+      set :domain,    "dev.example.com"
+      set :deploy_to, "/path/to/install-dev"
+    end
+    
+    task :prod do
+      set :domain,    "example.com"
+      set :deploy_to, "/path/to/install"
+    end
+
 * Add the following to your Rakefile:
 
     begin
