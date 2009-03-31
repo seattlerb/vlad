@@ -100,31 +100,6 @@ if Gem::Version.new(RAKEVERSION) < Gem::Version.new('0.8') then
   end
 end
 
-module Rake
-  module TaskManager
-    ##
-    # This gives us access to the tasks already defined in rake.
-    def all_tasks
-      @tasks
-    end
-  end
-
-  ##
-  # Hooks into rake and allows us to clear out a task by name or
-  # regexp. Use this if you want to completely override a task instead
-  # of extend it.
-  def self.clear_tasks(*tasks)
-    tasks.flatten.each do |name|
-      case name
-      when Regexp then
-        Rake.application.all_tasks.delete_if { |k,_| k =~ name }
-      else
-        Rake.application.all_tasks.delete(name)
-      end
-    end
-  end
-end
-
 ##
 # Rake::RemoteTask is a subclass of Rake::Task that adds
 # remote_actions that execute in parallel on multiple hosts via ssh.
