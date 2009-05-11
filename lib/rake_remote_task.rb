@@ -19,7 +19,7 @@ end
 # are copied to +remote_path+ and you may specify an optional
 # base_name for the tempfile (aids in debugging).
 
-def put remote_path, base_name = 'vlad.unknown'
+def put remote_path, base_name = File.basename(remote_path)
   require 'tempfile'
   Tempfile.open base_name do |fp|
     fp.puts yield
