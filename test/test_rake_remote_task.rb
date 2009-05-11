@@ -29,6 +29,21 @@ class TestRakeRemoteTask < VladTestCase
     assert_equal 7, x
   end
 
+  def test_set_false
+    set :can_set_nil, nil
+    set :lies_are, false
+
+    assert_equal nil,   task.can_set_nil
+
+    assert_equal false, task.lies_are
+    assert_equal false, Rake::RemoteTask.fetch(:lies_are)
+  end
+
+
+  def test_fetch_false
+    assert_equal false, Rake::RemoteTask.fetch(:unknown, false)
+  end
+
   def test_execute_exposes_target_host
     host "app.example.com", :app
     task = remote_task(:target_task) { set(:test_target_host, target_host) }

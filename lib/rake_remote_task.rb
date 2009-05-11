@@ -286,7 +286,7 @@ class Rake::RemoteTask < Rake::Task
         v = v.call if Proc === v
         v
       end
-    elsif default
+    elsif default || default == false
       v = @@env[name] = default
     else
       raise Vlad::FetchError
