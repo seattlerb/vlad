@@ -14,14 +14,15 @@ nobody will use, we decided not to supply anything at all. Here is an
 example deploy that I stole from the web (and improved) that you may like:
 
     desc "Full deployment cycle: Update, migrate, restart, cleanup"
-    remote_task "vlad:deploy", :roles => :app do
-      tasks = %W(update symlink_config migrate start_app cleanup)
-      tasks.each do |task|
-        Rake::Task["vlad:#{task}"].invoke
-      end
-    end
+    task :deploy => %w[
+      vlad:update
+      vlad:migrate
+      vlad:reset_session
+      vlad:start
+      vlad:cleanup
+    ]
 
-Just pop that in your config/deploy.rb and have at it.
+Just pop that in your config/deploy.rb, tweak it as necessary, and have at it.
 
 === Q: Why are there no before_action and after_action hooks?
 === A: Because we use rake!
