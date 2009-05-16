@@ -13,8 +13,8 @@ requirements. Yadda yadda yadda. So rather than supply something that
 nobody will use, we decided not to supply anything at all. Here is an
 example deploy that I stole from the web (and improved) that you may like:
 
-    desc "Full deployment cycle: Update, migrate, restart, cleanup"
-    task :deploy => %w[
+    desc "Full deployment cycle"
+    task "vlad:deploy" => %w[
       vlad:update
       vlad:migrate
       vlad:reset_session
