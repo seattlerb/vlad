@@ -7,98 +7,14 @@ $TESTING ||= false
 $TRACE = Rake.application.options.trace
 $-w = true if $TRACE # asshat, don't mess with my warn.
 
-##
-# Declare a remote host and its roles. Equivalent to <tt>role</tt>,
-# but shorter for multiple roles.
-def host host_name, *roles
-  Rake::RemoteTask.host host_name, *roles
-end
-
-##
-# Copy a (usually generated) file to +remote_path+. Contents of block
-# are copied to +remote_path+ and you may specify an optional
-# base_name for the tempfile (aids in debugging).
-
-def put remote_path, base_name = File.basename(remote_path)
-  require 'tempfile'
-  Tempfile.open base_name do |fp|
-    fp.puts yield
-    fp.flush
-    rsync fp.path, remote_path
+def export receiver, *methods
+  methods.each do |method|
+    eval "def #{method} *args, &block; #{receiver}.#{method}(*args, &block);end"
   end
 end
 
-##
-# Declare a Vlad task that will execute on all hosts by default. To
-# limit that task to specific roles, use:
-#
-#     remote_task :example, :arg1, :roles => [:app, :web] do
-def remote_task name, *args_options, &b
-  Rake::RemoteTask.remote_task name, *args_options, &b
-end
-
-##
-# Declare a role and assign a remote host to it. Equivalent to the
-# <tt>host</tt> method; provided for capistrano compatibility.
-def role role_name, host = nil, args = {}
-  if block_given? then
-    raise ArgumentError, 'host not allowed with block' unless host.nil?
-
-    begin
-      Rake::RemoteTask.current_roles << role_name
-      yield
-    ensure
-      Rake::RemoteTask.current_roles.delete role_name
-    end
-  else
-    raise ArgumentError, 'host required' if host.nil?
-    Rake::RemoteTask.role role_name, host, args
-  end
-end
-
-##
-# Execute the given command on the <tt>target_host</tt> for the
-# current task.
-def run *args, &b
-  Thread.current[:task].run(*args, &b)
-end
-
-# rsync the given files to <tt>target_host</tt>.
-def rsync local, remote
-  Thread.current[:task].rsync local, remote
-end
-
-# run the command w/ sudo
-def sudo command
-  Thread.current[:task].sudo(command)
-end
-
-# Declare a variable called +name+ and assign it a value. A
-# globally-visible method with the name of the variable is defined.
-# If a block is given, it will be called when the variable is first
-# accessed. Subsequent references to the variable will always return
-# the same value. Raises <tt>ArgumentError</tt> if the +name+ would
-# conflict with an existing method.
-def set name, val = nil, &b
-  Rake::RemoteTask.set name, val, &b
-end
-
-# Returns the name of the host that the current task is executing on.
-# <tt>target_host</tt> can uniquely identify a particular task/host
-# combination.
-def target_host
-  Thread.current[:task].target_host
-end
-
-if Gem::Version.new(RAKEVERSION) < Gem::Version.new('0.8') then
-  class Rake::Task
-    alias vlad_original_execute execute
-
-    def execute(args = nil)
-      vlad_original_execute
-    end
-  end
-end
+export "Thread.current[:task]", :get, :put, :rsync, :run, :sudo, :target_host
+export "Rake::RemoteTask",      :host, :remote_task, :role, :set
 
 ##
 # Rake::RemoteTask is a subclass of Rake::Task that adds
@@ -135,7 +51,9 @@ class Rake::RemoteTask < Rake::Task
 
   def initialize(task_name, app)
     super
+
     @remote_actions = []
+    @happy = false # used for deprecation warnings on get/put/rsync
   end
 
   ##
@@ -169,19 +87,53 @@ class Rake::RemoteTask < Rake::Task
   end
 
   ##
-  # Use rsync to send +local+ to +remote+ on target_host.
+  # Pull +files+ from the remote +host+ using rsync to +local_dir+.
+  # TODO: what if role has multiple hosts & the files overlap? subdirs?
 
-  def rsync local, remote
-    cmd = [rsync_cmd, rsync_flags, local, "#{target_host}:#{remote}"]
-    cmd = cmd.flatten.compact
+  def get local_dir, *files
+    @happy = true
+    host = target_host
+    rsync files.map { |f| "#{host}:#{f}" }, local_dir
+    @happy = false
+  end
 
-    warn cmd.join(' ') if $TRACE
+  ##
+  # Copy a (usually generated) file to +remote_path+. Contents of block
+  # are copied to +remote_path+ and you may specify an optional
+  # base_name for the tempfile (aids in debugging).
+
+  def put remote_path, base_name = File.basename(remote_path)
+    require 'tempfile'
+    Tempfile.open base_name do |fp|
+      fp.puts yield
+      fp.flush
+      @happy = true
+      rsync fp.path, "#{target_host}:#{remote_path}"
+      @happy = false
+    end
+  end
+
+  ##
+  # Execute rsync with +args+. Tacks on pre-specified +rsync_cmd+ and
+  # +rsync_flags+.
+  #
+  # Favor #get and #put for most tasks. Old-style direct use where the
+  # target_host was implicit is now deprecated.
+
+  def rsync *args
+    unless @happy || args[-1] =~ /:/ then
+      warn "rsync deprecation: pass target_host:remote_path explicitly"
+      args[-1] = "#{target_host}:#{args[-1]}"
+    end
+
+    cmd    = [rsync_cmd, rsync_flags, args].flatten.compact
+    cmdstr = cmd.join ' '
+
+    warn cmdstr if $TRACE
 
     success = system(*cmd)
 
-    unless success then
-      raise Vlad::CommandFailedError, "execution failed: #{cmd.join ' '}"
-    end
+    raise Vlad::CommandFailedError, "execution failed: #{cmdstr}" unless success
   end
 
   ##
@@ -382,13 +334,29 @@ class Rake::RemoteTask < Rake::Task
 
   ##
   # Adds role +role_name+ with +host+ and +args+ for that host.
+  # TODO: merge:
+  # Declare a role and assign a remote host to it. Equivalent to the
+  # <tt>host</tt> method; provided for capistrano compatibility.
 
-  def self.role role_name, host, args = {}
-    [*host].each do |hst|
-      raise ArgumentError, "invalid host: #{hst}" if hst.nil? or hst.empty?
+  def self.role role_name, host = nil, args = {}
+    if block_given? then
+      raise ArgumentError, 'host not allowed with block' unless host.nil?
+
+      begin
+        current_roles << role_name
+        yield
+      ensure
+        current_roles.delete role_name
+      end
+    else
+      raise ArgumentError, 'host required' if host.nil?
+
+      [*host].each do |hst|
+        raise ArgumentError, "invalid host: #{hst}" if hst.nil? or hst.empty?
+      end
+      @@roles[role_name] = {} if @@def_role_hash.eql? @@roles[role_name]
+      @@roles[role_name][host] = args
     end
-    @@roles[role_name] = {} if @@def_role_hash.eql? @@roles[role_name]
-    @@roles[role_name][host] = args
   end
 
   ##
