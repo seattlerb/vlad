@@ -26,7 +26,7 @@ class TestVlad < VladTestCase
   end
 
   def test_host_invalid
-    assert_raise(ArgumentError) { @vlad.host nil, :web }
+    assert_raises(ArgumentError) { @vlad.host nil, :web }
   end
 
   def test_host_multiple_hosts
@@ -40,8 +40,8 @@ class TestVlad < VladTestCase
 
     assert_equal expected, @vlad.roles[:app]
     assert_equal expected, @vlad.roles[:db]
-    assert_not_equal(@vlad.roles[:db]["test.example.com"].object_id,
-                     @vlad.roles[:app]["test.example.com"].object_id)
+    refute_equal(@vlad.roles[:db]["test.example.com"].object_id,
+                 @vlad.roles[:app]["test.example.com"].object_id)
   end
 
   def test_hosts_for_array_of_roles
@@ -68,9 +68,9 @@ class TestVlad < VladTestCase
 
   def test_initialize
     @vlad.set_defaults # ensure these three are virginal
-    assert_raise(Vlad::ConfigurationError) { @vlad.repository }
-    assert_raise(Vlad::ConfigurationError) { @vlad.deploy_to }
-    assert_raise(Vlad::ConfigurationError) { @vlad.domain }
+    assert_raises(Vlad::ConfigurationError) { @vlad.repository }
+    assert_raises(Vlad::ConfigurationError) { @vlad.deploy_to }
+    assert_raises(Vlad::ConfigurationError) { @vlad.domain }
   end
 
   def test_role
@@ -160,21 +160,21 @@ class TestVlad < VladTestCase
   end
 
   def test_set
-    set :test, 5
-    assert_equal 5, @vlad.test
+    set :win, 5
+    assert_equal 5, @vlad.win
   end
 
   def test_set_lazy_block_evaluation
-    set(:test) { fail "lose" }
-    assert_raise(RuntimeError) { @vlad.test }
+    set(:lose) { raise "lose" }
+    assert_raises(RuntimeError) { @vlad.lose }
   end
 
   def test_set_with_block
     x = 1
-    set(:test) { x += 2 }
+    set(:win) { x += 2 }
 
-    assert_equal 3, @vlad.test
-    assert_equal 3, @vlad.test
+    assert_equal 3, @vlad.win
+    assert_equal 3, @vlad.win
   end
 
   def test_set_with_reference
@@ -188,20 +188,20 @@ class TestVlad < VladTestCase
   end
 
   def test_set_with_block_and_value
-    e = assert_raise(ArgumentError) do
-      set(:test, 5) { 6 }
+    e = assert_raises(ArgumentError) do
+      set(:loser, 5) { 6 }
     end
     assert_equal "cannot provide both a value and a block", e.message
   end
 
   def test_set_with_nil
-    set(:test, nil)
-    assert_equal nil, @vlad.test
+    set(:win, nil)
+    assert_equal nil, @vlad.win
   end
 
   def test_set_with_reserved_name
     $TESTING = false
-    e = assert_raise(ArgumentError) { set(:all_hosts, []) }
+    e = assert_raises(ArgumentError) { set(:all_hosts, []) }
     assert_equal "cannot set reserved name: 'all_hosts'", e.message
   ensure
     $TESTING = true

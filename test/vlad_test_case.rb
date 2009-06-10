@@ -1,4 +1,4 @@
-require 'test/unit'
+require 'minitest/autorun'
 require 'stringio'
 require 'vlad'
 
@@ -20,7 +20,6 @@ module Process
     end
   end
 end
-
 
 class Rake::RemoteTask
   attr_accessor :commands, :action, :input, :output, :error
@@ -57,9 +56,7 @@ class Rake::RemoteTask
 
 end
 
-class VladTestCase < Test::Unit::TestCase
-  undef_method :default_test
-
+class VladTestCase < MiniTest::Unit::TestCase
   def setup
     @vlad = Rake::RemoteTask
     @vlad.reset

@@ -2,6 +2,16 @@ require 'test/vlad_test_case'
 require 'vlad'
 
 class TestRakeRemoteTask < VladTestCase
+  # TODO: move to minitest
+  def assert_silent
+    out, err = capture_io do
+      yield
+    end
+
+    assert_empty err
+    assert_empty out
+  end
+
   def test_enhance
     util_set_hosts
     body = Proc.new { 5 }
@@ -54,14 +64,14 @@ class TestRakeRemoteTask < VladTestCase
   def test_execute_with_no_hosts
     @vlad.host "app.example.com", :app
     t = @vlad.remote_task(:flunk, :roles => :db) { flunk "should not have run" }
-    e = assert_raise(Vlad::ConfigurationError) { t.execute nil }
+    e = assert_raises(Vlad::ConfigurationError) { t.execute nil }
     assert_equal "No target hosts specified on task flunk for roles [:db]",
                  e.message
   end
 
   def test_execute_with_no_roles
     t = @vlad.remote_task(:flunk, :roles => :junk) { flunk "should not have run" }
-    e = assert_raise(Vlad::ConfigurationError) { t.execute nil }
+    e = assert_raises(Vlad::ConfigurationError) { t.execute nil }
     assert_equal "No target hosts specified on task flunk for roles [:junk]",
                  e.message
   end
@@ -80,13 +90,15 @@ class TestRakeRemoteTask < VladTestCase
     util_setup_task
     @task.target_host = "app.example.com"
 
-    @task.rsync 'localfile', 'remotefile'
+    assert_silent do
+      @task.rsync 'localfile', 'host:remotefile'
+    end
 
     commands = @task.commands
 
     assert_equal 1, commands.size, 'not enough commands'
-    assert_equal %w[rsync -azP --delete localfile app.example.com:remotefile],
-                 commands.first, 'rsync'
+    assert_equal(%w[rsync -azP --delete localfile host:remotefile],
+                 commands.first)
   end
 
   def test_rsync_fail
@@ -94,8 +106,68 @@ class TestRakeRemoteTask < VladTestCase
     @task.target_host = "app.example.com"
     @task.action = lambda { false }
 
-    e = assert_raise(Vlad::CommandFailedError) { @task.rsync 'local', 'remote' }
-    assert_equal "execution failed: rsync -azP --delete local app.example.com:remote", e.message
+    e = assert_raises Vlad::CommandFailedError do
+      assert_silent do
+        @task.rsync 'local', 'host:remote'
+      end
+    end
+    exp = "execution failed: rsync -azP --delete local host:remote"
+    assert_equal exp, e.message
+  end
+
+  def test_rsync_deprecation
+    util_setup_task
+    @task.target_host = "app.example.com"
+
+    out, err = capture_io do
+      @task.rsync 'localfile', 'remotefile'
+    end
+
+    commands = @task.commands
+
+    assert_equal 1, commands.size, 'not enough commands'
+    assert_equal(%w[rsync -azP --delete localfile app.example.com:remotefile],
+                 commands.first)
+
+    assert_equal("rsync deprecation: pass target_host:remote_path explicitly\n",
+                 err)
+    assert_empty out
+    # flunk "not yet"
+  end
+
+  def test_get
+    util_setup_task
+    @task.target_host = "app.example.com"
+
+    assert_silent do
+      @task.get 'tmp', "remote1", "remote2"
+    end
+
+    commands = @task.commands
+
+    expected = %w[rsync -azP --delete app.example.com:remote1 app.example.com:remote2 tmp]
+
+    assert_equal 1, commands.size
+    assert_equal expected, commands.first
+  end
+
+  def test_put
+    util_setup_task
+    @task.target_host = "app.example.com"
+
+    assert_silent do
+      @task.put 'dest' do
+        "whatever"
+      end
+    end
+
+    commands = @task.commands
+
+    expected  = %w[rsync -azP --delete HAPPY app.example.com:dest]
+    commands.first[3] = 'HAPPY'
+
+    assert_equal 1, commands.size
+    assert_equal expected, commands.first
   end
 
   def test_run
@@ -104,7 +176,7 @@ class TestRakeRemoteTask < VladTestCase
     @task.target_host = "app.example.com"
     result = nil
 
-    out, err = util_capture do
+    out, err = capture_io do
       result = @task.run("ls")
     end
 
@@ -115,8 +187,8 @@ class TestRakeRemoteTask < VladTestCase
                  commands.first, 'app'
     assert_equal "file1\nfile2\n", result
 
-    assert_equal "file1\nfile2\n", out.read
-    assert_equal '', err.read
+    assert_equal "file1\nfile2\n", out
+    assert_equal '', err
   end
 
   def test_run_failing_command
@@ -126,7 +198,7 @@ class TestRakeRemoteTask < VladTestCase
     @task.target_host =  'app.example.com'
     @task.action = lambda { 1 }
 
-    e = assert_raise(Vlad::CommandFailedError) { @task.run("ls") }
+    e = assert_raises(Vlad::CommandFailedError) { @task.run("ls") }
     assert_equal "execution failed with status 1: ssh app.example.com ls", e.message
 
     assert_equal 1, @task.commands.size
@@ -140,7 +212,7 @@ class TestRakeRemoteTask < VladTestCase
     def @task.sudo_password() "my password" end # gets defined by set
     result = nil
 
-    out, err = util_capture do
+    out, err = capture_io do
       result = @task.run("sudo ls")
     end
 
@@ -158,37 +230,20 @@ class TestRakeRemoteTask < VladTestCase
     # testing model.
     assert_equal "file1\nfile2\nPassword:\n", result
 
-    assert_equal "file1\nfile2\n", out.read
-    assert_equal "Password:\n", err.read
+    assert_equal "file1\nfile2\n", out
+    assert_equal "Password:\n", err
   end
 
   def test_sudo
     util_setup_task
     @task.target_host = "app.example.com"
-    @task.sudo "ls" 
+    @task.sudo "ls"
 
     commands = @task.commands
 
     assert_equal 1, commands.size, 'wrong number of commands'
     assert_equal ["ssh", "app.example.com", "sudo -p Password: ls"],
                  commands.first, 'app'
-  end
-
-  def util_capture
-    require 'stringio'
-    orig_stdout = $stdout.dup
-    orig_stderr = $stderr.dup
-    captured_stdout = StringIO.new
-    captured_stderr = StringIO.new
-    $stdout = captured_stdout
-    $stderr = captured_stderr
-    yield
-    captured_stdout.rewind
-    captured_stderr.rewind
-    return captured_stdout, captured_stderr
-  ensure
-    $stdout = orig_stdout
-    $stderr = orig_stderr
   end
 
   def util_setup_task(options = {})

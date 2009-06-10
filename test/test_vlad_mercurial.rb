@@ -2,7 +2,7 @@ require 'test/vlad_test_case'
 require 'vlad'
 require 'vlad/mercurial'
 
-class TestVladMercurial < Test::Unit::TestCase
+class TestVladMercurial < MiniTest::Unit::TestCase
   def setup
     @scm = Vlad::Mercurial.new
     set :repository, "http://repo/project"
