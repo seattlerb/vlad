@@ -1,15 +1,11 @@
 # -*- ruby -*-
 
 require 'rubygems'
-
-$: << '../../hoe-seattlerb/dev/lib'
-
 require 'hoe'
-$: << 'lib'
 
-Hoe.plugin :minitest
+Hoe.plugin :seattlerb
 
-Hoe.spec'vlad' do
+Hoe.spec 'vlad' do
   self.rubyforge_name = 'hitsquad'
 
   developer 'Ryan Davis',       'ryand-ruby@zenspider.com'
@@ -45,4 +41,4 @@ task :mana_from_heaven do
   puts "%14.8f = %s" % [target - vlad, "needed delta"]
 end
 
-# vim: syntax=Ruby
+# vim: syntax=ruby
