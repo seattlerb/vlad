@@ -20,7 +20,7 @@ module Vlad
 
   ##
   # This is the version of Vlad you are running.
-  VERSION = '1.4.0'
+  VERSION = '2.0.0'
 
   ##
   # Base error class for all Vlad errors.
