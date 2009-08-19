@@ -1,3 +1,14 @@
+=== 2.0.0 / 2009-08-18
+
+* 1 major enhancement:
+
+  * Removed all extra modules that we don't support in core anymore.
+
+* 2 minor enhancements:
+
+  * Added test to show that false is a valid variable value.
+  * Moved vlad_test_case from test to lib to support 3rd party vlad modules.
+
 === 1.4.0 / 2009-06-23
 
 * 1 major enhancement:
