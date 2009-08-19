@@ -1,4 +1,4 @@
-require 'test/vlad_test_case'
+require 'vlad_test_case'
 require 'vlad'
 
 class TestRakeRemoteTask < VladTestCase
@@ -32,11 +32,15 @@ class TestRakeRemoteTask < VladTestCase
   def test_execute
     util_set_hosts
     set :some_variable, 1
+    set :can_set_nil, nil
+    set :lies_are, false
     x = 5
     task = @vlad.remote_task(:some_task) { x += some_variable }
     task.execute nil
     assert_equal 1, task.some_variable
     assert_equal 7, x
+    assert task.can_set_nil.nil?
+    assert_equal false, task.lies_are
   end
 
   def test_set_false

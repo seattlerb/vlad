@@ -1,4 +1,4 @@
-require 'test/vlad_test_case'
+require 'vlad_test_case'
 require 'vlad'
 
 $TESTING = true
