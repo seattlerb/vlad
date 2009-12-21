@@ -1,11 +1,12 @@
 require 'rubygems'
 require 'thread'
-require 'rake_remote_task'
+require 'rake/remote_task'
 
 $TESTING ||= false
 
 ##
-# Vlad the Deployer - Pragmatic application deployment automation, without mercy.
+# Vlad the Deployer - Pragmatic application deployment automation,
+# without mercy.
 #
 # Please read doco/getting_started.txt or http://rubyhitsquad.com/
 #
@@ -21,22 +22,6 @@ module Vlad
   ##
   # This is the version of Vlad you are running.
   VERSION = '2.0.0'
-
-  ##
-  # Base error class for all Vlad errors.
-  class Error < RuntimeError; end
-
-  ##
-  # Raised when you have incorrectly configured Vlad.
-  class ConfigurationError < Error; end
-
-  ##
-  # Raised when a remote command fails.
-  class CommandFailedError < Error; end
-
-  ##
-  # Raised when an environment variable hasn't been set.
-  class FetchError < Error; end
 
   ##
   # Loads tasks file +tasks_file+ and various recipe styles as a hash

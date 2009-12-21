@@ -11,15 +11,12 @@ doco/getting_started.txt
 doco/migration.txt
 doco/perforce.txt
 doco/variables.txt
-lib/rake_remote_task.rb
 lib/vlad.rb
 lib/vlad/apache.rb
 lib/vlad/core.rb
 lib/vlad/maintenance.rb
 lib/vlad/passenger.rb
 lib/vlad/subversion.rb
-lib/vlad_test_case.rb
-test/test_rake_remote_task.rb
 test/test_vlad.rb
 test/test_vlad_subversion.rb
 vladdemo.sh

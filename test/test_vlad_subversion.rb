@@ -1,8 +1,7 @@
-require 'vlad_test_case'
 require 'vlad'
 require 'vlad/subversion'
 
-class TestVladSubversion < VladTestCase
+class TestVladSubversion < MiniTest::Unit::TestCase
   def setup
     super
     @scm = Vlad::Subversion.new
