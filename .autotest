@@ -6,7 +6,7 @@ Autotest.add_hook :initialize do |at|
   at.testlib = "minitest/autorun"
 #   at.extra_files << "../some/external/dependency.rb"
 #
-#   at.libs << ":../some/external"
+  at.libs << ":../../rake-remote_task/dev/lib"
 #
 #   at.add_exception 'vendor'
 #

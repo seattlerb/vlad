@@ -16,6 +16,7 @@ lib/vlad/apache.rb
 lib/vlad/core.rb
 lib/vlad/maintenance.rb
 lib/vlad/passenger.rb
+lib/vlad/rails.rb
 lib/vlad/subversion.rb
 test/test_vlad.rb
 test/test_vlad_subversion.rb

@@ -40,7 +40,7 @@ namespace :vlad do
 
   remote_task :setup_app, :roles => :app do
     dirs = [deploy_to, releases_path, scm_path, shared_path]
-    dirs += %w(system log pids).map { |d| File.join(shared_path, d) }
+    dirs += shared_paths.keys.map { |d| File.join(shared_path, d) }
     run "umask #{umask} && mkdir -p #{dirs.join(' ')}"
   end
 
@@ -56,8 +56,8 @@ namespace :vlad do
             "#{source.checkout revision, scm_path}",
             "#{source.export revision, release_path}",
             "chmod -R g+w #{latest_release}",
-            "rm -rf #{latest_release}/log #{latest_release}/public/system #{latest_release}/tmp/pids",
-            "mkdir -p #{latest_release}/db #{latest_release}/tmp"
+            "rm -rf #{shared_paths.values.map { |p| File.join(latest_release, p) }.join(' ')}",
+            "mkdir -p #{mkdirs.map { |d| File.join(latest_release, d) }.join(' ')}"
           ].join(" && ")
       Rake::Task['vlad:update_symlinks'].invoke
 
@@ -76,28 +76,10 @@ namespace :vlad do
   desc "Updates the symlinks for shared paths".cleanup
 
   remote_task :update_symlinks, :roles => :app do
-    run [ "ln -s #{shared_path}/log #{latest_release}/log",
-          "ln -s #{shared_path}/system #{latest_release}/public/system",
-          "ln -s #{shared_path}/pids #{latest_release}/tmp/pids" ].join(" && ")
-  end
-
-  desc "Run the migrate rake task for the the app. By default this is run in
-    the latest app directory.  You can run migrations for the current app
-    directory by setting :migrate_target to :current.  Additional environment
-    variables can be passed to rake via the migrate_env variable.".cleanup
-
-  # No application files are on the DB machine, also migrations should only be
-  # run once.
-  remote_task :migrate, :roles => :app do
-    break unless target_host == Rake::RemoteTask.hosts_for(:app).first
-
-    directory = case migrate_target.to_sym
-                when :current then current_path
-                when :latest  then current_release
-                else raise ArgumentError, "unknown migration target #{migrate_target.inspect}"
-                end
-
-    run "cd #{directory}; #{rake_cmd} RAILS_ENV=#{rails_env} db:migrate #{migrate_args}"
+    ops = shared_paths.map do |sp, rp|
+      "ln -s #{shared_path}/#{sp} #{latest_release}/#{rp}"
+    end
+    run ops.join(' && ')
   end
 
   desc "Invoke a single command on every remote server. This is useful for
