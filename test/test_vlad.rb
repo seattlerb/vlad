@@ -17,11 +17,6 @@ class TestVlad < Rake::TestCase
     assert_equal 5, @rake.fetch(:not_here, 5)
   end
 
-  def test_fetch_rails
-    # verifies that the rails environment was properly refactored
-    assert_equal "production", @rake.fetch(:rails_env, nil)
-  end
-
   def test_host
     @rake.host "test.example.com", :app, :db
     expected = {"test.example.com" => {}}
