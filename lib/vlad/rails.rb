@@ -1,13 +1,13 @@
 namespace :vlad do
-  # set :rails_env,      "production"
-  # set :migrate_args,   ""
-  # set :migrate_target, :latest
-  # set :mkdirs,         %w(tmp db)
-  # set :shared_paths, {
-  #   'log'    => 'log',
-  #   'system' => 'public/system',
-  #   'pids'   => 'tmp/pids',
-  # }
+  set :rails_env,      "production"
+  set :migrate_args,   ""
+  set :migrate_target, :latest
+  set :mkdirs,         %w(tmp db)
+  set :shared_paths, {
+    'log'    => 'log',
+    'system' => 'public/system',
+    'pids'   => 'tmp/pids',
+  }
 
   desc "Run the migrate rake task for the the app. By default this is run in
     the latest app directory.  You can run migrations for the current app
