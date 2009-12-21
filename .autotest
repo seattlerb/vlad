@@ -1,6 +1,7 @@
 # -*- ruby -*-
 
 require 'autotest/restart'
+require 'autotest/rcov'
 
 Autotest.add_hook :initialize do |at|
   at.testlib = "minitest/autorun"
