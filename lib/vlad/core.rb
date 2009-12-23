@@ -94,7 +94,7 @@ namespace :vlad do
   remote_task :invoke do
     command = ENV["COMMAND"]
     abort "Please specify a command to execute on the remote servers (via the COMMAND environment variable)" unless command
-    puts run(command)
+    run(command)
   end
 
   desc "Copy arbitrary files to the currently deployed version using
