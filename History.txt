@@ -1,3 +1,21 @@
+=== 2.1.0 / 2010-07-15
+
+* 1 major enhancement:
+
+  * Split out rake_remote_task.rb and vlad_test_case.rb (in rake-remote_task gem).
+
+* 4 minor enhancements:
+
+  * Added :type config option, defaulting to rails
+  * Moved VladTestCase to Rake::TestCase (in rake-remote_task gem).
+  * Moved all Vlad exceptions to Rake (in rake-remote_task gem).
+  * Refactored rails specific values out of core. (raggi)
+
+* 2 bug fixes:
+
+  * Clarified Rake.clear_tasks in faq
+  * Fixed output from vlad:invoke (pnc)
+
 === 2.0.0 / 2009-08-18
 
 * 1 major enhancement:
