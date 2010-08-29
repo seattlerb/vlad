@@ -58,10 +58,10 @@ namespace :vlad do
         "#{source.export revision, release_path}",
         "chmod -R g+w #{latest_release}"
       ]
-      if shared_paths
+      unless shared_paths.nil? || shared_paths.empty?
         commands << "rm -rf #{shared_paths.values.map { |p| File.join(latest_release, p) }.join(' ')}"
       end
-      if mkdirs
+      unless mkdirs.nil? || mkdirs.empty?
         commands << "mkdir -p #{mkdirs.map { |d| File.join(latest_release, d) }.join(' ')}"
       end
 
@@ -83,10 +83,12 @@ namespace :vlad do
   desc "Updates the symlinks for shared paths".cleanup
 
   remote_task :update_symlinks, :roles => :app do
-    ops = shared_paths.map do |sp, rp|
-      "ln -s #{shared_path}/#{sp} #{latest_release}/#{rp}"
+    unless shared_paths.nil? || shared_paths.empty?
+      ops = shared_paths.map do |sp, rp|
+        "ln -s #{shared_path}/#{sp} #{latest_release}/#{rp}"
+      end
+      run ops.join(' && ')
     end
-    run ops.join(' && ')
   end
 
   desc "Invoke a single command on every remote server. This is useful for
