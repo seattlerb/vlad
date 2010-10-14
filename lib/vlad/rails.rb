@@ -29,6 +29,6 @@ namespace :vlad do
 
     run ["cd #{directory}",
          "#{rake_cmd} RAILS_ENV=#{rails_env} db:migrate #{migrate_args}"
-        ].join(" ")
+        ].join(";")
   end
 end
