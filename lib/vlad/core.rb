@@ -41,7 +41,16 @@ namespace :vlad do
   remote_task :setup_app, :roles => :app do
     dirs = [deploy_to, releases_path, scm_path, shared_path]
     dirs += shared_paths.keys.map { |d| File.join(shared_path, d) }
-    run "umask #{umask} && mkdir -p #{dirs.join(' ')}"
+    dirs = dirs.join(' ')
+
+    commands = [
+      "umask #{umask}",
+      "mkdir -p #{dirs}"
+    ]
+    commands << "chown #{perm_owner} #{dirs}" if perm_owner
+    commands << "chgrp #{perm_group} #{dirs}" if perm_group
+
+    run commands.join(' && ')
   end
 
   desc "Updates your application server to the latest revision.  Syncs
@@ -57,22 +66,35 @@ namespace :vlad do
         "cd #{scm_path}",
         "#{source.checkout revision, scm_path}",
         "#{source.export revision, release_path}",
-        "chmod -R g+w #{latest_release}"
+        "chmod -R g+w #{latest_release}",
       ]
       unless shared_paths.nil? || shared_paths.empty?
         commands << "rm -rf #{shared_paths.values.map { |p| File.join(latest_release, p) }.join(' ')}"
       end
       unless mkdirs.nil? || mkdirs.empty?
-        commands << "mkdir -p #{mkdirs.map { |d| File.join(latest_release, d) }.join(' ')}"
+        dirs = mkdirs.map { |d| File.join(latest_release, d) }.join(' ')
+        commands << "mkdir -p #{dirs} && chown -R #{user}:#{group} #{dirs}"
+        commands << "chown -R #{perm_user} #{dirs}" if perm_user
+        commands << "chgrp -R #{perm_group} #{dirs}" if perm_group
       end
+
+      commands << "chown -R #{perm_owner} #{latest_release}" if perm_owner
+      commands << "chgrp -R #{perm_group} #{latest_release}" if perm_group
 
       run commands.join(" && ")
       Rake::Task['vlad:update_symlinks'].invoke
 
       symlink = true
-      run "rm -f #{current_path} && ln -s #{latest_release} #{current_path}"
+      commands = [
+        "umask #{umask}",
+        "rm -f #{current_path}",
+        "ln -s #{latest_release} #{current_path}",
+        "echo #{now} $USER #{revision} #{File.basename(release_path)} >> #{deploy_to}/revisions.log"
+      ]
+      commands << "chown #{perm_owner} #{deploy_to}/revisions.log" if perm_owner
+      commands << "chgrp #{perm_group} #{deploy_to}/revisions.log" if perm_group
 
-      run "umask #{umask} && echo #{now} $USER #{revision} #{File.basename release_path} >> #{deploy_to}/revisions.log"
+      run commands.join(' && ')
     rescue => e
       run "rm -f #{current_path} && ln -s #{previous_release} #{current_path}" if
         symlink
