@@ -110,7 +110,7 @@ namespace :vlad do
       ops = shared_paths.map do |sp, rp|
         "ln -s #{shared_path}/#{sp} #{latest_release}/#{rp}"
       end
-      run ops.join(' && ')
+      run ops.join(' && ') unless ops.empty?
     end
   end
 
