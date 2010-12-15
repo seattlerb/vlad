@@ -52,13 +52,20 @@ namespace :vlad do
   remote_task :update, :roles => :app do
     symlink = false
     begin
-      run [ "cd #{scm_path}",
-            "#{source.checkout revision, scm_path}",
-            "#{source.export revision, release_path}",
-            "chmod -R g+w #{latest_release}",
-            "rm -rf #{shared_paths.values.map { |p| File.join(latest_release, p) }.join(' ')}",
-            "mkdir -p #{mkdirs.map { |d| File.join(latest_release, d) }.join(' ')}"
-          ].join(" && ")
+      commands = [
+        "cd #{scm_path}",
+        "#{source.checkout revision, scm_path}",
+        "#{source.export revision, release_path}",
+        "chmod -R g+w #{latest_release}"
+      ]
+      unless shared_paths.nil? || shared_paths.empty?
+        commands << "rm -rf #{shared_paths.values.map { |p| File.join(latest_release, p) }.join(' ')}"
+      end
+      unless mkdirs.nil? || mkdirs.empty?
+        commands << "mkdir -p #{mkdirs.map { |d| File.join(latest_release, d) }.join(' ')}"
+      end
+
+      run commands.join(" && ")
       Rake::Task['vlad:update_symlinks'].invoke
 
       symlink = true
@@ -76,10 +83,12 @@ namespace :vlad do
   desc "Updates the symlinks for shared paths".cleanup
 
   remote_task :update_symlinks, :roles => :app do
-    ops = shared_paths.map do |sp, rp|
-      "ln -s #{shared_path}/#{sp} #{latest_release}/#{rp}"
+    unless shared_paths.nil? || shared_paths.empty?
+      ops = shared_paths.map do |sp, rp|
+        "ln -s #{shared_path}/#{sp} #{latest_release}/#{rp}"
+      end
+      run ops.join(' && ')
     end
-    run ops.join(' && ')
   end
 
   desc "Invoke a single command on every remote server. This is useful for
