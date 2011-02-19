@@ -1,3 +1,18 @@
+=== 2.2.0 / 2011-02-18
+
+* 5 minor enhancements:
+
+  * Added support for setting owner and group of deploy. (RichGuk)
+  * Allow shared_paths, mkdirs, and symlinks to be excluded (RichGuk/zaius)
+  * Cleaned up update task to correspond to rake-remote-task changes. (RichGuk)
+  * Do not run symlink commands if there are no operations to run. (jsmecham)
+  * Obey the umask across the board. (RichGuk)
+
+* 2 bug fixes:
+
+  * Fixed migrate task shell cmd. (cheba)
+  * Fixed passenger touch file location. (richinsr)
+
 === 2.1.0 / 2010-07-15
 
 * 1 major enhancement:
