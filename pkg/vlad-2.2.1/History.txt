@@ -1,0 +1,206 @@
+=== 2.2.0 / 2011-02-18
+
+* 5 minor enhancements:
+
+  * Added support for setting owner and group of deploy. (RichGuk)
+  * Allow shared_paths, mkdirs, and symlinks to be excluded (RichGuk/zaius)
+  * Cleaned up update task to correspond to rake-remote-task changes. (RichGuk)
+  * Do not run symlink commands if there are no operations to run. (jsmecham)
+  * Obey the umask across the board. (RichGuk)
+
+* 2 bug fixes:
+
+  * Fixed migrate task shell cmd. (cheba)
+  * Fixed passenger touch file location. (richinsr)
+
+=== 2.1.0 / 2010-07-15
+
+* 1 major enhancement:
+
+  * Split out rake_remote_task.rb and vlad_test_case.rb (in rake-remote_task gem).
+
+* 4 minor enhancements:
+
+  * Added :type config option, defaulting to rails
+  * Moved VladTestCase to Rake::TestCase (in rake-remote_task gem).
+  * Moved all Vlad exceptions to Rake (in rake-remote_task gem).
+  * Refactored rails specific values out of core. (raggi)
+
+* 2 bug fixes:
+
+  * Clarified Rake.clear_tasks in faq
+  * Fixed output from vlad:invoke (pnc)
+
+=== 2.0.0 / 2009-08-18
+
+* 1 major enhancement:
+
+  * Removed all extra modules that we don't support in core anymore.
+
+* 2 minor enhancements:
+
+  * Added test to show that false is a valid variable value.
+  * Moved vlad_test_case from test to lib to support 3rd party vlad modules.
+
+=== 1.4.0 / 2009-06-23
+
+* 1 major enhancement:
+
+  * Switched to passenger as default app server.
+
+* 11 minor enhancements:
+
+  * #rsync now takes ANY number of arguments and expects to you add "host:".
+  * Added Rake::RemoteTask#get.
+  * Added doco for why we don't ship a deploy task
+  * Added links to example maintenance recipes
+  * Added multi-env doco to getting_started.txt
+  * Added svn-over-ssh faq item. gah.
+  * Flipped tests to minitest
+  * Merged global #role and Rake::RemoteTask::role.
+  * Moved all global methods to Rake::RemoteTask and wrote #external to clean up.
+  * Moved rake extensions to hoe so everyone can enjoy the fun.
+  * put names the tempfile based on the remote path to ease debugging
+
+* 2 bug fixes:
+
+  * passenger:start_app wasn't using the latest_release path
+  * set/fetch wasn't dealing with a default of false well. (Seth Falcon)
+
+=== 1.3.2 / 2009-03-16
+
+* 3 minor enhancements:
+
+  * Added 'Deploying Merb with Vlad' by Graham Ashton.
+  * Added 'Deploying Sinatra with Vlad' by Graham Ashton.
+  * Core update task calls update with the actual revision once again
+
+* 1 bug fix:
+
+  * Fix Git checkout/export methods. (Wilson)
+
+=== 1.3.1 / 2009-03-06
+
+* 4 minor enhancements:
+
+  * Added faq on how to clear/replace tasks. (mikehale)
+  * Added sudo_prompt variable.
+  * Added top level sudo method to compliment run. (woahdae)
+  * Set sudo_flags to default to ['-p Password:']. (mly)
+
+* 3 bug fixes:
+
+  * Fixed prompts during rollback. (goodieboy)
+  * deploy_via went AWOL in subversion module.
+  * vlad:migrate ignored migrate_target directory. (tomklaasen)
+
+=== 1.3.0 / 2009-03-04
+
+* 9 major enhancements:
+
+  * Added darcs support. (Brian Palmer)
+  * Added git support. (Garry Dolley)
+  * Added lighttpd support.
+  * Added merb support. (Jamie Macey)
+  * Added passenger support. (Alan Harper)
+  * Added/merged god, nginx, thin, and maintenance tasks. (github clusterfuck)
+  * Allow set to specify that a proc value is :per_thread.
+  * Apply Mercurial SCM support patch. Closes ticket 13475
+  * remote_task now supports args and supplies task (by Daniel P. Kionka).
+
+* 19 minor enhancements:
+
+  * Add role toplevel method similar to namespace.
+  * Added #put method that wraps up Tempfile/rsync pattern.
+  * Added #role toplevel method, similar to #namespace.
+  * Added FAQ for using vlad through a gateway.
+  * Added Phil Hagelburg's one-line multi-stage deployment patch
+  * Added rake tracing for rsync command.
+  * Added umask variable.
+  * Adds specific order to loading. Should fix a number of bugs.
+  * Extended vladdemo.sh to allow for N simulated hosts (mostly for testing)
+  * Fixed tempfile dependency in #put if you don't load lighttpd or perforce (yipstar)
+  * Mercurial now automatically initializes the repository. (Jamie Macey)
+  * Moved everything over to put.
+  * Now requires rake 0.8.1+.
+  * Parameterized 'head' into 'revision' variable (with head as default).
+  * Split shared symlink creation to a separate task. (Steve Purcell)
+  * Support rake 0.8.
+  * Switched to ThreadGroup for Action#execute
+  * Updated rakefile for new hoe abilities
+  * remote_task :role now allows an empty list of hosts.
+
+* 11 bug fixes:
+
+	* Fixed vladdemo.rb, now uses my checkout for further stress testing.
+	* Moved core recipe to front. Was breaking mongrel setup.
+  * Added automatic client setup for perforce.
+  * Fix mercurial support.
+  * Fixed 'too many files' error.
+  * Fixed a lame warning in the tests.
+  * Fixed cleanup to actually properly clean up.
+  * Fixed rake var doco
+  * Moved generic app setup to core from mongrel.
+  * SSH flags are now an Array for proper inclusion in the command. (Guillaume Pierronnet)
+  * git archive now specifically specifies tar format. (knaveofdiamonds)
+
+=== 1.1.1 / 2008-01-14
+
+* 5 major enhancements:
+
+  * Support for Rake 0.8. Should still work for Rake 0.7.
+  * Added git support (contributed by Garry Dolley).
+    * Reviewed for accuracy by Evan Phoenix.
+  * Added lighttpd.rb
+  * Added automatic client setup for perforce.
+  * Added mercurial SCM support patch. Closes ticket 13475.
+
+* 6 minor enhancements:
+
+  * Added #put method that wraps up Tempfile/rsync pattern.
+  * Added automatic p4 client setup for perforce.
+  * Added vladdemo.sh
+  * Moved everything over to put.
+  * Moved generic app setup to core from mongrel.
+  * Parameterized 'head' into 'revision' variable (with head as default).
+
+* 1 bug fix
+
+  * Fixed cleanup to actually properly clean up.
+
+=== 1.1.0 / 2007-09-12
+
+* 3 major enhancements:
+
+  * Vlad.load now takes a hash of recipe overrides, eg: Vlad.load :web => :nginx.
+    See rdoc for defaults.
+  * Removed vlad_tasks.rb and split into vlad/apache.rb, vlad/mongrel.rb,
+    and vlad/core.rb.
+  * The flog ratio between capistrano+deps / vlad+deps is pi (or, damn close)!
+
+* 12 minor enhancements:
+
+  * Added $TRACE to make it more available and cleaner to read.
+  * Added :svn_cmd variable.
+  * Added Rake.clear_tasks *str_or_regexp
+  * Added debug and mana_from_heaven tasks to Rakefile.
+  * Added more documentation.
+  * Added :rsync_cmd and :rsync_flags.
+  * Added :ssh_cmd and :ssh_flags.
+  * Added variable expansion to vlad:debug task.
+  * Removed :scm variable. Now a Vlad.load component/flavor/need-a-word-here.
+  * Removed :application var. Use it if you want it. We don't require it.
+  * Renamed :p4cmd to :p4_cmd.
+  * Renamed :rake var to :rake_cmd.
+
+* 2 (important) bug fixes:
+
+  * HUGE: Fixed sudo hang bug #13072. Fix suggested by Chris Van Pelt.
+  * HUGE: Vlad.load calls user config last, allowing variable overrides.
+    ACK! Sorry!
+
+=== 1.0.0 / 2007-08-04
+
+* 1 major enhancement
+
+  * Birthday!

@@ -1,0 +1,61 @@
+
+== Quick Start for a 1-Server Solution:
+
+=== Setup
+
+* Create a deploy file, usually in "config/deploy.rb":
+
+    set :application, "project"
+    set :domain, "example.com"
+    set :deploy_to, "/path/to/install"
+    set :repository, 'http://svn.example.com/project/branches/stable/'
+    
+This defaults to using 'svn export' from +repository+, and a single
+server for +app+, +db+, and +www+. If you need to tweak these things,
+refer to the variable documentation.
+
+* If you want a multi-config environment, change your config like so:
+
+    set :application, "project"
+    set :repository, 'http://svn.example.com/project/branches/stable/'
+    
+    task :beta do
+      set :domain,    "beta.example.com"
+      set :deploy_to, "/path/to/install-beta"
+    end
+    
+    task :dev do
+      set :domain,    "dev.example.com"
+      set :deploy_to, "/path/to/install-dev"
+    end
+    
+    task :prod do
+      set :domain,    "example.com"
+      set :deploy_to, "/path/to/install"
+    end
+
+* Add the following to your Rakefile:
+
+    begin
+      require 'vlad'
+      Vlad.load
+    rescue LoadError
+      # do nothing
+    end
+
+Vlad.load has a lot of flexibility. See the rdoc for full information.
+
+You don't need the begin/rescue/end block if you ensure that Vlad is
+installed on all your servers. To be lazy, you can install vlad via:
+
+    % rake vlad:invoke COMMAND='sudo gem install vlad -y'
+
+=== Initial Launch
+
+* Run <tt>rake vlad:setup vlad:update vlad:migrate vlad:start</tt>
+
+=== Subsequent Updates:
+
+* <tt>rake vlad:update vlad:migrate vlad:start</tt>
+
+Each step may be run separately.

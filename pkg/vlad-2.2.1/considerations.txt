@@ -1,0 +1,91 @@
+* might we want per connection values?
+
+* :except => {:no_release => true}
+
+  It is common to configure tasks to 'announce' deployments in IRC, Campfire,
+  etc.  If you have 6 app servers, you don't want to see 6 announcements.  In
+  Capistrano, this is handled via the :no_release => true flag.  Various tasks
+  only execute on the 'release' servers.
+
+  An easier way to meet this would be to introduce a :release role in the
+  default setup
+
+    role :release, "app1.example.com"
+    
+    remote_task :announce_in_irc, :roles => :release ...
+
+  Drawback: Yet another thing to change when you migrate a project from cap to
+  vlad
+
+* 'dynamic deployments'
+
+    role :app, "app1.example.com"
+    role :app, "app2.example.com"
+
+  Let's say that app1 and app2 need slightly different monit configurations.
+
+  In Capistrano, you might approach this by making two additional roles, and 
+  splitting your 'push a monit config' task into two. This sucks.
+
+  Vlad makes the 'execution context' of a task available. In Vlad, you would:
+
+    remote_task :update_monit, :roles => :app
+      rsync "templates/#{target_host}.monitrc", "/etc/monitrc"
+    end
+
+* fine-grained tasks
+
+    remote_task :update
+    remote_task :symlink
+    remote_task :migrate
+    remote_task :deploy => [:update, :symlink, :migrate, :restart]
+
+  Let's assume that this is a multi-server config with shared deploy path.
+  The user wants to do only a single checkout. If we make "update" be one big
+  task body that includes the update, symlink, and migrate steps,
+  it is difficult for the user to override the roles for the particular steps
+  they need to change.
+
+  If we break these into separate tasks, they can say:
+
+    Rake::Task["migrate"].options[:roles] = :master_db
+
+  and the migrations will only run on the master db
+
+* sudo / via how? and if we call it via I will stab ppl. "user" is sufficient.
+
+* handling 'use_sudo'
+
+  1. Check for this inside the 'run' command, and preface the command
+     with 'sudo' if necessary
+
+  2. Default this to 'false' in the reset method, and check for it
+     in the default tasks that we provide:
+       if use_sudo then
+         sudo "blah"
+       else
+         run "blah"
+       end
+
+  Option 2 has fewer moving parts, but clutters up the tasks that care about
+  this.
+
+* Dependencies
+
+  Task dependencies aren't settable when creating a Rake::RemoteTask.
+
+* Apache configuration
+
+  Pull in railsmachine/rails/recipes/apache.rb's apache configuration.  Needs
+  erb to work.
+
+* I really like tasks with naming <cmd>_<role> (eg setup_app,
+  start_web). We could easily make the front end remote_task command
+  look for such a convention and apply the :role => x automatically.
+
+* from bousquet: get a couple of server environment recipes that prepare your
+  machine that would be the golden ticket:
+
+    rake vlad:prepare TYPE=accelerator | ubuntu | osx | osxserver | site5 | ...
+
+  and have people maintaining those setups who depend on them

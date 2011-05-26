@@ -1,0 +1,79 @@
+
+== Core Variables
+
+repository::           REQUIRED: Repository path: e.g. http://repo.example.com/svn
+deploy_to::            REQUIRED: Deploy path on target machines. e.g. /var/www/app
+domain::               REQUIRED: Used for the common case of a single target
+                       server. e.g. example.com
+current_path::         The full path on the remote host that will be symlinked
+                       as 'current'. Defaults to "#{deploy_to}/current".
+current_release::      The full path to the current release's actual location.
+                       Defaults to "#{releases_path}/#{releases.last}".
+deploy_timestamped::   Create timestamped release directories instead of using
+                       revision numbers. Defaults to true.
+deploy_via::           Which SCM command should be used when deploying the app.
+                       Defaults to "export".
+latest_release::       The most recent release, which may not yet have been
+                       symlinked. Defaults to release_path.
+migrate_args::         Set this to change the RAILS_ENV that 'rake db:migrate'
+                       will run under. Defaults to "".
+migrate_target::       Set this if you need to specify a particular migration
+                       'VERSION' number. Defaults to "latest".
+rails_env::            Specifies the RAILS_ENV environment variable that will
+                       be used. Defaults to "production".
+rake_cmd::             Set this if you need to specify an alternate path to
+                       'rake'. Defaults to "rake".
+release_name::         Name of the release directory, if deploy_timestamped is
+                       true. Defaults to timestamp: "YYYYMMDDHHMMSS".
+release_path::         Path to this release, which may not have been created
+                       yet. Defaults to "#{releases_path}/#{release_name}".
+releases::             An array of all existing releases, oldest first.
+                       Defaults to latest release directory name.
+releases_path::        Full path to the 'releases' directory on the remote host.
+                       Defaults to "#{deploy_to}/releases".
+revision::             Revision to use for release. Defaults to 'head'.
+rsync_cmd::            Path to rsync command. Defaults to "rsync".
+rsync_flags::          Flags for rsync. Defaults to ['-azP', '--delete'].
+scm_path::             Path on the remote host that will be used as 'working
+                       space' for SCM tasks. Defaults to "#{deploy_to}/scm".
+shared_path::          Full path to remote 'shared' directory, symlinked into
+                       your app by default. Defaults to "#{deploy_to}/shared".
+ssh_cmd::              Path to ssh. Defaults to "ssh".
+ssh_flags::            Flags for ssh. Defaults to [].
+sudo_cmd::             Path to sudo command. Defaults to "sudo".
+sudo_flags::           Flogs for sudo. Defaults to ["-p Password:"].
+sudo_prompt::          Regexp for sudo password prompt. Defaults to /^Password:/.
+sudo_password::        Asks for password when referenced.
+umask::                Sets your umask value. Defaults to "02".
+
+== Apache Web Variables:
+
+web_command::          Command to execute when controlling the web server.
+                       Defaults to "apachectl".
+
+== Mongrel App Variables:
+
+mongrel_address::       Defaults to "127.0.0.1"
+mongrel_clean::         Defaults to false
+mongrel_command::       Defaults to 'mongrel_rails'
+mongrel_conf::          Defaults to "#{shared_path}/mongrel_cluster.conf"
+mongrel_config_script:: Defaults to nil
+mongrel_environment::   Defaults to "production"
+mongrel_group::         Defaults to nil
+mongrel_log_file::      Defaults to nil
+mongrel_pid_file::      Defaults to nil
+mongrel_port::          Defaults to 8000
+mongrel_prefix::        Defaults to nil
+mongrel_servers::       Defaults to 2
+mongrel_user::          Defaults to nil
+
+== Perforce SCM Variables:
+
+p4_cmd::                The perforce command to use. Defaults to "p4"
+source::                A perforce SCM worker instance.
+
+== Subversion SCM Variables:
+
+source::                A subversion SCM worker instance.
+svn_cmd::               The subversion command to use. Defaults to "svn"
+
