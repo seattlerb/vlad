@@ -14,7 +14,7 @@ Hoe.spec 'vlad' do
   developer 'Eric Hodel',       'drbrain@segment7.net'
   developer 'Wilson Bilkovich', 'wilson@supremetyrant.com'
 
-  extra_deps << ['rake',  '~> 0.8.0']
+  extra_deps << ['rake',  '>= 0.8.0', '< 0.10.0']
   extra_deps << ['rake-remote_task',  '~> 2.0']
   extra_deps << ['open4', '~> 0.9.0']
 
