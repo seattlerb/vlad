@@ -14,9 +14,9 @@ Hoe.spec 'vlad' do
   developer 'Eric Hodel',       'drbrain@segment7.net'
   developer 'Wilson Bilkovich', 'wilson@supremetyrant.com'
 
-  extra_deps << ['rake',  '~> 0.8.0']
-  extra_deps << ['rake-remote_task',  '~> 2.0']
-  extra_deps << ['open4', '~> 0.9.0']
+  dependency 'rake',             '~> 0.8'
+  dependency 'rake-remote_task', '~> 2.0'
+  dependency 'open4',            '~> 0.9.0'
 
   # TODO: remove 1.9
   multiruby_skip << "1.9" << "rubinius"
