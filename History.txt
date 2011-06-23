@@ -1,3 +1,9 @@
+=== 2.2.1 / 2011-06-22
+
+* 1 bug fix:
+
+  * Switched rake dependency to ~> 0.8 so we don't collide with other libs
+
 === 2.2.0 / 2011-02-18
 
 * 5 minor enhancements:

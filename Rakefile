@@ -4,8 +4,7 @@ require 'rubygems'
 require 'hoe'
 
 Hoe.plugin :seattlerb
-
-Hoe.add_include_dirs "../../rake-remote_task/dev/lib"
+Hoe.plugin :isolate
 
 Hoe.spec 'vlad' do
   self.rubyforge_name = 'hitsquad'
