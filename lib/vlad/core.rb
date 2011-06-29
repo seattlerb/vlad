@@ -68,7 +68,7 @@ namespace :vlad do
         commands << "#{source.checkout revision, scm_path}"
       end
       commands << "#{source.export revision, release_path}"
-      commands << "chmod -R g+w #{latest_release}",
+      commands << "chmod -R g+w #{latest_release}"
       
       unless shared_paths.empty?
         commands << "rm -rf #{shared_paths.values.map { |p| File.join(latest_release, p) }.join(' ')}"
