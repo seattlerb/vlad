@@ -39,7 +39,8 @@ namespace :vlad do
   desc "Prepares application servers for deployment.".cleanup
 
   remote_task :setup_app, :roles => :app do
-    dirs = [deploy_to, releases_path, scm_path, shared_path]
+    dirs = [deploy_to, releases_path, shared_path]
+    dirs << scm_path unless skip_scm
     dirs += shared_paths.keys.map { |d| File.join(shared_path, d) }
     dirs = dirs.join(' ')
 
@@ -61,13 +62,14 @@ namespace :vlad do
   remote_task :update, :roles => :app do
     symlink = false
     begin
-      commands = [
-        "umask #{umask}",
-        "cd #{scm_path}",
-        "#{source.checkout revision, scm_path}",
-        "#{source.export revision, release_path}",
-        "chmod -R g+w #{latest_release}",
-      ]
+      commands = ["umask #{umask}"]
+      unless skip_scm
+        commands << "cd #{scm_path}"
+        commands << "#{source.checkout revision, scm_path}"
+      end
+      commands << "#{source.export revision, release_path}"
+      commands << "chmod -R g+w #{latest_release}",
+      
       unless shared_paths.empty?
         commands << "rm -rf #{shared_paths.values.map { |p| File.join(latest_release, p) }.join(' ')}"
       end
