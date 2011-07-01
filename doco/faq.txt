@@ -134,3 +134,15 @@ checkout over ssh should work fine.
     ... works fine ...
   % ssh localhost svn co https://blah/blah /tmp/happy2
     ... works fine ...
+
+== Using Bundler
+
+=== Q: OMG Bundler is stupid! It requires vlad in my app and that breaks stuff!
+=== A: Yes, yes it is.
+
+As far as we're concerned, that "feature" in bundler is a bug. One
+workaround is to tell bundler not to require vlad for you.
+
+  group :development do
+    gem 'vlad', :require => false
+  end
