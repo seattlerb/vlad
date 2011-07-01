@@ -21,7 +21,7 @@ namespace :vlad do
 
     directory = case migrate_target.to_sym
                 when :current then current_path
-                when :latest  then current_release
+                when :latest  then latest_release
                 else
                   raise(ArgumentError,
                         "unknown migration target #{migrate_target.inspect}")
