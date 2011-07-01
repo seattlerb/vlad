@@ -57,12 +57,12 @@ To prepend on a task, add a dependency:
 NOTE: Rake.clear_tasks was moved to Hoe so it could be used more generally.
 
   require 'hoe/rake'
-  
+
   namespace :vlad do
     # Clear existing update task so that we can redefine instead of
     # adding to it.
-    Rake.clear_tasks('vlad:update') 
-  
+    Rake.clear_tasks('vlad:update')
+
     remote_task :update, :roles => :app do
       #custom update stuff
     end
@@ -113,8 +113,8 @@ If you're on a mac (on tiger, not leopard), use SSHKeychain, we love it. <http:/
 === Q: How do I use Vlad with a gateway?
 === A: Add the following to your deploy.rb variables:
 
-  set :ssh_flags, "-A #{mygateway}"
-  set :rsync_flags, "--rsh ssh -A #{mygateway} ssh"
+  set :ssh_flags,   ['-A', mygateway, 'ssh', '-A']
+  set :rsync_flags, ['--rsh', 'ssh', '-A', mygateway, 'ssh']
 
 === Q: OMG subversion is stupid! It keeps asking for "Authentication Realm"
 === A: Yes, yes it is.
