@@ -18,7 +18,7 @@ Hoe.spec 'vlad' do
   dependency 'open4',            '~> 0.9.0'
 
   # TODO: remove 1.9
-  multiruby_skip << "1.9" << "rubinius"
+  multiruby_skip << "rubinius"
 end
 
 desc "quick little hack to see what the state of the nation looks like"
