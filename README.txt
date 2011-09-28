@@ -38,9 +38,7 @@ Impale your application on the heartless spike of the Deployer.
 == REQUIREMENTS
 
 * Rake
-* Hoe
-* Rubyforge
-* open4
+* rake-remote_task
 
 == INSTALL
 

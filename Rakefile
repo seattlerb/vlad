@@ -15,9 +15,7 @@ Hoe.spec 'vlad' do
 
   dependency 'rake',             '~> 0.8'
   dependency 'rake-remote_task', '~> 2.0'
-  dependency 'open4',            '~> 0.9.0'
 
-  # TODO: remove 1.9
   multiruby_skip << "rubinius"
 end
 
