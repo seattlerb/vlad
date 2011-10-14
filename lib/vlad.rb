@@ -61,6 +61,8 @@ module Vlad
       next if recipe.nil? or flavor == :config
       require "vlad/#{recipe}"
     end
+    
+    set :skip_scm, false
 
     Kernel.load recipes[:config]
     Kernel.load "config/deploy_#{ENV['to']}.rb" if ENV['to']
