@@ -1,3 +1,10 @@
+=== 2.2.3 / 2011-10-14
+
+* 2 bug fixes:
+
+  * Removed open4 dependency since that comes in via rake-remote_task
+  * Set a sane default for skip_scm (charl)
+
 === 2.2.2 / 2011-09-06
 
 * 1 minor enhancement:
