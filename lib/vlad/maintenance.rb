@@ -3,7 +3,7 @@ require 'vlad'
 ##
 # See the following documents for recipes:
 #
-# * http://clarkware.com/cgi/blosxom/2007/01/05/CustomMaintenancePages
+# * http://clarkware.com/blog/2007/1/5/custom-maintenance-pages
 # * http://blog.nodeta.fi/2009/03/11/stopping-your-rails-application-with-phusion-passenger/
 #
 
