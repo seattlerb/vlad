@@ -12,7 +12,7 @@ namespace :vlad do
   desc "Run the migrate rake task for the the app. By default this is run in
     the latest app directory.  You can run migrations for the current app
     directory by setting :migrate_target to :current.  Additional environment
-    variables can be passed to rake via the migrate_env variable.".cleanup
+    variables can be passed to rake via the rails_env variable.".cleanup
 
   # No application files are on the DB machine, also migrations should only be
   # run once.
