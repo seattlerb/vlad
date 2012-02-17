@@ -16,7 +16,7 @@ Impale your application on the heartless spike of the Deployer.
 == FEATURES/PROBLEMS
 
 * Full deployment automation stack.
-* Turnkey deployment for mongrel+apache+svn.
+* Turnkey deployment for passenger+apache+svn.
 * Supports single server deployment with just 3 variables defined.
 * Built on rake. Easy. Engine is small.
 * Very few dependencies. All simple.

@@ -51,27 +51,6 @@ umask::                Sets your umask value. Defaults to "02".
 web_command::          Command to execute when controlling the web server.
                        Defaults to "apachectl".
 
-== Mongrel App Variables:
-
-mongrel_address::       Defaults to "127.0.0.1"
-mongrel_clean::         Defaults to false
-mongrel_command::       Defaults to 'mongrel_rails'
-mongrel_conf::          Defaults to "#{shared_path}/mongrel_cluster.conf"
-mongrel_config_script:: Defaults to nil
-mongrel_environment::   Defaults to "production"
-mongrel_group::         Defaults to nil
-mongrel_log_file::      Defaults to nil
-mongrel_pid_file::      Defaults to nil
-mongrel_port::          Defaults to 8000
-mongrel_prefix::        Defaults to nil
-mongrel_servers::       Defaults to 2
-mongrel_user::          Defaults to nil
-
-== Perforce SCM Variables:
-
-p4_cmd::                The perforce command to use. Defaults to "p4"
-source::                A perforce SCM worker instance.
-
 == Subversion SCM Variables:
 
 source::                A subversion SCM worker instance.
