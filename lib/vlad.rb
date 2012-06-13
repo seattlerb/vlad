@@ -65,7 +65,7 @@ module Vlad
     set :skip_scm, false
 
     Kernel.load recipes[:config]
-    Kernel.load "config/deploy_#{ENV['to']}.rb" if ENV['to']
+    Kernel.load "#{File.dirname(recipes[:config])}/deploy_#{ENV['to']}.rb" if ENV['to']
   end
 end
 
