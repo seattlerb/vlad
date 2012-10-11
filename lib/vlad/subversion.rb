@@ -2,6 +2,7 @@ class Vlad::Subversion
 
   set :source, Vlad::Subversion.new
   set :svn_cmd, "svn"
+  set :revision, (revision || "head")
 
   ##
   # Returns the command that will check out +revision+ from the repository

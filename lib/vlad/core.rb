@@ -6,6 +6,8 @@ def now
   @now ||= Time.now.utc.strftime("%Y%m%d%H%M.%S")
 end
 
+set :revision, ENV['revision']
+
 namespace :vlad do
   desc "Show the vlad setup.  This is all the default variables for vlad
     tasks.".cleanup
