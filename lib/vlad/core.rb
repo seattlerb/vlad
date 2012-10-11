@@ -50,7 +50,7 @@ namespace :vlad do
     ]
     commands << "chown #{perm_owner} #{dirs}" if perm_owner
     commands << "chgrp #{perm_group} #{dirs}" if perm_group
-
+    commands << "touch #{deploy_to}/revisions.log"
     run commands.join(' && ')
   end
 
