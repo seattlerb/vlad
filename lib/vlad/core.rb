@@ -26,6 +26,8 @@ namespace :vlad do
     y Rake::RemoteTask.roles
   end
 
+  append :ancillary_dir
+
   desc "Setup your servers. Before you can use any of the deployment
     tasks with your project, you will need to make sure all of your
     servers have been prepared with 'rake vlad:setup'. It is safe to
@@ -42,6 +44,7 @@ namespace :vlad do
     dirs = [deploy_to, releases_path, shared_path]
     dirs << scm_path unless skip_scm
     dirs += shared_paths.keys.map { |d| File.join(shared_path, d) }
+    dirs += ancillary_dir
     dirs = dirs.join(' ')
 
     commands = []
