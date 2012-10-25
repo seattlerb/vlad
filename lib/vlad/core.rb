@@ -44,10 +44,11 @@ namespace :vlad do
     dirs += shared_paths.keys.map { |d| File.join(shared_path, d) }
     dirs = dirs.join(' ')
 
-    commands = [
-      "umask #{umask}",
-      "mkdir -p #{dirs}"
-    ]
+    commands = []
+
+    commands << "umask #{umask}" if umask
+    commands << "mkdir -p #{dirs}"
+
     commands << "chown #{perm_owner} #{dirs}" if perm_owner
     commands << "chgrp #{perm_group} #{dirs}" if perm_group
 
@@ -62,7 +63,8 @@ namespace :vlad do
   remote_task :update, :roles => :app do
     symlink = false
     begin
-      commands = ["umask #{umask}"]
+      commands = []
+      commands << "umask #{umask}" if umask
       unless skip_scm
         commands << "cd #{scm_path}"
         commands << "#{source.checkout revision, scm_path}"
@@ -87,12 +89,16 @@ namespace :vlad do
       Rake::Task['vlad:update_symlinks'].invoke
 
       symlink = true
-      commands = [
-        "umask #{umask}",
+      commands = []
+
+      commands << "umask #{umask}" if umask
+
+      commands += [
         "rm -f #{current_path}",
         "ln -s #{latest_release} #{current_path}",
         "echo #{now} $USER #{revision} #{File.basename(release_path)} >> #{deploy_to}/revisions.log"
       ]
+
       commands << "chown #{perm_owner} #{deploy_to}/revisions.log" if perm_owner
       commands << "chgrp #{perm_group} #{deploy_to}/revisions.log" if perm_group
 
