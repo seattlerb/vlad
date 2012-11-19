@@ -6,6 +6,8 @@ def now
   @now ||= Time.now.utc.strftime("%Y%m%d%H%M.%S")
 end
 
+set :revision, ENV['revision']
+
 namespace :vlad do
   desc "Show the vlad setup.  This is all the default variables for vlad
     tasks.".cleanup
@@ -54,7 +56,7 @@ namespace :vlad do
 
     commands << "chown #{perm_owner} #{dirs}" if perm_owner
     commands << "chgrp #{perm_group} #{dirs}" if perm_group
-
+    commands << "touch #{deploy_to}/revisions.log"
     run commands.join(' && ')
   end
 
