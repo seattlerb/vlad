@@ -1,5 +1,6 @@
 namespace :vlad do
   set :rails_env,      "production"
+  set :rails_env_var,  "RAILS_ENV"
   set :migrate_args,   ""
   set :migrate_target, :latest
   set :mkdirs,         %w(tmp db)
@@ -28,7 +29,7 @@ namespace :vlad do
                 end
 
     run ["cd #{directory}",
-         "#{rake_cmd} RAILS_ENV=#{rails_env} db:migrate #{migrate_args}"
+         "#{rake_cmd} #{rails_env_var}=#{rails_env} db:migrate #{migrate_args}"
         ].join(" && ")
   end
 end
