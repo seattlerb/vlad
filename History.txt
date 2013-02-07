@@ -1,3 +1,9 @@
+=== 2.4.0 / 2013-02-07
+
+* 1 minor enhancement:
+
+  * Add a new configuration to enable alternative names for RAILS_ENV.
+
 === 2.3.1 / 2012-11-27
 
 * 1 bug fix:
