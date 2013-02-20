@@ -24,9 +24,9 @@ namespace :vlad do
 
     puts "# Environment:"
     puts
-    y Rake::RemoteTask.env
+    puts Rake::RemoteTask.env.to_yaml
     puts "# Roles:"
-    y Rake::RemoteTask.roles
+    puts Rake::RemoteTask.roles.to_yaml
   end
 
   append :ancillary_dir
