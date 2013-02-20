@@ -12,10 +12,7 @@ namespace :vlad do
 
   task :debug do
     require 'yaml'
-    
-    # force syck. In ruby 1.9.3 psych is default which has no y method 
-    YAML::ENGINE.yamler = 'syck'
-    
+
     # force them into values
     Rake::RemoteTask.env.keys.each do |key|
       next if key =~ /_release|releases|sudo_password/
