@@ -195,8 +195,8 @@
 
 * 11 bug fixes:
 
-	* Fixed vladdemo.rb, now uses my checkout for further stress testing.
-	* Moved core recipe to front. Was breaking mongrel setup.
+  * Fixed vladdemo.rb, now uses my checkout for further stress testing.
+  * Moved core recipe to front. Was breaking mongrel setup.
   * Added automatic client setup for perforce.
   * Fix mercurial support.
   * Fixed 'too many files' error.
@@ -256,7 +256,7 @@
   * Renamed :p4cmd to :p4_cmd.
   * Renamed :rake var to :rake_cmd.
 
-* 2 (important) bug fixes:
+* 2 bug fixes (important):
 
   * HUGE: Fixed sudo hang bug #13072. Fix suggested by Chris Van Pelt.
   * HUGE: Vlad.load calls user config last, allowing variable overrides.
