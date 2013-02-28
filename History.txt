@@ -1,3 +1,9 @@
+=== 2.4.1 / 2013-02-27
+
+* 1 bug fix:
+
+  * Apparently psych doesn't have top level #y. Switched to to_yaml. (erotte)
+
 === 2.4.0 / 2013-02-07
 
 * 1 minor enhancement:

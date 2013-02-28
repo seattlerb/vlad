@@ -21,7 +21,7 @@ module Vlad
 
   ##
   # This is the version of Vlad you are running.
-  VERSION = '2.4.0'
+  VERSION = "2.4.1"
 
   ##
   # Loads tasks file +tasks_file+ and various recipe styles as a hash
