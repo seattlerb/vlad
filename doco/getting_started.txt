@@ -1,4 +1,3 @@
-
 == Quick Start for a 1-Server Solution:
 
 === Setup
@@ -39,8 +38,9 @@ refer to the {variable documentation}[rdoc-ref:doco/variables.txt].
     begin
       require 'vlad'
       Vlad.load
-    rescue LoadError
-      # do nothing
+    rescue LoadError => e
+      puts e.message
+      puts "Could not load Vlad, please install via 'gem install vlad'"
     end
 
 Vlad.load has a lot of flexibility. See the rdoc for full information.
