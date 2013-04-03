@@ -23,4 +23,8 @@ class TestVladSubversion < MiniTest::Unit::TestCase
     expected = "`svn info svn+ssh://repo/myproject | grep 'Revision:' | cut -f2 -d\\ `"
     assert_equal expected, cmd
   end
+
+  def test_set_defaults
+    [source, svn_cmd, revision].each { |var| assert var }
+  end
 end
