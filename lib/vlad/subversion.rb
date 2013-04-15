@@ -24,13 +24,4 @@ class Vlad::Subversion
         "#{revision_or_source} #{destination}"
       end
   end
-
-  ##
-  # Returns a command that maps human-friendly revision identifier +revision+
-  # into a subversion revision specification.
-
-  def revision(revision)
-    "`#{svn_cmd} info #{repository} | grep 'Revision:' | cut -f2 -d\\ `"
-  end
 end
-
