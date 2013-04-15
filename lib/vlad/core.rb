@@ -64,6 +64,7 @@ namespace :vlad do
     the update.".cleanup
 
   remote_task :update, :roles => :app do
+    throw "at least I'm pulling the right version"
     symlink = false
     begin
       commands = []
