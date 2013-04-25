@@ -73,7 +73,7 @@ namespace :vlad do
         commands << "#{source.checkout revision, scm_path}"
       end
       commands << "#{source.export revision, release_path}"
-      
+
       unless shared_paths.empty?
         commands << "rm -rf #{shared_paths.values.map { |p| File.join(latest_release, p) }.join(' ')}"
       end
@@ -173,7 +173,7 @@ namespace :vlad do
     you're right back where you were, on the previously deployed
     version.".cleanup
 
-  remote_task :rollback do
+  remote_task :rollback, :roles => :app do
     if releases.length < 2 then
       abort "could not rollback the code because there is no prior release"
     else
@@ -187,7 +187,7 @@ namespace :vlad do
     each server (though you can change this with the keep_releases variable).
     All other deployed revisions are removed from the servers.".cleanup
 
-  remote_task :cleanup do
+  remote_task :cleanup, :roles => :app do
     max = keep_releases
     if releases.length <= max then
       puts "no old releases to clean up #{releases.length} <= #{max}"
