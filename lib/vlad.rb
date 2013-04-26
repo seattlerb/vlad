@@ -19,10 +19,9 @@ $TESTING ||= false
 
 module Vlad
 
-  throw "this is getting ridiculous"
   ##
   # This is the version of Vlad you are running.
-  VERSION = "2.4.2"
+  VERSION = "2.4.1"
 
   ##
   # Loads tasks file +tasks_file+ and various recipe styles as a hash
