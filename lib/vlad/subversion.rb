@@ -2,6 +2,7 @@ class Vlad::Subversion
 
   set :source, Vlad::Subversion.new
   set :svn_cmd, "svn"
+  set :revision, "HEAD"
 
   ##
   # Returns the command that will check out +revision+ from the repository
@@ -23,13 +24,4 @@ class Vlad::Subversion
         "#{revision_or_source} #{destination}"
       end
   end
-
-  ##
-  # Returns a command that maps human-friendly revision identifier +revision+
-  # into a subversion revision specification.
-
-  def revision(revision)
-    "`#{svn_cmd} info #{repository} | grep 'Revision:' | cut -f2 -d\\ `"
-  end
 end
-
