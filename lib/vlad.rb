@@ -74,7 +74,7 @@ class String #:nodoc:
     if ENV['FULL'] then
       gsub(/\s+/, ' ').strip
     else
-      self[/\A.*?\./]
+      self.gsub(/(\n|\s)+/, ' ')[/\A.*?(\.|\z)/]
     end
   end
 end
