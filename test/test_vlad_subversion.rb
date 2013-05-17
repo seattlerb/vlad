@@ -1,7 +1,7 @@
 require 'vlad'
 require 'vlad/subversion'
 
-class TestVladSubversion < MiniTest::Unit::TestCase
+class TestVladSubversion < Minitest::Test
   def setup
     super
     @scm = Vlad::Subversion.new
