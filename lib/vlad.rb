@@ -59,7 +59,13 @@ module Vlad
     order.each do |flavor|
       recipe = recipes[flavor]
       next if recipe.nil? or flavor == :config
-      require "vlad/#{recipe}"
+      begin
+        require "vlad/#{recipe}"
+      rescue LoadError => e
+        re = RuntimeException.new e.message
+        re.backtrace = e.backtrace
+        raise re
+      end
     end
 
     set :skip_scm, false
