@@ -21,7 +21,7 @@ module Vlad
 
   ##
   # This is the version of Vlad you are running.
-  VERSION = "2.4.1"
+  VERSION = "2.5.0"
 
   ##
   # Loads tasks file +tasks_file+ and various recipe styles as a hash
@@ -59,7 +59,13 @@ module Vlad
     order.each do |flavor|
       recipe = recipes[flavor]
       next if recipe.nil? or flavor == :config
-      require "vlad/#{recipe}"
+      begin
+        require "vlad/#{recipe}"
+      rescue LoadError => e
+        re = RuntimeException.new e.message
+        re.backtrace = e.backtrace
+        raise re
+      end
     end
 
     set :skip_scm, false

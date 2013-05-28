@@ -1,7 +1,7 @@
 = Vlad the Deployer by the Ruby Hit Squad
 
 home :: http://rubyhitsquad.com/
-repo :: https://github.com/seattlerb/vlad
+code :: https://github.com/seattlerb/vlad
 rdoc :: http://hitsquad.rubyforge.org/vlad
 
 == DESCRIPTION

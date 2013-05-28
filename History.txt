@@ -1,3 +1,14 @@
+=== 2.5.0 / 2013-05-10
+
+* 1 minor enhancement:
+
+  * Silo vlad:cleanup and vlad:rollback to app role. (contentfree)
+
+* 2 bug fixes:
+
+  * Fixed code/home urls in readme/gem.
+  * Fixed problem with 'revisions variable or method not found'. (bitboxer/jleo3)
+
 === 2.4.1 / 2013-02-27
 
 * 1 bug fix:

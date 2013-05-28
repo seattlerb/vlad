@@ -1,7 +1,7 @@
 require 'vlad'
 require 'vlad/subversion'
 
-class TestVladSubversion < MiniTest::Unit::TestCase
+class TestVladSubversion < Minitest::Test
   def setup
     super
     @scm = Vlad::Subversion.new
@@ -19,8 +19,11 @@ class TestVladSubversion < MiniTest::Unit::TestCase
   end
 
   def test_revision
-    cmd = @scm.revision('HEAD')
-    expected = "`svn info svn+ssh://repo/myproject | grep 'Revision:' | cut -f2 -d\\ `"
-    assert_equal expected, cmd
+    cmd = @scm.revision
+    assert_equal "HEAD", cmd
+  end
+
+  def test_set_defaults
+    [source, svn_cmd, revision].each { |var| assert var }
   end
 end
