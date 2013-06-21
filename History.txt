@@ -1,3 +1,10 @@
+=== 2.5.1 / 2013-06-20
+
+* 2 minor enhancements:
+
+  * Make failed loads more obvious so you know you're missing a plugin. (dfl)
+  * Updated for minitest 5.
+
 === 2.5.0 / 2013-05-10
 
 * 1 minor enhancement:
