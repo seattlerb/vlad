@@ -62,7 +62,7 @@ module Vlad
       begin
         require "vlad/#{recipe}"
       rescue LoadError => e
-        re = RuntimeException.new e.message
+        re = RuntimeError.new e.message
         re.backtrace = e.backtrace
         raise re
       end
