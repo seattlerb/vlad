@@ -69,7 +69,7 @@ namespace :vlad do
     Rake::Task['vlad:log_revision'].invoke
   end
 
-  desc "Updates your application server to the latest revision.  Syncs
+  desc "Updates your application server to the latest revision.  Syncs 
     a copy of the repository, exports it as the latest release".cleanup
   remote_task :update_app, :roles => :app do
     begin
