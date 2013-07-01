@@ -71,6 +71,7 @@ namespace :vlad do
 
   desc "Updates your application server to the latest revision.  Syncs 
     a copy of the repository, exports it as the latest release".cleanup
+
   remote_task :update_app, :roles => :app do
     begin
       commands = []
@@ -102,6 +103,7 @@ namespace :vlad do
   end
 
   desc "Updates up your symlinks, sets the latest revision to current and updates symlink for shared path".cleanup
+
   remote_task :update_symlinks, :roles => :app do
     begin
       ops = []
@@ -121,6 +123,7 @@ namespace :vlad do
   end
 
   desc "Log the update".cleanup
+  
   remote_task :log_revision, :roles => :app do
     begin
       commands = []
