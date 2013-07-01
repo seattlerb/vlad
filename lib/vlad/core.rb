@@ -64,7 +64,15 @@ namespace :vlad do
     the update.".cleanup
 
   remote_task :update, :roles => :app do
-    symlink = false
+    Rake::Task['vlad:update_app'].invoke
+    Rake::Task['vlad:update_symlinks'].invoke
+    Rake::Task['vlad:log_revision'].invoke
+  end
+
+  desc "Updates your application server to the latest revision.  Syncs 
+    a copy of the repository, exports it as the latest release".cleanup
+
+  remote_task :update_app, :roles => :app do
     begin
       commands = []
       commands << "umask #{umask}" if umask
@@ -88,16 +96,41 @@ namespace :vlad do
       commands << "chgrp -R #{perm_group} #{latest_release}" if perm_group
 
       run commands.join(" && ")
-      Rake::Task['vlad:update_symlinks'].invoke
+    rescue => e
+      run "rm -rf #{release_path}"
+      raise e
+    end
+  end
 
-      symlink = true
+  desc "Updates up your symlinks, sets the latest revision to current and updates symlink for shared path".cleanup
+
+  remote_task :update_symlinks, :roles => :app do
+    begin
+      ops = []
+      unless shared_paths.empty?
+        ops = shared_paths.each do |sp, rp|
+          ops << "ln -s #{shared_path}/#{sp} #{latest_release}/#{rp}"
+        end
+      end
+      ops << "rm -f #{current_path}"
+      ops << "ln -s #{latest_release} #{current_path}"
+      run ops.join(' && ') unless ops.empty?
+    rescue => e
+      run "rm -f #{current_path} && ln -s #{previous_release} #{current_path}"
+      run "rm -rf #{release_path}"
+      raise e
+    end
+  end
+
+  desc "Log the update".cleanup
+  
+  remote_task :log_revision, :roles => :app do
+    begin
       commands = []
 
       commands << "umask #{umask}" if umask
 
       commands += [
-        "rm -f #{current_path}",
-        "ln -s #{latest_release} #{current_path}",
         "echo #{now} $USER #{revision} #{File.basename(release_path)} >> #{deploy_to}/revisions.log"
       ]
 
@@ -106,23 +139,12 @@ namespace :vlad do
 
       run commands.join(' && ')
     rescue => e
-      run "rm -f #{current_path} && ln -s #{previous_release} #{current_path}" if
-        symlink
+      run "rm -f #{current_path} && ln -s #{previous_release} #{current_path}"
       run "rm -rf #{release_path}"
       raise e
     end
   end
 
-  desc "Updates the symlinks for shared paths".cleanup
-
-  remote_task :update_symlinks, :roles => :app do
-    unless shared_paths.empty?
-      ops = shared_paths.map do |sp, rp|
-        "ln -s #{shared_path}/#{sp} #{latest_release}/#{rp}"
-      end
-      run ops.join(' && ') unless ops.empty?
-    end
-  end
 
   desc "Invoke a single command on every remote server. This is useful for
     performing one-off commands that may not require a full task to be written
