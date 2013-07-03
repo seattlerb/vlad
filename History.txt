@@ -1,3 +1,13 @@
+=== 2.6.0 / 2013-07-03
+
+* 1 minor enhancement:
+
+  * Split update task into smaller chunks for easier extension. (chredd)
+
+* 1 bug fix:
+
+  * Oops. Fixed typo in exception class name. (dplummer)
+
 === 2.5.1 / 2013-06-20
 
 * 2 minor enhancements:
