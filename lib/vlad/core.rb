@@ -108,7 +108,7 @@ namespace :vlad do
     begin
       ops = []
       unless shared_paths.empty?
-        ops = shared_paths.each do |sp, rp|
+        shared_paths.each do |sp, rp|
           ops << "ln -s #{shared_path}/#{sp} #{latest_release}/#{rp}"
         end
       end
