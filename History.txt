@@ -1,3 +1,9 @@
+=== 2.6.1 / 2013-07-23
+
+* 1 bug fix:
+
+  * Fixed update_symlinks from assigning to ops, changing type. (dennisrelmann)
+
 === 2.6.0 / 2013-07-03
 
 * 1 minor enhancement:
