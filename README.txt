@@ -2,7 +2,7 @@
 
 home :: http://rubyhitsquad.com/
 code :: https://github.com/seattlerb/vlad
-rdoc :: http://hitsquad.rubyforge.org/vlad
+rdoc :: http://docs.seattlerb.org/vlad
 
 == DESCRIPTION
 
