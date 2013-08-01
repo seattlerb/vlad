@@ -66,6 +66,7 @@ namespace :vlad do
   remote_task :update, :roles => :app do
     Rake::Task['vlad:update_app'].invoke
     Rake::Task['vlad:update_symlinks'].invoke
+    Rake::Task['vlad:set_current_release'].invoke
     Rake::Task['vlad:log_revision'].invoke
   end
 
@@ -102,7 +103,7 @@ namespace :vlad do
     end
   end
 
-  desc "Updates up your symlinks, sets the latest revision to current and updates symlink for shared path".cleanup
+  desc "Updates up your symlinks for shared path".cleanup
 
   remote_task :update_symlinks, :roles => :app do
     begin
@@ -112,6 +113,18 @@ namespace :vlad do
           ops << "ln -s #{shared_path}/#{sp} #{latest_release}/#{rp}"
         end
       end
+      run ops.join(' && ') unless ops.empty?
+    rescue => e
+      run "rm -rf #{release_path}"
+      raise e
+    end
+  end
+
+  desc "Sets the latest revision to current".cleanup
+
+  remote_task :set_current_release, :roles => :app do
+    begin
+      ops = []
       ops << "rm -f #{current_path}"
       ops << "ln -s #{latest_release} #{current_path}"
       run ops.join(' && ') unless ops.empty?
