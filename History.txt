@@ -1,3 +1,9 @@
+=== 2.6.3 / 2014-01-07
+
+* 1 bug fix:
+
+  * Fixed String.cleanup to deal with wonky rake task descriptions. (shunwen)
+
 === 2.6.2 / 2013-08-19
 
 * 1 minor enhancement:
