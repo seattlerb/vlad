@@ -9,8 +9,6 @@ Hoe.plugin :isolate
 Hoe.add_include_dirs "../../rake-remote_task/dev/lib"
 
 Hoe.spec 'vlad' do
-  self.rubyforge_name = 'hitsquad'
-
   developer 'Ryan Davis',       'ryand-ruby@zenspider.com'
   developer 'Eric Hodel',       'drbrain@segment7.net'
   developer 'Wilson Bilkovich', 'wilson@supremetyrant.com'
