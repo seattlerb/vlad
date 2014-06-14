@@ -26,7 +26,7 @@ Impale your application on the heartless spike of the Deployer.
 * Mix and match local and remote tasks.
 * Compatible with all of your tab completion shell script rake-tastic goodness.
 * Ships with tests that actually pass in 0.028 seconds!
-* Does NOT support Windows right now (we think). Coming soon in 1.2.
+* Does NOT support Windows right now (we think).
 
 == SYNOPSIS
 
