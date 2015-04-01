@@ -67,9 +67,9 @@ class TestVlad < Rake::TestCase
 
   def test_initialize
     @rake.set_defaults # ensure these three are virginal
-    assert_raises(Rake::ConfigurationError) { @rake.repository }
-    assert_raises(Rake::ConfigurationError) { @rake.deploy_to }
-    assert_raises(Rake::ConfigurationError) { @rake.domain }
+    assert_raises(Rake::ConfigurationError) { @rake.send(:repository) }
+    assert_raises(Rake::ConfigurationError) { @rake.send(:deploy_to) }
+    assert_raises(Rake::ConfigurationError) { @rake.send(:domain) }
   end
 
   def test_role
@@ -160,20 +160,20 @@ class TestVlad < Rake::TestCase
 
   def test_set
     set :win, 5
-    assert_equal 5, @rake.win
+    assert_equal 5, @rake.send(:win)
   end
 
   def test_set_lazy_block_evaluation
     set(:lose) { raise "lose" }
-    assert_raises(RuntimeError) { @rake.lose }
+    assert_raises(RuntimeError) { @rake.send(:lose) }
   end
 
   def test_set_with_block
     x = 1
     set(:win) { x += 2 }
 
-    assert_equal 3, @rake.win
-    assert_equal 3, @rake.win
+    assert_equal 3, @rake.send(:win)
+    assert_equal 3, @rake.send(:win)
   end
 
   def test_set_with_reference
@@ -183,7 +183,7 @@ class TestVlad < Rake::TestCase
       set(:var_three) { 5 }
     end
 
-    assert_equal 5, @rake.var_one
+    assert_equal 5, @rake.send(:var_one)
   end
 
   def test_set_with_block_and_value
@@ -195,7 +195,7 @@ class TestVlad < Rake::TestCase
 
   def test_set_with_nil
     set(:win, nil)
-    assert_equal nil, @rake.win
+    assert_equal nil, @rake.send(:win)
   end
 
   def test_set_with_reserved_name
