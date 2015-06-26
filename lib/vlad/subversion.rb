@@ -4,6 +4,8 @@ class Vlad::Subversion
   set :svn_cmd, "svn"
   set :revision, "HEAD"
 
+  public :source, :svn_cmd, :revision
+
   ##
   # Returns the command that will check out +revision+ from the repository
   # into directory +destination+
