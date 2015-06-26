@@ -1,3 +1,10 @@
+=== 2.6.5 / 2015-06-25
+
+* 2 bug fixes:
+
+  * Updated dependency for rake-remote-task 2.3+.
+  * Use #send to access private set methods. (drbrain)
+
 === 2.6.4 / 2015-01-27
 
 * 1 bug fix:
