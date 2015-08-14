@@ -8,7 +8,7 @@ $TESTING ||= false
 # Vlad the Deployer - Pragmatic application deployment automation,
 # without mercy.
 #
-# Please read doco/getting_started.txt or http://rubyhitsquad.com/
+# Please read doco/getting_started.txt or http://docs.seattlerb.org/vlad/
 #
 # === Basic scenario:
 #

@@ -1,6 +1,6 @@
 = Vlad the Deployer by the Ruby Hit Squad
 
-home :: http://rubyhitsquad.com/
+home :: https://github.com/seattlerb/vlad
 code :: https://github.com/seattlerb/vlad
 rdoc :: http://docs.seattlerb.org/vlad
 

@@ -2,7 +2,7 @@
 
 This tutorial has been adapted from [Deploying Sinatra with Vlad](http://effectif.com/articles/deploying-sinatra-with-vlad) by [Graham Ashton](http://effectif.com "Effectif Development").
 
-So you've just written a nice new [Sinatra application](http://www.sinatrarb.com/ "Sinatra"), and you want to get it running on your web server. How hard can it be? Well with [Vlad the Deployer](http://rubyhitsquad.com/Vlad_the_Deployer.html "Vlad the Deployer"), it's actually rather easy.
+So you've just written a nice new [Sinatra application](http://www.sinatrarb.com/ "Sinatra"), and you want to get it running on your web server. How hard can it be? Well with [Vlad the Deployer](http://docs.seattlerb.org/vlad/ "Vlad the Deployer"), it's actually rather easy.
 
 ## Creating a sample application
 

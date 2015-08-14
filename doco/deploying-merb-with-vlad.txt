@@ -2,7 +2,7 @@
 
 This tutorial has been adapted from [Deploying Merb with Vlad](http://effectif.com/articles/deploying-merb-with-vlad) by [Graham Ashton](http://effectif.com "Effectif Development").
 
-You've built your Merb app, and you want to get it running on your web server. You could use Capistrano, but if you prefer the simple things in life you might find that [Vlad](http://rubyhitsquad.com/Vlad_the_Deployer.html "Vlad the Deployer") is a better fit.
+You've built your Merb app, and you want to get it running on your web server. You could use Capistrano, but if you prefer the simple things in life you might find that [Vlad](http://docs.seattlerb.org/vlad/ "Vlad the Deployer") is a better fit.
 
 This is a Merb version of the [Deploying Sinatra with Vlad](deploying-sinatra-with-vlad "Deploying Sinatra with Vlad") article that I wrote yesterday. There are big similarities to that article, but in this one we also look at how to restart Merb automatically after the code has been deployed.
 
