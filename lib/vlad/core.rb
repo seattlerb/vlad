@@ -45,15 +45,14 @@ namespace :vlad do
     dirs << scm_path unless skip_scm
     dirs += shared_paths.keys.map { |d| File.join(shared_path, d) }
     dirs += ancillary_dir
-    dirs = dirs.join(' ')
 
     commands = []
 
     commands << "umask #{umask}" if umask
-    commands << "mkdir -p #{dirs}"
+    dirs.each { |dir| commands << "[ -f #{dir} ] || mkdir -p #{dir}" }
 
-    commands << "chown #{perm_owner} #{dirs}" if perm_owner
-    commands << "chgrp #{perm_group} #{dirs}" if perm_group
+    commands << "chown #{perm_owner} #{dirs.join(' ')}" if perm_owner
+    commands << "chgrp #{perm_group} #{dirs.join(' ')}" if perm_group
 
     run commands.join(' && ')
   end
