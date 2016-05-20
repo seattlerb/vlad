@@ -195,7 +195,7 @@ class TestVlad < Rake::TestCase
 
   def test_set_with_nil
     set(:win, nil)
-    assert_equal nil, @rake.send(:win)
+    assert_nil @rake.send(:win)
   end
 
   def test_set_with_reserved_name
@@ -206,4 +206,3 @@ class TestVlad < Rake::TestCase
     $TESTING = true
   end
 end
-
