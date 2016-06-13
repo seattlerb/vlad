@@ -1,3 +1,9 @@
+=== 2.7.0 / 2016-06-13
+
+* 1 minor enhancement:
+
+  * Allowed files in shared_paths. (arr-dev)
+
 === 2.6.5 / 2015-06-25
 
 * 2 bug fixes:
