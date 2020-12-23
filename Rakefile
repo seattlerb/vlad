@@ -13,7 +13,7 @@ Hoe.spec 'vlad' do
   developer 'Eric Hodel',       'drbrain@segment7.net'
   developer 'Wilson Bilkovich', 'wilson@supremetyrant.com'
 
-  dependency 'rake',             ['>= 0.8', '< 11.0']
+  dependency 'rake'         ,    ['>= 0.8', '< 15.0']
   dependency 'rake-remote_task', '~> 2.3'
 
   multiruby_skip << "rubinius"
